@@ -55,3 +55,7 @@ document.getElementById('generate-btn').addEventListener('click', () => {
     lottoNumbersContainer.appendChild(lottoBall);
   }
 });
+
+document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+    document.body.classList.toggle('light-mode');
+});
