@@ -5,28 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>저녁 메뉴 추천</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <button id="theme-toggle-btn">Toggle Theme</button>
-        <h1>저녁 메뉴 추천</h1>
-        <div id="menu-recommendation" class="menu-recommendation"></div>
-        <button id="recommend-btn">Get Recommendation</button>
-
-        <div class="contact-form">
-            <h2>제휴 문의</h2>
-            <form action="https://formspree.io/f/xojlpazr" method="POST">
-                <label>
-                    Your email:
-                    <input type="email" name="email">
-                </label>
-                <label>
-                    Your message:
-                    <textarea name="message"></textarea>
-                </label>
-                <button type="submit">Send</button>
-            </form>
-        </div>
+        <header>
+            <h1>저녁 메뉴 추천</h1>
+        </header>
+        <main>
+            <section class="recommendation-section">
+                <div id="menu-recommendation" class="menu-recommendation"></div>
+                <img id="menu-image" src="https://via.placeholder.com/400x300.png?text=Dinner+Menu" alt="Recommended menu image">
+                <button id="recommend-btn">Get Recommendation</button>
+            </section>
+            <section class="contact-section">
+                <h2>제휴 문의</h2>
+                <form action="https://formspree.io/f/xojlpazr" method="POST">
+                    <label>
+                        Your email:
+                        <input type="email" name="email">
+                    </label>
+                    <label>
+                        Your message:
+                        <textarea name="message"></textarea>
+                    </label>
+                    <button type="submit">Send</button>
+                </form>
+            </section>
+        </main>
     </div>
     <script src="main.js"></script>
 </body>
