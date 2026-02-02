@@ -3,15 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lotto Number Generator</title>
+    <title>저녁 메뉴 추천</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <button id="theme-toggle-btn">Toggle Theme</button>
-        <h1>Lotto Number Generator</h1>
-        <div id="lotto-numbers" class="lotto-numbers-container"></div>
-        <button id="generate-btn">Generate Numbers</button>
+        <h1>저녁 메뉴 추천</h1>
+        <div id="menu-recommendation" class="menu-recommendation"></div>
+        <button id="recommend-btn">Get Recommendation</button>
+
+        <div class="contact-form">
+            <h2>제휴 문의</h2>
+            <form action="https://formspree.io/f/xojlpazr" method="POST">
+                <label>
+                    Your email:
+                    <input type="email" name="email">
+                </label>
+                <label>
+                    Your message:
+                    <textarea name="message"></textarea>
+                </label>
+                <button type="submit">Send</button>
+            </form>
+        </div>
     </div>
     <script src="main.js"></script>
 </body>

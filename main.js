@@ -1,59 +1,11 @@
-class LottoBall extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-  }
+const dinnerMenus = [
+    "치킨", "피자", "삼겹살", "족발", "보쌈", "떡볶이", "순대", "김밥", "라면", "우동", "초밥", "돈까스", "파스타", "스테이크", "햄버거", "샌드위치", "샐러드", "타코", "쌀국수", "마라탕"
+];
 
-  connectedCallback() {
-    const number = this.getAttribute('number');
-    let color = '#f2c648'; // Yellow
-
-    if (number > 10 && number <= 20) {
-        color = '#4a89dc'; // Blue
-    } else if (number > 20 && number <= 30) {
-        color = '#da4453'; // Red
-    } else if (number > 30 && number <= 40) {
-        color = '#aab2bd'; // Gray
-    } else if (number > 40) {
-        color = '#37bc9b'; // Green
-    }
-    
-
-    this.shadowRoot.innerHTML = `
-      <style>
-        .ball {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          font-size: 20px;
-          font-weight: bold;
-          color: white;
-          background-color: ${color};
-        }
-      </style>
-      <div class="ball">${number}</div>
-    `;
-  }
-}
-
-customElements.define('lotto-ball', LottoBall);
-
-document.getElementById('generate-btn').addEventListener('click', () => {
-  const lottoNumbersContainer = document.getElementById('lotto-numbers');
-  lottoNumbersContainer.innerHTML = '';
-  const numbers = new Set();
-  while (numbers.size < 6) {
-    numbers.add(Math.floor(Math.random() * 45) + 1);
-  }
-
-  for (const number of Array.from(numbers).sort((a,b) => a-b)) {
-    const lottoBall = document.createElement('lotto-ball');
-    lottoBall.setAttribute('number', number);
-    lottoNumbersContainer.appendChild(lottoBall);
-  }
+document.getElementById('recommend-btn').addEventListener('click', () => {
+    const menuRecommendation = document.getElementById('menu-recommendation');
+    const randomIndex = Math.floor(Math.random() * dinnerMenus.length);
+    menuRecommendation.textContent = dinnerMenus[randomIndex];
 });
 
 document.getElementById('theme-toggle-btn').addEventListener('click', () => {

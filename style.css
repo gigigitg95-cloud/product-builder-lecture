@@ -25,14 +25,14 @@ body.light-mode {
     text-align: center;
 }
 
-.lotto-numbers-container {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+.menu-recommendation {
+    font-size: 24px;
+    font-weight: bold;
     margin-bottom: 20px;
+    height: 30px;
 }
 
-#generate-btn {
+#recommend-btn {
     background-color: var(--btn-background-color);
     color: var(--btn-text-color);
     padding: 10px 20px;
@@ -40,6 +40,7 @@ body.light-mode {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
+    margin-bottom: 40px;
 }
 
 #theme-toggle-btn {
@@ -55,14 +56,43 @@ body.light-mode {
     right: 20px;
 }
 
-lotto-ball {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+.contact-form {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    font-size: 20px;
-    font-weight: bold;
-    color: white;
+    gap: 10px;
+}
+
+.contact-form h2 {
+    margin-bottom: 10px;
+}
+
+.contact-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 300px;
+}
+
+.contact-form label {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.contact-form input,
+.contact-form textarea {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.contact-form button {
+    background-color: var(--btn-background-color);
+    color: var(--btn-text-color);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
 }
