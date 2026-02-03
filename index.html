@@ -1,61 +1,43 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>저녁 메뉴 추천 - 오늘 뭐 먹지?</title>
-    <meta name="description" content="고민하지 말고 추천받으세요! 매일 저녁 메뉴 선택의 고민을 해결해드립니다.">
+    <title>저녁 메뉴 추천</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <button id="theme-toggle-btn" aria-label="테마 변경">
-            <span class="icon-light">☀️</span>
-            <span class="icon-dark">🌙</span>
-        </button>
+        <button id="theme-toggle-btn">Toggle Theme</button>
         <header>
-            <h1>🍽️ 저녁 메뉴 추천</h1>
-            <p class="subtitle">오늘 저녁 뭐 먹을까 고민되시나요?</p>
+            <h1>저녁 메뉴 추천</h1>
         </header>
         <main>
             <section class="recommendation-section">
-                <h2 class="section-title">오늘의 추천 메뉴</h2>
-                <div class="menu-card">
-                    <div id="menu-recommendation" class="menu-recommendation">버튼을 눌러주세요!</div>
-                    <div class="image-container">
-                        <img id="menu-image" src="https://source.unsplash.com/800x600/?food,dinner,meal" alt="추천 메뉴 이미지">
-                    </div>
-                    <button id="recommend-btn" class="recommend-btn">
-                        <span class="btn-icon">🎲</span>
-                        <span class="btn-text">메뉴 추천받기</span>
-                    </button>
-                </div>
+                <div id="menu-recommendation" class="menu-recommendation"></div>
+                <img id="menu-image" src="https://via.placeholder.com/400x300.png?text=Dinner+Menu" alt="Recommended menu image">
+                <button id="recommend-btn">Get Recommendation</button>
             </section>
             <section class="contact-section">
-                <h2 class="section-title">제휴 문의</h2>
-                <p class="contact-desc">음식점 제휴나 광고 문의는 아래 폼을 통해 연락주세요.</p>
-                <form action="https://formspree.io/f/xojlpazr" method="POST" class="contact-form">
+                <h2>제휴 문의</h2>
+                <form action="https://formspree.io/f/xojlpazr" method="POST">
                     <label>
-                        <span class="label-text">이메일</span>
-                        <input type="email" name="email" placeholder="your@email.com" required>
+                        Your email:
+                        <input type="email" name="email">
                     </label>
                     <label>
-                        <span class="label-text">문의 내용</span>
-                        <textarea name="message" placeholder="문의 내용을 입력해주세요..." rows="5" required></textarea>
+                        Your message:
+                        <textarea name="message"></textarea>
                     </label>
-                    <button type="submit" class="submit-btn">
-                        <span>문의하기</span>
-                    </button>
+                    <button type="submit">Send</button>
                 </form>
             </section>
         </main>
-        <footer>
-            <p>&copy; 2026 저녁 메뉴 추천. All rights reserved.</p>
-        </footer>
     </div>
+    <script src="countryLanguageService.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
