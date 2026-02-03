@@ -124,6 +124,7 @@ main {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-align: center;
+    transition: opacity 0.3s ease;
 }
 
 .image-container {
