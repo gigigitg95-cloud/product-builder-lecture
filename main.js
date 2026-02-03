@@ -410,7 +410,7 @@ const dinnerMenus = [
     { key: "hamburger", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80" },
     { key: "sandwich", image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=800&q=80" },
     { key: "salad", image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80" },
-    { key: "tacos", image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&q=80" },
+    { key: "tacos", image: "https://images.unsplash.com/photo-1565299624942-f82ad9d123e4?w=800&q=80" },
     { key: "pho", image: "https://images.unsplash.com/photo-1591814468924-caf88d1232e1?w=800&q=80" },
     { key: "malatang", image: "https://images.unsplash.com/photo-1569943228011-e779f0b447e6?w=800&q=80" },
     { key: "bibimbap", image: "https://images.unsplash.com/photo-1582236940026-6d63d8b4e7a7?w=800&q=80" },
@@ -456,8 +456,8 @@ const countryFlags = {
     'MM': '🇲🇲', 'KH': '🇰🇭', 'LA': '🇱🇦', 'TW': '🇹🇼', 'HK': '🇭🇰',
     'IR': '🇮🇷', 'IQ': '🇮🇶', 'SY': '🇸🇾', 'JO': '🇯🇴', 'LB': '🇱🇧',
     'KW': '🇰🇼', 'QA': '🇶🇦', 'AL': '🇦🇱', 'BG': '🇧🇬', 'HR': '🇭🇷',
-    'CZ': '🇨🇿', 'HU': '🇭🇺', 'RO': '🇷🇴', 'RS': '🇷🇸', 'SK': '🇸🇰',
-    'SI': '🇸🇮', 'EE': '🇪🇪', 'LV': '🇱🇻', 'LT': '🇱🇹', 'CU': '🇨🇺',
+    'CZ': '🇨🇿', 'HU': '🇭🇺',
+    'RO': '🇷🇴', 'RS': '🇷🇸', 'SK': '🇸🇰', 'SI': '🇸🇮', 'EE': '🇪🇪', 'LV': '🇱🇻', 'LT': '🇱🇹', 'CU': '🇨🇺',
     'PE': '🇵🇪', 'VE': '🇻🇪', 'UY': '🇺🇾', 'UZ': '🇺🇿', 'KZ': '🇰🇿',
     'MN': '🇲🇳', 'YE': '🇾🇪', 'ZW': '🇿🇼', 'LU': '🇱🇺'
 };
