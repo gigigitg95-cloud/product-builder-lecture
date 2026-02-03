@@ -529,3 +529,46 @@ footer {
         gap: 8px;
     }
 }
+
+/* Ad Container Styles */
+.ad-container {
+    background: var(--card-background);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ad-container ins {
+    display: block;
+    width: 100%;
+}
+
+.ad-top {
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.ad-middle {
+    grid-column: 1 / -1;
+    margin: 30px 0;
+}
+
+.ad-bottom {
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .ad-container {
+        padding: 16px;
+        margin: 16px 0;
+        border-radius: 12px;
+    }
+}
