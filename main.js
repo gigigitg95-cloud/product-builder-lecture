@@ -25,6 +25,145 @@ const menuRecommendation = document.getElementById('menu-recommendation');
 const menuImage = document.getElementById('menu-image');
 const recommendBtn = document.getElementById('recommend-btn');
 
+// Language Selector
+const languageBtn = document.getElementById('language-btn');
+const languageSelector = document.querySelector('.language-selector');
+const languageDropdown = document.getElementById('language-dropdown');
+const languageSearch = document.getElementById('language-search');
+const languageList = document.getElementById('language-list');
+const selectedLanguageEl = document.getElementById('selected-language');
+
+let currentLanguage = 'English';
+let allCountries = [];
+
+// Country code to flag emoji mapping
+const countryFlags = {
+    'US': '🇺🇸', 'GB': '🇬🇧', 'CA': '🇨🇦', 'AU': '🇦🇺', 'NZ': '🇳🇿',
+    'DE': '🇩🇪', 'FR': '🇫🇷', 'ES': '🇪🇸', 'IT': '🇮🇹', 'PT': '🇵🇹',
+    'BR': '🇧🇷', 'MX': '🇲🇽', 'AR': '🇦🇷', 'CL': '🇨🇱', 'CO': '🇨🇴',
+    'JP': '🇯🇵', 'KR': '🇰🇷', 'CN': '🇨🇳', 'IN': '🇮🇳', 'TH': '🇹🇭',
+    'VN': '🇻🇳', 'PH': '🇵🇭', 'ID': '🇮🇩', 'MY': '🇲🇾', 'SG': '🇸🇬',
+    'RU': '🇷🇺', 'PL': '🇵🇱', 'UA': '🇺🇦', 'TR': '🇹🇷', 'GR': '🇬🇷',
+    'NL': '🇳🇱', 'BE': '🇧🇪', 'CH': '🇨🇭', 'AT': '🇦🇹', 'SE': '🇸🇪',
+    'NO': '🇳🇴', 'DK': '🇩🇰', 'FI': '🇫🇮', 'IS': '🇮🇸', 'IE': '🇮🇪',
+    'IL': '🇮🇱', 'SA': '🇸🇦', 'AE': '🇦🇪', 'EG': '🇪🇬', 'ZA': '🇿🇦',
+    'NG': '🇳🇬', 'KE': '🇰🇪', 'ET': '🇪🇹', 'MA': '🇲🇦', 'DZ': '🇩🇿',
+    'AF': '🇦🇫', 'PK': '🇵🇰', 'BD': '🇧🇩', 'LK': '🇱🇰', 'NP': '🇳🇵',
+    'MM': '🇲🇲', 'KH': '🇰🇭', 'LA': '🇱🇦', 'TW': '🇹🇼', 'HK': '🇭🇰',
+    'IR': '🇮🇷', 'IQ': '🇮🇶', 'SY': '🇸🇾', 'JO': '🇯🇴', 'LB': '🇱🇧',
+    'KW': '🇰🇼', 'QA': '🇶🇦', 'AL': '🇦🇱', 'BG': '🇧🇬', 'HR': '🇭🇷',
+    'CZ': '🇨🇿', 'HU': '🇭🇺', 'RO': '🇷🇴', 'RS': '🇷🇸', 'SK': '🇸🇰',
+    'SI': '🇸🇮', 'EE': '🇪🇪', 'LV': '🇱🇻', 'LT': '🇱🇹', 'CU': '🇨🇺',
+    'PE': '🇵🇪', 'VE': '🇻🇪', 'UY': '🇺🇾', 'UZ': '🇺🇿', 'KZ': '🇰🇿',
+    'MN': '🇲🇳', 'YE': '🇾🇪', 'ZW': '🇿🇼', 'LU': '🇱🇺'
+};
+
+// Initialize language selector
+function initLanguageSelector() {
+    if (typeof CountryLanguageService !== 'undefined') {
+        allCountries = CountryLanguageService.getAllCountries();
+        renderLanguageList(allCountries);
+    }
+}
+
+// Render language list
+function renderLanguageList(countries) {
+    languageList.innerHTML = '';
+
+    countries.forEach(country => {
+        const item = document.createElement('div');
+        item.className = 'language-item';
+
+        const flag = countryFlags[country.code] || '🌐';
+        const mainLanguage = country.languages[0];
+
+        item.innerHTML = `
+            <span class="flag">${flag}</span>
+            <span class="country-name">${country.country}</span>
+            <span class="lang-code">${country.code}</span>
+        `;
+
+        item.addEventListener('click', () => {
+            selectLanguage(country.country, mainLanguage, flag);
+        });
+
+        languageList.appendChild(item);
+    });
+}
+
+// Select language
+function selectLanguage(country, language, flag) {
+    currentLanguage = language;
+    selectedLanguageEl.textContent = country;
+    languageSelector.classList.remove('active');
+
+    // Show notification
+    showNotification(`Selected: ${country} - ${language}`, flag);
+}
+
+// Show notification
+function showNotification(message, flag) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: var(--control-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px 24px;
+        box-shadow: 0 8px 30px var(--shadow-color);
+        z-index: 1001;
+        animation: slideIn 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-color);
+        font-size: 0.95rem;
+    `;
+    notification.innerHTML = `<span style="font-size: 1.3rem;">${flag}</span><span>${message}</span>`;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 2500);
+}
+
+// Toggle language dropdown
+languageBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    languageSelector.classList.toggle('active');
+    if (languageSelector.classList.contains('active')) {
+        languageSearch.focus();
+    }
+});
+
+// Search languages
+languageSearch.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const filtered = allCountries.filter(country =>
+        country.country.toLowerCase().includes(searchTerm) ||
+        country.languages.some(lang => lang.toLowerCase().includes(searchTerm)) ||
+        country.code.toLowerCase().includes(searchTerm)
+    );
+    renderLanguageList(filtered);
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (!languageSelector.contains(e.target)) {
+        languageSelector.classList.remove('active');
+    }
+});
+
+// Prevent dropdown from closing when clicking inside
+languageDropdown.addEventListener('click', (e) => {
+    e.stopPropagation();
+});
+
+// Menu Recommendation
 document.getElementById('recommend-btn').addEventListener('click', async () => {
     const randomIndex = Math.floor(Math.random() * dinnerMenus.length);
     const recommendedMenu = dinnerMenus[randomIndex];
@@ -38,7 +177,7 @@ document.getElementById('recommend-btn').addEventListener('click', async () => {
 
     // Show loading state
     recommendBtn.disabled = true;
-    recommendBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">이미지 로딩 중...</span>';
+    recommendBtn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">Loading image...</span>';
     menuImage.style.opacity = '0.5';
 
     // Preload image to avoid flashing
@@ -47,19 +186,50 @@ document.getElementById('recommend-btn').addEventListener('click', async () => {
         menuImage.src = recommendedMenu.image;
         menuImage.style.opacity = '1';
         recommendBtn.disabled = false;
-        recommendBtn.innerHTML = '<span class="btn-icon">🎲</span><span class="btn-text">다른 메뉴 추천받기</span>';
+        recommendBtn.innerHTML = '<span class="btn-icon">🎲</span><span class="btn-text">Get Another</span>';
     };
     img.onerror = () => {
-        // Fallback to a generic food image
         console.error('Error loading image for:', recommendedMenu.korean);
         menuImage.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80';
         menuImage.style.opacity = '1';
         recommendBtn.disabled = false;
-        recommendBtn.innerHTML = '<span class="btn-icon">🎲</span><span class="btn-text">다른 메뉴 추천받기</span>';
+        recommendBtn.innerHTML = '<span class="btn-icon">🎲</span><span class="btn-text">Get Another</span>';
     };
     img.src = recommendedMenu.image;
 });
 
+// Theme Toggle
 document.getElementById('theme-toggle-btn').addEventListener('click', () => {
     document.body.classList.toggle('light-mode');
+    const mode = document.body.classList.contains('light-mode') ? 'Light' : 'Dark';
+    showNotification(`${mode} mode activated`, document.body.classList.contains('light-mode') ? '☀️' : '🌙');
 });
+
+// Add animation styles
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Initialize
+initLanguageSelector();

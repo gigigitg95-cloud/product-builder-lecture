@@ -3,39 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>저녁 메뉴 추천</title>
+    <title>Dinner Menu Recommendation</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="controls-bar">
+        <div class="language-selector">
+            <button id="language-btn" class="control-btn">
+                <span class="icon">🌐</span>
+                <span id="selected-language">English</span>
+                <span class="arrow">▼</span>
+            </button>
+            <div id="language-dropdown" class="dropdown">
+                <input type="text" id="language-search" placeholder="Search languages..." class="search-input">
+                <div id="language-list" class="language-list"></div>
+            </div>
+        </div>
+        <button id="theme-toggle-btn" class="control-btn">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+        </button>
+    </div>
+
     <div class="container">
-        <button id="theme-toggle-btn">Toggle Theme</button>
         <header>
-            <h1>저녁 메뉴 추천</h1>
+            <h1><span class="icon-header">🍽️</span> Dinner Menu Recommendation</h1>
+            <p class="subtitle">Discover your next delicious meal</p>
         </header>
         <main>
             <section class="recommendation-section">
-                <div id="menu-recommendation" class="menu-recommendation"></div>
-                <img id="menu-image" src="https://via.placeholder.com/400x300.png?text=Dinner+Menu" alt="Recommended menu image">
-                <button id="recommend-btn">Get Recommendation</button>
+                <h2 class="section-title">Today's Recommendation</h2>
+                <div class="menu-card">
+                    <div class="image-container">
+                        <img id="menu-image" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80" alt="Recommended menu image">
+                    </div>
+                    <div id="menu-recommendation" class="menu-recommendation">Click the button below!</div>
+                    <button id="recommend-btn" class="recommend-btn">
+                        <span class="btn-icon">🎲</span>
+                        <span class="btn-text">Get Recommendation</span>
+                    </button>
+                </div>
             </section>
+
             <section class="contact-section">
-                <h2>제휴 문의</h2>
-                <form action="https://formspree.io/f/xojlpazr" method="POST">
+                <h2 class="section-title">Partnership Inquiry</h2>
+                <p class="contact-desc">Have a partnership or advertising inquiry? Contact us below.</p>
+                <form action="https://formspree.io/f/xojlpazr" method="POST" class="contact-form">
                     <label>
-                        Your email:
-                        <input type="email" name="email">
+                        <span class="label-text">Email</span>
+                        <input type="email" name="email" placeholder="your@email.com" required>
                     </label>
                     <label>
-                        Your message:
-                        <textarea name="message"></textarea>
+                        <span class="label-text">Message</span>
+                        <textarea name="message" placeholder="Your message here..." rows="5" required></textarea>
                     </label>
-                    <button type="submit">Send</button>
+                    <button type="submit" class="submit-btn">
+                        <span>Send Message</span>
+                    </button>
                 </form>
             </section>
         </main>
+
+        <footer>
+            <p>&copy; 2026 Dinner Menu Recommendation. All rights reserved.</p>
+        </footer>
     </div>
     <script src="countryLanguageService.js"></script>
     <script src="main.js"></script>
