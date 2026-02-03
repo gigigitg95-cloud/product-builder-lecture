@@ -426,7 +426,7 @@ const languageSearch = document.getElementById('language-search');
 const languageList = document.getElementById('language-list');
 const selectedLanguageEl = document.getElementById('selected-language');
 
-let currentLanguage = 'English';
+let currentLanguage = 'Korean';
 let allCountries = [];
 
 // Country code to flag emoji mapping
