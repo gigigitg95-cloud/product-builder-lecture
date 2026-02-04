@@ -1,35 +1,28 @@
-const dinnerMenus = [
-    { key: "chicken", image: "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=800&q=80" },
-    { key: "pizza", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80" },
-    { key: "porkBelly", image: "https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800&q=80" },
-    { key: "pigFeet", image: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=800&q=80" },
-    { key: "boiledPork", image: "https://images.unsplash.com/photo-1623855244776-8b14e97cdadb?w=800&q=80" },
-    { key: "tteokbokki", image: "https://images.unsplash.com/photo-1590301157890-4810ed352733?w=800&q=80" },
-    { key: "sundae", image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800&q=80" },
-    { key: "kimbap", image: "https://images.unsplash.com/photo-1553621042-f6e147245754?w=800&q=80" },
-    { key: "ramen", image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80" },
-    { key: "udon", image: "https://images.unsplash.com/photo-1618841557871-b4664fbf0cb3?w=800&q=80" },
-    { key: "sushi", image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&q=80" },
-    { key: "tonkatsu", image: "https://images.unsplash.com/photo-1604908815879-59402bb7e71f?w=800&q=80" },
-    { key: "pasta", image: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800&q=80" },
-    { key: "steak", image: "https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800&q=80" },
-    { key: "hamburger", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80" },
-    { key: "sandwich", image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=800&q=80" },
-    { key: "salad", image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80" },
-    { key: "tacos", image: "https://images.unsplash.com/photo-1565299624942-f82ad9d123e4?w=800&q=80" },
-    { key: "pho", image: "https://images.unsplash.com/photo-1591814468924-caf88d1232e1?w=800&q=80" },
-    { key: "malatang", image: "https://images.unsplash.com/photo-1569943228011-e779f0b447e6?w=800&q=80" },
-    { key: "bibimbap", image: "https://images.unsplash.com/photo-1582236940026-6d63d8b4e7a7?w=800&q=80" },
-    { key: "japchae", image: "https://images.unsplash.com/photo-1603509017684-297f6c6f6e5c?w=800&q=80" },
-    { key: "kimchijjigae", image: "https://images.unsplash.com/photo-1610486255106-9c4c7b8c2c1a?w=800&q=80" },
-    { key: "sushiRoll", image: "https://images.unsplash.com/photo-1579871630132-72a3921356f1?w=800&q=80" },
-    { key: "tempura", image: "https://images.unsplash.com/photo-1628108422633-8f0a0d0a7a0b?w=800&q=80" },
-    { key: "curry", image: "https://images.unsplash.com/photo-1588166524941-cbf777e38466?w=800&q=80" },
-    { key: "burrito", image: "https://images.unsplash.com/photo-1565299624942-f82ad9d123e4?w=800&q=80" },
-    { key: "fishAndChips", image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800&q=80" },
-    { key: "paella", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80" },
-    { key: "dumplings", image: "https://images.unsplash.com/photo-1582236940026-6d63d8b4e7a7?w=800&q=80" }
+const PEXELS_API_KEY = 'QbxVLvleSjxbgjiZMi0OtIk65nhgmOi43gYXjEawILbJ3OaxeT8qHFYp';
+const dinnerMenuKeys = [
+    "chicken", "pizza", "porkBelly", "pigFeet", "boiledPork", "tteokbokki", "sundae", "kimbap", "ramen", "udon",
+    "sushi", "tonkatsu", "pasta", "steak", "hamburger", "sandwich", "salad", "tacos", "pho", "malatang",
+    "bibimbap", "japchae", "kimchijjigae", "sushiRoll", "tempura", "curry", "burrito", "fishAndChips", "paella", "dumplings"
 ];
+
+async function fetchPexelsImage(query) {
+    try {
+        const response = await fetch(`https://api.pexels.com/v1/search?query=${query}&per_page=1`, {
+            headers: {
+                Authorization: PEXELS_API_KEY
+            }
+        });
+        const data = await response.json();
+        if (data.photos && data.photos.length > 0) {
+            return data.photos[0].src.large;
+        } else {
+            return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80'; // Fallback image
+        }
+    } catch (error) {
+        console.error('Error fetching Pexels image:', error);
+        return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80'; // Fallback image
+    }
+}
 
 const menuRecommendation = document.getElementById('menu-recommendation');
 const menuImage = document.getElementById('menu-image');
@@ -286,12 +279,12 @@ languageDropdown.addEventListener('click', (e) => {
 
 // Menu Recommendation
 document.getElementById('recommend-btn').addEventListener('click', async () => {
-    const randomIndex = Math.floor(Math.random() * dinnerMenus.length);
-    const recommendedMenu = dinnerMenus[randomIndex];
+    const randomIndex = Math.floor(Math.random() * dinnerMenuKeys.length);
+    const recommendedMenuKey = dinnerMenuKeys[randomIndex];
     const t = translations[currentLanguage] || translations['English'];
 
     // Display menu name based on selected language
-    const menuText = getMenuTranslation(recommendedMenu.key);
+    const menuText = getMenuTranslation(recommendedMenuKey);
 
     // Update menu text with animation
     menuRecommendation.style.opacity = '0';
@@ -303,25 +296,27 @@ document.getElementById('recommend-btn').addEventListener('click', async () => {
 
     // Show loading state
     recommendBtn.disabled = true;
-    recommendBtn.innerHTML = `<span class="btn-icon">\u23F3</span><span class="btn-text">${t.loadingImage}</span>`;
+    recommendBtn.innerHTML = `<span class="btn-icon">⏳</span><span class="btn-text">${t.loadingImage}</span>`;
     menuImage.style.opacity = '0.5';
+
+    const imageUrl = await fetchPexelsImage(recommendedMenuKey);
 
     // Preload image to avoid flashing
     const img = new Image();
     img.onload = () => {
-        menuImage.src = recommendedMenu.image;
+        menuImage.src = imageUrl;
         menuImage.style.opacity = '1';
         recommendBtn.disabled = false;
-        recommendBtn.innerHTML = `<span class="btn-icon">\u{1F3B2}</span><span class="btn-text">${t.getAnother}</span>`;
+        recommendBtn.innerHTML = `<span class="btn-icon">🎲</span><span class="btn-text">${t.getAnother}</span>`;
     };
     img.onerror = () => {
-        console.error('Error loading image for:', recommendedMenu.key);
+        console.error('Error loading image for:', recommendedMenuKey);
         menuImage.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80';
         menuImage.style.opacity = '1';
         recommendBtn.disabled = false;
-        recommendBtn.innerHTML = `<span class="btn-icon">\u{1F3B2}</span><span class="btn-text">${t.getAnother}</span>`;
+        recommendBtn.innerHTML = `<span class="btn-icon">🎲</span><span class="btn-text">${t.getAnother}</span>`;
     };
-    img.src = recommendedMenu.image;
+    img.src = imageUrl;
 });
 
 // Theme Toggle
