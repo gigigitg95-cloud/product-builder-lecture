@@ -4,241 +4,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-adsense-account" content="ca-pub-7066264300961815">
-    <meta name="description" content="저녁 메뉴 추천 서비스 - 오늘 저녁 뭐 먹지? 고민될 때 랜덤으로 메뉴를 추천받으세요!">
-    <title>서비스 소개 - About Us</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="Dinner Menu Recommendation - About Us">
+    <title>About Us</title>
+    <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        .about-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        .about-header {
-            text-align: center;
-            margin-top: 80px;
-            margin-bottom: 50px;
-        }
-        .about-header h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color), var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .about-header p {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.8;
-        }
-        .about-content {
-            display: grid;
-            gap: 30px;
-        }
-        .about-card {
-            background: var(--card-background);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 60px var(--shadow-color);
-            transition: all 0.3s ease;
-        }
-        .about-card:hover {
-            transform: translateY(-5px);
-        }
-        .about-card h2 {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .about-card p {
-            line-height: 1.8;
-            color: var(--text-secondary);
-            margin-bottom: 15px;
-        }
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .feature-item {
-            background: var(--input-background);
-            border-radius: 16px;
-            padding: 24px;
-            border: 1px solid var(--card-border);
-        }
-        .feature-item h3 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .feature-item p {
-            font-size: 0.95rem;
-            margin: 0;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .stat-item {
-            text-align: center;
-            padding: 20px;
-            background: var(--input-background);
-            border-radius: 16px;
-            border: 1px solid var(--card-border);
-        }
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-top: 5px;
-        }
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-            margin-top: 40px;
-            padding: 12px 24px;
-            background: var(--input-background);
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-        .back-link:hover {
-            background: rgba(99, 102, 241, 0.2);
-        }
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .about-header h1 {
-                font-size: 2rem;
-            }
-        }
+        .about-container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        .about-header { text-align: center; margin-top: 80px; margin-bottom: 50px; }
+        .about-header h1 { font-size: 3rem; margin-bottom: 20px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .about-header p { font-size: 1.2rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; line-height: 1.8; }
+        .about-content { display: grid; gap: 30px; }
+        .about-card { background: var(--card-background); backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 24px; padding: 40px; box-shadow: 0 20px 60px var(--shadow-color); transition: all 0.3s ease; }
+        .about-card:hover { transform: translateY(-5px); }
+        .about-card h2 { font-size: 1.8rem; margin-bottom: 20px; color: var(--primary-color); display: flex; align-items: center; gap: 12px; }
+        .about-card p { line-height: 1.8; color: var(--text-secondary); margin-bottom: 15px; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .feature-item { background: var(--input-background); border-radius: 16px; padding: 24px; border: 1px solid var(--card-border); }
+        .feature-item h3 { font-size: 1.2rem; margin-bottom: 10px; color: var(--text-color); display: flex; align-items: center; gap: 8px; }
+        .feature-item p { font-size: 0.95rem; margin: 0; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 20px; }
+        .stat-item { text-align: center; padding: 20px; background: var(--input-background); border-radius: 16px; border: 1px solid var(--card-border); }
+        .stat-number { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .stat-label { font-size: 0.9rem; color: var(--text-secondary); margin-top: 5px; }
+        .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--primary-color); text-decoration: none; font-weight: 600; margin-top: 40px; padding: 12px 24px; background: var(--input-background); border-radius: 12px; transition: all 0.3s ease; }
+        .back-link:hover { background: rgba(99, 102, 241, 0.2); }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .about-header h1 { font-size: 2rem; } }
     </style>
 </head>
 <body>
     <div class="about-container">
         <header class="about-header">
-            <h1>🍽️ 저녁 메뉴 추천</h1>
-            <p>오늘 저녁 뭐 먹지? 매일 반복되는 고민을 해결해 드립니다. 버튼 하나로 맛있는 저녁 메뉴를 추천받으세요!</p>
+            <h1 id="page-title"></h1>
+            <p id="page-subtitle"></p>
         </header>
-
-        <div class="about-content">
-            <div class="about-card">
-                <h2>🎯 서비스 소개</h2>
-                <p>"오늘 저녁 뭐 먹지?" - 매일 저녁 우리를 괴롭히는 질문입니다. 저녁 메뉴 추천 서비스는 이런 고민을 단 1초 만에 해결해 드립니다.</p>
-                <p>버튼 하나만 클릭하면 엄선된 20가지 메뉴 중 하나를 무작위로 추천해 드립니다. 치킨, 피자, 삼겹살부터 파스타, 스테이크, 타코까지 다양한 메뉴가 준비되어 있습니다.</p>
-                <p>더 이상 메뉴 선택으로 시간을 낭비하지 마세요. 저희가 선택을 도와드리겠습니다!</p>
-            </div>
-
-            <div class="about-card">
-                <h2>✨ 주요 기능</h2>
-                <div class="feature-grid">
-                    <div class="feature-item">
-                        <h3>🎲 랜덤 메뉴 추천</h3>
-                        <p>버튼 클릭 한 번으로 오늘의 저녁 메뉴를 추천받을 수 있습니다. 선택 장애를 겪고 있다면 저희 서비스가 대신 결정해 드립니다.</p>
-                    </div>
-                    <div class="feature-item">
-                        <h3>🌍 다국어 지원</h3>
-                        <p>전 세계 70개국 이상의 언어를 지원합니다. 한국어, 영어, 일본어, 중국어 등 18개 언어로 메뉴명과 UI를 확인할 수 있습니다.</p>
-                    </div>
-                    <div class="feature-item">
-                        <h3>📸 음식 이미지</h3>
-                        <p>추천된 메뉴와 함께 고화질 음식 사진을 제공하여 메뉴를 시각적으로 확인할 수 있습니다.</p>
-                    </div>
-                    <div class="feature-item">
-                        <h3>🌙 다크/라이트 모드</h3>
-                        <p>눈의 피로를 줄이기 위해 다크 모드와 라이트 모드를 지원합니다. 원하는 테마를 선택하세요.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="about-card">
-                <h2>📊 서비스 현황</h2>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number">20+</div>
-                        <div class="stat-label">추천 메뉴</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">18</div>
-                        <div class="stat-label">지원 언어</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">70+</div>
-                        <div class="stat-label">지원 국가</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">24/7</div>
-                        <div class="stat-label">무료 서비스</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="about-card">
-                <h2>🍕 추천 메뉴 목록</h2>
-                <p>저희 서비스에서 추천하는 메뉴들입니다:</p>
-                <div class="feature-grid">
-                    <div class="feature-item">
-                        <h3>🍗 한식</h3>
-                        <p>치킨, 삼겹살, 족발, 보쌈, 떡볶이, 순대, 김밥</p>
-                    </div>
-                    <div class="feature-item">
-                        <h3>🍣 일식</h3>
-                        <p>라면, 우동, 초밥, 돈까스</p>
-                    </div>
-                    <div class="feature-item">
-                        <h3>🍝 양식</h3>
-                        <p>피자, 파스타, 스테이크, 햄버거, 샌드위치, 샐러드</p>
-                    </div>
-                    <div class="feature-item">
-                        <h3>🌮 기타</h3>
-                        <p>타코, 쌀국수(Pho), 마라탕</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="about-card">
-                <h2>💡 이용 방법</h2>
-                <p><strong>1단계:</strong> 메인 페이지에서 "메뉴 추천받기" 버튼을 클릭합니다.</p>
-                <p><strong>2단계:</strong> 화면에 표시되는 메뉴를 확인합니다.</p>
-                <p><strong>3단계:</strong> 마음에 들지 않으면 "다른 메뉴 추천" 버튼으로 다시 추천받습니다.</p>
-                <p><strong>Tip:</strong> 상단의 언어 선택기에서 원하는 언어를 선택하면 메뉴명과 전체 UI가 해당 언어로 변경됩니다.</p>
-            </div>
-
-            <div class="about-card">
-                <h2>📬 문의 및 제휴</h2>
-                <p>광고, 제휴, 또는 기타 문의사항이 있으시면 메인 페이지의 제휴 문의 양식을 이용해 주세요.</p>
-                <p>저희는 항상 여러분의 의견을 환영하며, 더 나은 서비스를 제공하기 위해 노력하고 있습니다.</p>
-            </div>
-        </div>
-
-        <a href="index.html" class="back-link">← 메인으로 돌아가기 / Back to Home</a>
+        <div class="about-content" id="about-content"></div>
+        <a href="index.html" class="back-link" id="back-link"></a>
     </div>
+    <script src="js/translations.js"></script>
+    <script>
+        const lang = localStorage.getItem('selectedLanguage') || 'Korean';
+        const t = key => getPageTranslation(lang, key);
+
+        document.title = t('aboutPageTitle');
+        document.getElementById('page-title').textContent = '\u{1F37D}\u{FE0F} ' + t('aboutTitle');
+        document.getElementById('page-subtitle').textContent = (translations[lang] || translations['English']).subtitle;
+        document.getElementById('back-link').textContent = t('backToHome');
+
+        document.getElementById('about-content').innerHTML = `
+            <div class="about-card">
+                <h2>${t('aboutIntroTitle')}</h2>
+                <p>${t('aboutIntroP1')}</p>
+                <p>${t('aboutIntroP2')}</p>
+                <p>${t('aboutIntroP3')}</p>
+            </div>
+            <div class="about-card">
+                <h2>${t('aboutFeaturesTitle')}</h2>
+                <div class="feature-grid">
+                    <div class="feature-item"><h3>${t('aboutFeature1Title')}</h3><p>${t('aboutFeature1Desc')}</p></div>
+                    <div class="feature-item"><h3>${t('aboutFeature2Title')}</h3><p>${t('aboutFeature2Desc')}</p></div>
+                    <div class="feature-item"><h3>${t('aboutFeature3Title')}</h3><p>${t('aboutFeature3Desc')}</p></div>
+                    <div class="feature-item"><h3>${t('aboutFeature4Title')}</h3><p>${t('aboutFeature4Desc')}</p></div>
+                </div>
+            </div>
+            <div class="about-card">
+                <h2>${t('aboutStatsTitle')}</h2>
+                <div class="stats-grid">
+                    <div class="stat-item"><div class="stat-number">20+</div><div class="stat-label">${t('aboutStatMenus')}</div></div>
+                    <div class="stat-item"><div class="stat-number">18</div><div class="stat-label">${t('aboutStatLanguages')}</div></div>
+                    <div class="stat-item"><div class="stat-number">70+</div><div class="stat-label">${t('aboutStatCountries')}</div></div>
+                    <div class="stat-item"><div class="stat-number">24/7</div><div class="stat-label">${t('aboutStatFree')}</div></div>
+                </div>
+            </div>
+            <div class="about-card">
+                <h2>${t('aboutMenuListTitle')}</h2>
+                <p>${t('aboutMenuListDesc')}</p>
+                <div class="feature-grid">
+                    <div class="feature-item"><h3>${t('aboutMenuKorean')}</h3><p>${t('aboutMenuKoreanItems')}</p></div>
+                    <div class="feature-item"><h3>${t('aboutMenuJapanese')}</h3><p>${t('aboutMenuJapaneseItems')}</p></div>
+                    <div class="feature-item"><h3>${t('aboutMenuWestern')}</h3><p>${t('aboutMenuWesternItems')}</p></div>
+                    <div class="feature-item"><h3>${t('aboutMenuOther')}</h3><p>${t('aboutMenuOtherItems')}</p></div>
+                </div>
+            </div>
+            <div class="about-card">
+                <h2>${t('aboutHowToTitle')}</h2>
+                <p>${t('aboutStep1')}</p>
+                <p>${t('aboutStep2')}</p>
+                <p>${t('aboutStep3')}</p>
+                <p>${t('aboutTip')}</p>
+            </div>
+            <div class="about-card">
+                <h2>${t('aboutContactTitle')}</h2>
+                <p>${t('aboutContactP1')}</p>
+                <p>${t('aboutContactP2')}</p>
+            </div>
+        `;
+    </script>
 </body>
 </html>
