@@ -2,12 +2,13 @@ const PEXELS_API_KEY = 'QbxVLvleSjxbgjiZMi0OtIk65nhgmOi43gYXjEawILbJ3OaxeT8qHFYp
 const dinnerMenuKeys = [
     "chicken", "pizza", "porkBelly", "pigFeet", "boiledPork", "tteokbokki", "sundae", "kimbap", "ramen", "udon",
     "sushi", "tonkatsu", "pasta", "steak", "hamburger", "sandwich", "salad", "tacos", "pho", "malatang",
-    "bibimbap", "japchae", "kimchijjigae", "sushiRoll", "tempura", "curry", "burrito", "fishAndChips", "paella", "dumplings"
+    "bibimbap", "japchae", "kimchijjigae", "sushiRoll", "tempura", "curry", "burrito", "fishAndChips", "paella", "dumplings",
+    "friedRice", "jjajangmyeon", "jjampong", "sweetAndSourPork"
 ];
 
 async function fetchPexelsImage(query) {
     try {
-        const response = await fetch(`https://api.pexels.com/v1/search?query=${query}&per_page=1`, {
+        const response = await fetch(`https://api.pexels.com/v1/search?query=${query}+food&per_page=1`, {
             headers: {
                 Authorization: PEXELS_API_KEY
             }
