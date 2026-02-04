@@ -125,7 +125,7 @@ function applyTranslations() {
     // Update header
     const headerH1 = document.querySelector('header h1');
     if (headerH1) {
-        headerH1.innerHTML = `<span class="icon-header">\u{1F37D}\u{FE0F}</span> ${t.title}`;
+        headerH1.innerHTML = `<span class="icon-header">🍽️</span> ${t.title}`;
     }
 
     const subtitle = document.querySelector('.subtitle');
@@ -146,11 +146,11 @@ function applyTranslations() {
     // Update recommend button
     const btnText = recommendBtn.querySelector('.btn-text');
     if (btnText) {
-        if (btnText.textContent.includes('Loading') || btnText.textContent.includes('\uB85C\uB529') ||
-            btnText.textContent.includes('\u8AAD\u307F\u8FBC\u307F') || btnText.textContent.includes('\u52A0\u8F7D')) {
+        if (btnText.textContent.includes('Loading') || btnText.textContent.includes('로딩') ||
+            btnText.textContent.includes('読み込み') || btnText.textContent.includes('加载')) {
             btnText.textContent = t.loadingImage;
-        } else if (btnText.textContent.includes('Another') || btnText.textContent.includes('\uB2E4\uB978') ||
-                   btnText.textContent.includes('\u5225') || btnText.textContent.includes('\u63DB')) {
+        } else if (btnText.textContent.includes('Another') || btnText.textContent.includes('다른') ||
+                   btnText.textContent.includes('別') || btnText.textContent.includes('换')) {
             btnText.textContent = t.getAnother;
         } else {
             btnText.textContent = t.getRecommendation;
@@ -184,13 +184,52 @@ function applyTranslations() {
     const aboutLink = document.getElementById('about-link');
     const privacyLink = document.getElementById('privacy-link');
     const termsLink = document.getElementById('terms-link');
-    if (aboutLink) aboutLink.textContent = getPageTranslation(currentLanguage, 'aboutTitle');
-    if (privacyLink) privacyLink.textContent = getPageTranslation(currentLanguage, 'privacyTitle');
-    if (termsLink) termsLink.textContent = getPageTranslation(currentLanguage, 'termsTitle');
+    if (aboutLink) {
+        aboutLink.textContent = getPageTranslation(currentLanguage, 'aboutTitle');
+        aboutLink.href = `about.html?lang=${currentLanguage}`;
+    }
+    if (privacyLink) {
+        privacyLink.textContent = getPageTranslation(currentLanguage, 'privacyTitle');
+        privacyLink.href = `privacy.html?lang=${currentLanguage}`;
+    }
+    if (termsLink) {
+        termsLink.textContent = getPageTranslation(currentLanguage, 'termsTitle');
+        termsLink.href = `terms.html?lang=${currentLanguage}`;
+    }
 
     // Update search placeholder
     const searchInput = document.getElementById('language-search');
     if (searchInput) searchInput.placeholder = t.searchLanguages;
+
+    // Update Food Tips Section
+    const foodTipsTitle = document.getElementById('food-tips-title');
+    if (foodTipsTitle) foodTipsTitle.textContent = t.foodTipsTitle;
+
+    const tipCards = document.querySelectorAll('.tip-card');
+    if (tipCards.length > 0) {
+        tipCards[0].querySelector('h3').textContent = t.foodTip1Title;
+        tipCards[0].querySelector('p').textContent = t.foodTip1Desc;
+        tipCards[1].querySelector('h3').textContent = t.foodTip2Title;
+        tipCards[1].querySelector('p').textContent = t.foodTip2Desc;
+        tipCards[2].querySelector('h3').textContent = t.foodTip3Title;
+        tipCards[2].querySelector('p').textContent = t.foodTip3Desc;
+        tipCards[3].querySelector('h3').textContent = t.foodTip4Title;
+        tipCards[3].querySelector('p').textContent = t.foodTip4Desc;
+    }
+
+    // Update How to Use Section
+    const howToUseTitle = document.getElementById('how-to-use-title');
+    if (howToUseTitle) howToUseTitle.textContent = t.howToUseTitle;
+
+    const steps = document.querySelectorAll('.step-content');
+    if (steps.length > 0) {
+        steps[0].querySelector('h3').textContent = t.howToUseStep1Title;
+        steps[0].querySelector('p').textContent = t.howToUseStep1Desc;
+        steps[1].querySelector('h3').textContent = t.howToUseStep2Title;
+        steps[1].querySelector('p').textContent = t.howToUseStep2Desc;
+        steps[2].querySelector('h3').textContent = t.howToUseStep3Title;
+        steps[2].querySelector('p').textContent = t.howToUseStep3Desc;
+    }
 }
 
 // Select language
