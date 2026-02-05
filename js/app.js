@@ -124,9 +124,9 @@ function applyTranslations() {
     document.title = t.title;
 
     // Update header
-    const headerH1 = document.querySelector('header h1');
-    if (headerH1) {
-        headerH1.innerHTML = `<span class="icon-header">🍽️</span> ${t.title}`;
+    const headerTitle = document.getElementById('header-title');
+    if (headerTitle) {
+        headerTitle.textContent = t.title;
     }
 
     const subtitle = document.querySelector('.subtitle');
@@ -345,6 +345,7 @@ document.getElementById('recommend-btn').addEventListener('click', async () => {
     const img = new Image();
     img.onload = () => {
         menuImage.src = imageUrl;
+        menuImage.alt = menuText + ' - ' + (t.imageAlt || 'recommended menu photo');
         menuImage.style.opacity = '1';
         recommendBtn.disabled = false;
         recommendBtn.innerHTML = `<span class="btn-icon">🎲</span><span class="btn-text">${t.getAnother}</span>`;

@@ -1,15 +1,71 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary SEO Meta Tags -->
+    <title>개인정보처리방침 - 저녁 메뉴 추천 | Privacy Policy - Dinner Menu Recommendation</title>
+    <meta name="description" content="저녁 메뉴 추천 서비스의 개인정보처리방침입니다. 수집하는 정보, 사용 목적, 보호 방법 등을 안내합니다.">
+    <meta name="robots" content="noindex, follow">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://product-builder-lecture-8pr.pages.dev/privacy.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="저녁 메뉴 추천 - Dinner Menu Recommendation">
+    <meta property="og:title" content="개인정보처리방침 - 저녁 메뉴 추천">
+    <meta property="og:description" content="저녁 메뉴 추천 서비스의 개인정보처리방침입니다.">
+    <meta property="og:url" content="https://product-builder-lecture-8pr.pages.dev/privacy.html">
+    <meta property="og:locale" content="ko_KR">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-7066264300961815">
+
+    <!-- JSON-LD Structured Data: BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "홈",
+                "item": "https://product-builder-lecture-8pr.pages.dev/"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "개인정보처리방침",
+                "item": "https://product-builder-lecture-8pr.pages.dev/privacy.html"
+            }
+        ]
+    }
+    </script>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KR2HW49NF0"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-KR2HW49NF0');
     </script>
+
+    <!-- Microsoft Clarity -->
     <script type="text/javascript">
         (function(c,l,a,r,i,t,y){
             c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -17,15 +73,7 @@
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "vcn4lfwfx8");
     </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta name="google-adsense-account" content="ca-pub-7066264300961815">
-    <title>Privacy Policy</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
         .policy-container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
         .policy-content { background: var(--card-background); backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 24px; padding: 48px; box-shadow: 0 20px 60px var(--shadow-color); margin-top: 80px; }
@@ -40,7 +88,7 @@
 </head>
 <body>
     <div class="policy-container">
-        <div class="policy-content" id="policy-content"></div>
+        <article class="policy-content" id="policy-content"></article>
     </div>
     <script src="js/translations.js"></script>
     <script>
@@ -101,7 +149,7 @@
 
             <p class="last-updated">${t('lastUpdated')}: 2026-02-03</p>
 
-            <a href="index.html" class="back-link">${t('backToHome')}</a>
+            <a href="index.html" class="back-link" rel="noopener">${t('backToHome')}</a>
         `;
     </script>
 </body>

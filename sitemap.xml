@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+    <!-- Homepage -->
+    <url>
+        <loc>https://product-builder-lecture-8pr.pages.dev/</loc>
+        <lastmod>2026-02-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- About Page -->
+    <url>
+        <loc>https://product-builder-lecture-8pr.pages.dev/about.html</loc>
+        <lastmod>2026-02-05</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- Privacy Policy -->
+    <url>
+        <loc>https://product-builder-lecture-8pr.pages.dev/privacy.html</loc>
+        <lastmod>2026-02-03</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+
+    <!-- Terms of Service -->
+    <url>
+        <loc>https://product-builder-lecture-8pr.pages.dev/terms.html</loc>
+        <lastmod>2026-02-03</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+
+</urlset>

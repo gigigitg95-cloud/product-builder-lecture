@@ -1,0 +1,25 @@
+# robots.txt for Dinner Menu Recommendation
+# https://product-builder-lecture-8pr.pages.dev/
+
+# Allow all search engine crawlers
+User-agent: *
+Allow: /
+
+# Google Bot
+User-agent: Googlebot
+Allow: /
+
+# Naver Bot
+User-agent: Yeti
+Allow: /
+
+# Bing Bot
+User-agent: Bingbot
+Allow: /
+
+# Disallow non-content directories
+Disallow: /.well-known/
+Disallow: /firebase-debug.log
+
+# Sitemap location
+Sitemap: https://product-builder-lecture-8pr.pages.dev/sitemap.xml
