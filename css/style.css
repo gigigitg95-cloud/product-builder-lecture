@@ -1232,6 +1232,28 @@ body.light-mode .seasonal-menu-list li {
     line-height: 1.6;
 }
 
+/* Info Section (GEO) */
+.info-section {
+    grid-column: 1 / -1;
+    background: var(--card-background);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 20px 60px var(--shadow-color);
+}
+
+.info-article p {
+    color: var(--text-secondary);
+    line-height: 1.9;
+    margin-bottom: 16px;
+    font-size: 1.05rem;
+}
+
+.info-article p:last-child {
+    margin-bottom: 0;
+}
+
 /* How to Section */
 .how-to-section {
     grid-column: 1 / -1;
@@ -1294,7 +1316,8 @@ body.light-mode .seasonal-menu-list li {
 
 @media (max-width: 768px) {
     .tips-section,
-    .how-to-section {
+    .how-to-section,
+    .info-section {
         padding: 32px 24px;
     }
 

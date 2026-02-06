@@ -827,6 +827,7 @@ function shuffleArray(arr) {
 
 // Render slot reel items
 function renderSlotReels() {
+    if (currentSlotMenus.length === 0) return;
     [slotReel1, slotReel2, slotReel3].forEach(reel => {
         if (!reel) return;
         reel.innerHTML = '';
@@ -847,7 +848,7 @@ function renderSlotReels() {
 
 // Spin slot machine
 function spinSlotMachine() {
-    if (isSlotSpinning) return;
+    if (isSlotSpinning || currentSlotMenus.length === 0) return;
 
     isSlotSpinning = true;
     slotLeverBtn.disabled = true;
@@ -1116,12 +1117,17 @@ function updateSeasonalTranslations() {
     });
 }
 
-// Initialize
-initLanguageSelector();
-
-// Initialize slot machine
+// Initialize slot machine data first (must run before initLanguageSelector
+// because applyTranslations calls renderSlotReels which needs currentSlotMenus)
 if (slotReel1) {
     buildSlotMenus();
+}
+
+// Initialize language selector (calls applyTranslations → renderSlotReels)
+initLanguageSelector();
+
+// Update slot/situation/seasonal translations
+if (slotReel1) {
     updateSlotTranslations();
     updateSituationTranslations();
     updateSeasonalTranslations();
