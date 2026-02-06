@@ -202,6 +202,9 @@ function applyTranslations() {
     const searchInput = document.getElementById('language-search');
     if (searchInput) searchInput.placeholder = t.searchLanguages;
 
+    // Update AI bar text
+    updateAIBarText();
+
     // Update Food Tips Section
     const foodTipsTitle = document.getElementById('food-tips-title');
     if (foodTipsTitle) foodTipsTitle.textContent = t.foodTipsTitle;
@@ -257,10 +260,11 @@ function selectLanguage(country, language, flag) {
 
 // Show notification
 function showNotification(message, flag) {
+    const hasTopBar = document.body.classList.contains('has-top-bar');
     const notification = document.createElement('div');
     notification.style.cssText = `
         position: fixed;
-        top: 80px;
+        top: ${hasTopBar ? '130px' : '80px'};
         right: 20px;
         background: var(--control-bg);
         backdrop-filter: blur(20px);
@@ -394,5 +398,44 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// AI Top Bar functionality
+function initAITopBar() {
+    const aiTopBar = document.getElementById('ai-top-bar');
+    const aiBarClose = document.getElementById('ai-bar-close');
+    const aiBarText = document.getElementById('ai-bar-text');
+
+    if (!aiTopBar) return;
+
+    // Check if user has dismissed the bar before
+    const isBarDismissed = localStorage.getItem('aiTopBarDismissed');
+
+    if (isBarDismissed) {
+        aiTopBar.classList.add('hidden');
+    } else {
+        document.body.classList.add('has-top-bar');
+    }
+
+    // Close button functionality
+    if (aiBarClose) {
+        aiBarClose.addEventListener('click', () => {
+            aiTopBar.classList.add('hidden');
+            document.body.classList.remove('has-top-bar');
+            localStorage.setItem('aiTopBarDismissed', 'true');
+        });
+    }
+
+    // Apply translation for AI bar text
+    updateAIBarText();
+}
+
+function updateAIBarText() {
+    const aiBarText = document.getElementById('ai-bar-text');
+    if (aiBarText) {
+        const t = translations[currentLanguage] || translations['English'];
+        aiBarText.textContent = t.aiBarText || 'AI-Powered Menu Recommendation - Get personalized food suggestions instantly!';
+    }
+}
+
 // Initialize
 initLanguageSelector();
+initAITopBar();
