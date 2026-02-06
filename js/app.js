@@ -136,6 +136,12 @@ function applyTranslations() {
     // Update recommendation section
     const recommendationTitle = document.getElementById('recommendation-title');
     if (recommendationTitle) recommendationTitle.textContent = t.todayRecommendation;
+    const navRecommendation = document.getElementById('nav-recommendation');
+    if (navRecommendation && t.navRecommendation) navRecommendation.textContent = t.navRecommendation;
+    const navBulletin = document.getElementById('nav-bulletin');
+    if (navBulletin && t.navBulletin) navBulletin.textContent = t.navBulletin;
+    const navContact = document.getElementById('nav-contact');
+    if (navContact && t.navContact) navContact.textContent = t.navContact;
     const contactTitle = document.getElementById('contact-title');
     if (contactTitle) contactTitle.textContent = t.partnershipTitle;
 
@@ -428,12 +434,13 @@ try {
 }
 
 // Bulletin Board functionality
-const bulletinForm = document.getElementById('bulletin-form');
-const bulletinNickname = document.getElementById('bulletin-nickname');
-const bulletinMessage = document.getElementById('bulletin-message');
-const bulletinPosts = document.getElementById('bulletin-posts');
-const bulletinLoading = document.getElementById('bulletin-loading');
-const bulletinSubmit = document.getElementById('bulletin-submit');
+let bulletinForm = null;
+let bulletinNickname = null;
+let bulletinMessage = null;
+let bulletinPosts = null;
+let bulletinLoading = null;
+let bulletinSubmit = null;
+let bulletinInitialized = false;
 
 // Get bulletin translations
 function getBulletinTranslation(key) {
@@ -616,7 +623,19 @@ async function savePost(nickname, message) {
 }
 
 // Handle form submission
-if (bulletinForm) {
+function initBulletinBoard() {
+    if (bulletinInitialized) return;
+
+    bulletinForm = document.getElementById('bulletin-form');
+    bulletinNickname = document.getElementById('bulletin-nickname');
+    bulletinMessage = document.getElementById('bulletin-message');
+    bulletinPosts = document.getElementById('bulletin-posts');
+    bulletinLoading = document.getElementById('bulletin-loading');
+    bulletinSubmit = document.getElementById('bulletin-submit');
+
+    if (!bulletinForm || !bulletinPosts) return;
+    bulletinInitialized = true;
+
     bulletinForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -643,6 +662,9 @@ if (bulletinForm) {
     if (savedNickname && bulletinNickname) {
         bulletinNickname.value = savedNickname;
     }
+
+    loadPosts();
+    updateBulletinTranslations();
 }
 
 // Update bulletin board translations
@@ -977,28 +999,67 @@ if (slotLeverBtn) {
     slotLeverBtn.addEventListener('click', spinSlotMachine);
 }
 
+// Sidebar panel navigation
+const sideNavButtons = document.querySelectorAll('.side-nav-btn');
+const panels = document.querySelectorAll('.panel');
+
+function setActivePanel(panelId, pushState = true) {
+    const hasPanel = Array.from(panels).some(panel => panel.id === `panel-${panelId}`);
+    const targetId = hasPanel ? panelId : 'recommendation';
+
+    sideNavButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.panel === targetId);
+    });
+    panels.forEach(panel => {
+        panel.classList.toggle('active', panel.id === `panel-${targetId}`);
+    });
+
+    if (pushState) {
+        history.replaceState(null, '', `#${targetId}`);
+    }
+}
+
+if (sideNavButtons.length && panels.length) {
+    sideNavButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            setActivePanel(btn.dataset.panel);
+            localStorage.setItem('lastPanel', btn.dataset.panel);
+        });
+    });
+
+    const storedPanel = localStorage.getItem('lastPanel');
+    const initialPanel = window.location.hash?.replace('#', '') || storedPanel || 'bulletin';
+    setActivePanel(initialPanel, true);
+
+    window.addEventListener('hashchange', () => {
+        const latestStoredPanel = localStorage.getItem('lastPanel');
+        const hashPanel = window.location.hash?.replace('#', '') || latestStoredPanel || 'bulletin';
+        setActivePanel(hashPanel, false);
+    });
+}
+
 // ============ SHARE BUTTONS ============
 
 function getShareTranslation(key) {
     const shareTranslations = {
-        'English': { shareTitle: 'Share your result!', shareText: "Tonight's dinner is", copied: 'Link copied!', shareNative: 'Share' },
-        'Korean': { shareTitle: '결과를 공유하세요!', shareText: '오늘 저녁 메뉴는', copied: '링크가 복사되었습니다!', shareNative: '공유하기' },
-        'Japanese': { shareTitle: '結果をシェアしよう！', shareText: '今夜の夕食は', copied: 'リンクをコピーしました！', shareNative: 'シェア' },
-        'Mandarin Chinese': { shareTitle: '分享你的结果！', shareText: '今晚的晚餐是', copied: '链接已复制！', shareNative: '分享' },
-        'Spanish': { shareTitle: '\u00A1Comparte tu resultado!', shareText: 'La cena de esta noche es', copied: '\u00A1Enlace copiado!', shareNative: 'Compartir' },
-        'French': { shareTitle: 'Partagez votre r\u00E9sultat !', shareText: 'Le d\u00EEner de ce soir est', copied: 'Lien copi\u00E9 !', shareNative: 'Partager' },
-        'German': { shareTitle: 'Teile dein Ergebnis!', shareText: 'Das Abendessen heute ist', copied: 'Link kopiert!', shareNative: 'Teilen' },
-        'Portuguese': { shareTitle: 'Compartilhe seu resultado!', shareText: 'O jantar de hoje \u00E9', copied: 'Link copiado!', shareNative: 'Compartilhar' },
-        'Italian': { shareTitle: 'Condividi il tuo risultato!', shareText: 'La cena di stasera \u00E8', copied: 'Link copiato!', shareNative: 'Condividi' },
-        'Russian': { shareTitle: 'Поделитесь результатом!', shareText: 'Сегодня на ужин', copied: 'Ссылка скопирована!', shareNative: 'Поделиться' },
-        'Arabic': { shareTitle: 'شارك نتيجتك!', shareText: 'عشاء الليلة هو', copied: 'تم نسخ الرابط!', shareNative: 'مشاركة' },
-        'Thai': { shareTitle: 'แชร์ผลลัพธ์ของคุณ!', shareText: 'อาหารเย็นวันนี้คือ', copied: 'คัดลอกลิงก์แล้ว!', shareNative: 'แชร์' },
-        'Vietnamese': { shareTitle: 'Chia s\u1EBB k\u1EBFt qu\u1EA3 c\u1EE7a b\u1EA1n!', shareText: 'B\u1EEFa t\u1ED1i h\u00F4m nay l\u00E0', copied: '\u0110\u00E3 sao ch\u00E9p li\u00EAn k\u1EBFt!', shareNative: 'Chia s\u1EBB' },
-        'Indonesian': { shareTitle: 'Bagikan hasilmu!', shareText: 'Makan malam hari ini adalah', copied: 'Tautan disalin!', shareNative: 'Bagikan' },
-        'Hindi': { shareTitle: 'अपना परिणाम साझा करें!', shareText: 'आज का डिनर है', copied: 'लिंक कॉपी हो गया!', shareNative: 'शेयर' },
-        'Dutch': { shareTitle: 'Deel je resultaat!', shareText: 'Het avondeten vanavond is', copied: 'Link gekopieerd!', shareNative: 'Delen' },
-        'Polish': { shareTitle: 'Podziel si\u0119 wynikiem!', shareText: 'Dzisiejsza kolacja to', copied: 'Link skopiowany!', shareNative: 'Udost\u0119pnij' },
-        'Turkish': { shareTitle: 'Sonucunu payla\u015F!', shareText: 'Bu ak\u015Fam yeme\u011Fi', copied: 'Ba\u011Flant\u0131 kopyaland\u0131!', shareNative: 'Payla\u015F' }
+        'English': { shareTitle: 'Share your result!', shareText: "Today's menu is", copied: 'Link copied!', shareNative: 'Share' },
+        'Korean': { shareTitle: '결과를 공유하세요!', shareText: '오늘의 메뉴는', copied: '링크가 복사되었습니다!', shareNative: '공유하기' },
+        'Japanese': { shareTitle: '結果をシェアしよう！', shareText: '今日のメニューは', copied: 'リンクをコピーしました！', shareNative: 'シェア' },
+        'Mandarin Chinese': { shareTitle: '分享你的结果！', shareText: '今天的菜单是', copied: '链接已复制！', shareNative: '分享' },
+        'Spanish': { shareTitle: '\u00A1Comparte tu resultado!', shareText: 'El men\u00FA de hoy es', copied: '\u00A1Enlace copiado!', shareNative: 'Compartir' },
+        'French': { shareTitle: 'Partagez votre r\u00E9sultat !', shareText: 'Le menu du jour est', copied: 'Lien copi\u00E9 !', shareNative: 'Partager' },
+        'German': { shareTitle: 'Teile dein Ergebnis!', shareText: 'Das heutige Men\u00FC ist', copied: 'Link kopiert!', shareNative: 'Teilen' },
+        'Portuguese': { shareTitle: 'Compartilhe seu resultado!', shareText: 'O menu de hoje \u00E9', copied: 'Link copiado!', shareNative: 'Compartilhar' },
+        'Italian': { shareTitle: 'Condividi il tuo risultato!', shareText: 'Il men\u00F9 di oggi \u00E8', copied: 'Link copiato!', shareNative: 'Condividi' },
+        'Russian': { shareTitle: '\u041F\u043E\u0434\u0435\u043B\u0438\u0442\u0435\u0441\u044C \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u043E\u043C!', shareText: '\u0421\u0435\u0433\u043E\u0434\u043D\u044F\u0448\u043D\u0435\u0435 \u043C\u0435\u043D\u044E', copied: '\u0421\u0441\u044B\u043B\u043A\u0430 \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430!', shareNative: '\u041F\u043E\u0434\u0435\u043B\u0438\u0442\u044C\u0441\u044F' },
+        'Arabic': { shareTitle: '\u0634\u0627\u0631\u0643 \u0646\u062A\u064A\u062C\u062A\u0643!', shareText: '\u0645\u0646\u064A\u0648 \u0627\u0644\u064A\u0648\u0645 \u0647\u0648', copied: '\u062A\u0645 \u0646\u0633\u062E \u0627\u0644\u0631\u0627\u0628\u0637!', shareNative: '\u0645\u0634\u0627\u0631\u0643\u0629' },
+        'Thai': { shareTitle: '\u0E41\u0E0A\u0E23\u0E4C\u0E1C\u0E25\u0E25\u0E31\u0E1E\u0E18\u0E4C\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13!', shareText: '\u0E40\u0E21\u0E19\u0E39\u0E27\u0E31\u0E19\u0E19\u0E35\u0E49\u0E04\u0E37\u0E2D', copied: '\u0E04\u0E31\u0E14\u0E25\u0E2D\u0E01\u0E25\u0E34\u0E07\u0E01\u0E4C\u0E41\u0E25\u0E49\u0E27!', shareNative: '\u0E41\u0E0A\u0E23\u0E4C' },
+        'Vietnamese': { shareTitle: 'Chia s\u1EBB k\u1EBFt qu\u1EA3 c\u1EE7a b\u1EA1n!', shareText: 'Th\u1EF1c \u0111\u01A1n h\u00F4m nay l\u00E0', copied: '\u0110\u00E3 sao ch\u00E9p li\u00EAn k\u1EBFt!', shareNative: 'Chia s\u1EBB' },
+        'Indonesian': { shareTitle: 'Bagikan hasilmu!', shareText: 'Menu hari ini adalah', copied: 'Tautan disalin!', shareNative: 'Bagikan' },
+        'Hindi': { shareTitle: '\u0905\u092A\u0928\u093E \u092A\u0930\u093F\u0923\u093E\u092E \u0938\u093E\u091D\u093E \u0915\u0930\u0947\u0902!', shareText: '\u0906\u091C \u0915\u093E \u092E\u0947\u0928\u0942 \u0939\u0948', copied: '\u0932\u093F\u0902\u0915 \u0915\u0949\u092A\u0940 \u0939\u094B \u0917\u092F\u093E!', shareNative: '\u0936\u0947\u092F\u0930' },
+        'Dutch': { shareTitle: 'Deel je resultaat!', shareText: 'Het menu van vandaag is', copied: 'Link gekopieerd!', shareNative: 'Delen' },
+        'Polish': { shareTitle: 'Podziel si\u0119 wynikiem!', shareText: 'Dzisiejsze menu to', copied: 'Link skopiowany!', shareNative: 'Udost\u0119pnij' },
+        'Turkish': { shareTitle: 'Sonucunu payla\u015F!', shareText: 'Bug\u00FCn\u00FCn men\u00FCs\u00FC', copied: 'Ba\u011Flant\u0131 kopyaland\u0131!', shareNative: 'Payla\u015F' }
     };
     const langData = shareTranslations[currentLanguage] || shareTranslations['English'];
     return langData[key] || shareTranslations['English'][key];
@@ -1255,6 +1316,23 @@ function updateSeasonalTranslations() {
     });
 }
 
+async function loadBulletinInclude() {
+    const container = document.getElementById('bulletin-container');
+    if (!container) return;
+    const includePath = container.dataset.include || 'bulletin.html';
+
+    try {
+        const response = await fetch(includePath, { cache: 'no-cache' });
+        if (!response.ok) throw new Error(`Failed to load ${includePath}`);
+        container.innerHTML = await response.text();
+        initBulletinBoard();
+        updateBulletinTranslations();
+    } catch (error) {
+        console.error('Bulletin include load error:', error);
+        container.innerHTML = '<p class="bulletin-loading">게시판을 불러오지 못했습니다.</p>';
+    }
+}
+
 // Initialize slot machine data first (must run before initLanguageSelector
 // because applyTranslations calls renderSlotReels which needs currentSlotMenus)
 if (slotReel1) {
@@ -1274,8 +1352,5 @@ if (slotReel1) {
 // Initialize share buttons
 initShareButtons();
 
-// Initialize bulletin board
-if (bulletinPosts) {
-    loadPosts();
-    updateBulletinTranslations();
-}
+// Initialize bulletin board (load HTML include first)
+loadBulletinInclude();

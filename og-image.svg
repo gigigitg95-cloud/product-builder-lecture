@@ -39,10 +39,10 @@
   </g>
 
   <!-- Title text -->
-  <text x="600" y="380" text-anchor="middle" font-family="'Inter', -apple-system, sans-serif" font-weight="900" font-size="64" fill="url(#accent)">오늘 저녁 뭐 먹지?</text>
+  <text x="600" y="380" text-anchor="middle" font-family="'Inter', -apple-system, sans-serif" font-weight="900" font-size="64" fill="url(#accent)">오늘 뭐 먹지?</text>
 
   <!-- Subtitle text -->
-  <text x="600" y="440" text-anchor="middle" font-family="'Inter', -apple-system, sans-serif" font-weight="500" font-size="32" fill="#cbd5e1">저녁 메뉴 추천 - Dinner Menu Recommendation</text>
+  <text x="600" y="440" text-anchor="middle" font-family="'Inter', -apple-system, sans-serif" font-weight="500" font-size="32" fill="#cbd5e1">메뉴 추천 - Menu Recommendation</text>
 
   <!-- Feature badges -->
   <rect x="280" y="480" width="160" height="44" rx="22" fill="#6366f1" opacity="0.3"/>

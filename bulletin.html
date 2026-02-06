@@ -1,0 +1,18 @@
+<section class="bulletin-section-content" aria-labelledby="bulletin-title">
+    <h2 class="section-title" id="bulletin-title">커뮤니티 게시판</h2>
+    <p class="bulletin-desc" id="bulletin-desc">오늘 뭐 먹었나요? 다른 사용자들과 음식 이야기를 나눠보세요!</p>
+
+    <form id="bulletin-form" class="bulletin-form">
+        <div class="bulletin-input-group">
+            <input type="text" id="bulletin-nickname" placeholder="닉네임" maxlength="20" required>
+            <input type="text" id="bulletin-message" placeholder="메시지를 입력하세요..." maxlength="200" required>
+            <button type="submit" class="bulletin-submit-btn" id="bulletin-submit">
+                <span>게시</span>
+            </button>
+        </div>
+    </form>
+
+    <div id="bulletin-posts" class="bulletin-posts">
+        <div class="bulletin-loading" id="bulletin-loading">게시물을 불러오는 중...</div>
+    </div>
+</section>
