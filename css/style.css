@@ -670,6 +670,7 @@ footer {
 
 .slot-result {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     opacity: 0;
@@ -680,7 +681,7 @@ footer {
 
 .slot-result.visible {
     opacity: 1;
-    max-height: 400px;
+    max-height: 600px;
     transition: opacity 0.4s ease, max-height 0.5s ease;
 }
 
@@ -733,6 +734,114 @@ footer {
     100% { transform: scale(1); opacity: 1; }
 }
 
+/* Share Buttons */
+.share-container {
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+    margin-top: 16px;
+    animation: fadeIn 0.5s ease 0.3s both;
+}
+
+.share-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+}
+
+.share-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.share-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-family: 'Inter', sans-serif;
+}
+
+.share-btn:hover {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.share-btn:active {
+    transform: translateY(-1px) scale(1.05);
+}
+
+.share-native {
+    width: auto;
+    border-radius: 22px;
+    padding: 10px 20px;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.share-native.visible {
+    display: flex;
+}
+
+.share-twitter { background: #000000; }
+.share-facebook { background: #1877F2; }
+.share-whatsapp { background: #25D366; }
+.share-telegram { background: #0088cc; }
+.share-line { background: #00B900; }
+.share-kakao { background: #FEE500; color: #191919; }
+.share-copy { background: var(--text-secondary); }
+
+body.light-mode .share-copy { background: #64748b; }
+
+.share-toast {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--control-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 12px 24px;
+    box-shadow: 0 8px 30px var(--shadow-color);
+    z-index: 1001;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: toastIn 0.3s ease forwards;
+}
+
+.share-toast.hiding {
+    animation: toastOut 0.3s ease forwards;
+}
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes toastOut {
+    from { opacity: 1; transform: translateX(-50%) translateY(0); }
+    to { opacity: 0; transform: translateX(-50%) translateY(20px); }
+}
+
 @keyframes slotSpin {
     0% { transform: translateY(0); }
     100% { transform: translateY(-100%); }
@@ -783,6 +892,20 @@ footer {
     .slot-lever-btn {
         padding: 14px 32px;
         font-size: 1rem;
+    }
+
+    .share-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .share-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .share-buttons {
+        gap: 8px;
     }
 }
 

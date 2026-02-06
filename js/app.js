@@ -725,6 +725,7 @@ let currentCategory = 'all';
 let currentSlotMenus = [];
 let isSlotSpinning = false;
 let spinIntervals = [null, null, null];
+let lastWinningMenu = null;
 
 // Get slot translation
 function getSlotTranslation(key) {
@@ -922,7 +923,9 @@ function spinSlotMachine() {
             slotResultImage.src = imageUrl;
         }
 
+        lastWinningMenu = winningMenu;
         slotResult.classList.add('visible');
+        updateShareTranslations();
     }, totalDuration);
 }
 
@@ -952,6 +955,7 @@ function updateRouletteTranslations() {
     updateSlotTranslations();
     updateSituationTranslations();
     updateSeasonalTranslations();
+    updateShareTranslations();
 }
 
 // Category filter click handler
@@ -971,6 +975,140 @@ if (categoryFilter) {
 // Slot lever click handler
 if (slotLeverBtn) {
     slotLeverBtn.addEventListener('click', spinSlotMachine);
+}
+
+// ============ SHARE BUTTONS ============
+
+function getShareTranslation(key) {
+    const shareTranslations = {
+        'English': { shareTitle: 'Share your result!', shareText: "Tonight's dinner is", copied: 'Link copied!', shareNative: 'Share' },
+        'Korean': { shareTitle: '결과를 공유하세요!', shareText: '오늘 저녁 메뉴는', copied: '링크가 복사되었습니다!', shareNative: '공유하기' },
+        'Japanese': { shareTitle: '結果をシェアしよう！', shareText: '今夜の夕食は', copied: 'リンクをコピーしました！', shareNative: 'シェア' },
+        'Mandarin Chinese': { shareTitle: '分享你的结果！', shareText: '今晚的晚餐是', copied: '链接已复制！', shareNative: '分享' },
+        'Spanish': { shareTitle: '\u00A1Comparte tu resultado!', shareText: 'La cena de esta noche es', copied: '\u00A1Enlace copiado!', shareNative: 'Compartir' },
+        'French': { shareTitle: 'Partagez votre r\u00E9sultat !', shareText: 'Le d\u00EEner de ce soir est', copied: 'Lien copi\u00E9 !', shareNative: 'Partager' },
+        'German': { shareTitle: 'Teile dein Ergebnis!', shareText: 'Das Abendessen heute ist', copied: 'Link kopiert!', shareNative: 'Teilen' },
+        'Portuguese': { shareTitle: 'Compartilhe seu resultado!', shareText: 'O jantar de hoje \u00E9', copied: 'Link copiado!', shareNative: 'Compartilhar' },
+        'Italian': { shareTitle: 'Condividi il tuo risultato!', shareText: 'La cena di stasera \u00E8', copied: 'Link copiato!', shareNative: 'Condividi' },
+        'Russian': { shareTitle: 'Поделитесь результатом!', shareText: 'Сегодня на ужин', copied: 'Ссылка скопирована!', shareNative: 'Поделиться' },
+        'Arabic': { shareTitle: 'شارك نتيجتك!', shareText: 'عشاء الليلة هو', copied: 'تم نسخ الرابط!', shareNative: 'مشاركة' },
+        'Thai': { shareTitle: 'แชร์ผลลัพธ์ของคุณ!', shareText: 'อาหารเย็นวันนี้คือ', copied: 'คัดลอกลิงก์แล้ว!', shareNative: 'แชร์' },
+        'Vietnamese': { shareTitle: 'Chia s\u1EBB k\u1EBFt qu\u1EA3 c\u1EE7a b\u1EA1n!', shareText: 'B\u1EEFa t\u1ED1i h\u00F4m nay l\u00E0', copied: '\u0110\u00E3 sao ch\u00E9p li\u00EAn k\u1EBFt!', shareNative: 'Chia s\u1EBB' },
+        'Indonesian': { shareTitle: 'Bagikan hasilmu!', shareText: 'Makan malam hari ini adalah', copied: 'Tautan disalin!', shareNative: 'Bagikan' },
+        'Hindi': { shareTitle: 'अपना परिणाम साझा करें!', shareText: 'आज का डिनर है', copied: 'लिंक कॉपी हो गया!', shareNative: 'शेयर' },
+        'Dutch': { shareTitle: 'Deel je resultaat!', shareText: 'Het avondeten vanavond is', copied: 'Link gekopieerd!', shareNative: 'Delen' },
+        'Polish': { shareTitle: 'Podziel si\u0119 wynikiem!', shareText: 'Dzisiejsza kolacja to', copied: 'Link skopiowany!', shareNative: 'Udost\u0119pnij' },
+        'Turkish': { shareTitle: 'Sonucunu payla\u015F!', shareText: 'Bu ak\u015Fam yeme\u011Fi', copied: 'Ba\u011Flant\u0131 kopyaland\u0131!', shareNative: 'Payla\u015F' }
+    };
+    const langData = shareTranslations[currentLanguage] || shareTranslations['English'];
+    return langData[key] || shareTranslations['English'][key];
+}
+
+function buildShareMessage() {
+    if (!lastWinningMenu) return { text: '', url: '', fullText: '' };
+    const menuName = getSlotMenuName(lastWinningMenu);
+    const emoji = lastWinningMenu.emoji;
+    const shareText = getShareTranslation('shareText');
+    const siteUrl = 'https://product-builder-lecture-8pr.pages.dev/';
+    const text = `${emoji} ${shareText} ${menuName}!`;
+    return { text, url: siteUrl, fullText: `${text}\n${siteUrl}` };
+}
+
+function shareToTwitter() {
+    const { text, url } = buildShareMessage();
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=550,height=420');
+}
+
+function shareToFacebook() {
+    const { text, url } = buildShareMessage();
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`, '_blank', 'width=550,height=420');
+}
+
+function shareToWhatsApp() {
+    const { fullText } = buildShareMessage();
+    window.open(`https://wa.me/?text=${encodeURIComponent(fullText)}`, '_blank');
+}
+
+function shareToTelegram() {
+    const { text, url } = buildShareMessage();
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank', 'width=550,height=420');
+}
+
+function shareToLine() {
+    const { fullText } = buildShareMessage();
+    window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(fullText)}`, '_blank', 'width=550,height=420');
+}
+
+function shareToKakao() {
+    const { text, url } = buildShareMessage();
+    window.open(`https://story.kakao.com/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank', 'width=550,height=420');
+}
+
+async function copyShareLink() {
+    const { fullText } = buildShareMessage();
+    try {
+        await navigator.clipboard.writeText(fullText);
+        showShareToast(getShareTranslation('copied'));
+    } catch (err) {
+        const textarea = document.createElement('textarea');
+        textarea.value = fullText;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showShareToast(getShareTranslation('copied'));
+    }
+}
+
+async function shareNative() {
+    const { text, url } = buildShareMessage();
+    if (navigator.share) {
+        try {
+            await navigator.share({ title: getShareTranslation('shareText'), text, url });
+        } catch (err) {
+            if (err.name !== 'AbortError') console.error('Share failed:', err);
+        }
+    }
+}
+
+function showShareToast(message) {
+    const existing = document.querySelector('.share-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'share-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('hiding');
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+}
+
+function updateShareTranslations() {
+    const titleEl = document.getElementById('share-title');
+    if (titleEl) titleEl.textContent = getShareTranslation('shareTitle');
+    const nativeBtn = document.getElementById('share-native-btn');
+    if (nativeBtn) {
+        const span = nativeBtn.querySelector('span');
+        if (span) span.textContent = getShareTranslation('shareNative');
+    }
+}
+
+function initShareButtons() {
+    const nativeBtn = document.getElementById('share-native-btn');
+    if (nativeBtn && navigator.share) {
+        nativeBtn.classList.add('visible');
+        nativeBtn.addEventListener('click', shareNative);
+    }
+    document.getElementById('share-twitter-btn')?.addEventListener('click', shareToTwitter);
+    document.getElementById('share-facebook-btn')?.addEventListener('click', shareToFacebook);
+    document.getElementById('share-whatsapp-btn')?.addEventListener('click', shareToWhatsApp);
+    document.getElementById('share-telegram-btn')?.addEventListener('click', shareToTelegram);
+    document.getElementById('share-line-btn')?.addEventListener('click', shareToLine);
+    document.getElementById('share-kakao-btn')?.addEventListener('click', shareToKakao);
+    document.getElementById('share-copy-btn')?.addEventListener('click', copyShareLink);
 }
 
 // ============ SITUATION-BASED RECOMMENDATIONS ============
@@ -1132,6 +1270,9 @@ if (slotReel1) {
     updateSituationTranslations();
     updateSeasonalTranslations();
 }
+
+// Initialize share buttons
+initShareButtons();
 
 // Initialize bulletin board
 if (bulletinPosts) {
