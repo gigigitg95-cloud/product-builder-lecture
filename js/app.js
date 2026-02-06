@@ -6,6 +6,57 @@ const dinnerMenuKeys = [
     "friedRice", "jjajangmyeon", "jjampong", "sweetAndSourPork"
 ];
 
+// Roulette menu items with categories
+const rouletteMenus = {
+    korean: [
+        { key: 'bibimbap', ko: '비빔밥', en: 'Bibimbap' },
+        { key: 'kimchijjigae', ko: '김치찌개', en: 'Kimchi Stew' },
+        { key: 'bulgogi', ko: '불고기', en: 'Bulgogi' },
+        { key: 'japchae', ko: '잡채', en: 'Japchae' },
+        { key: 'samgyetang', ko: '삼계탕', en: 'Ginseng Chicken' },
+        { key: 'sundubu', ko: '순두부찌개', en: 'Soft Tofu Stew' },
+        { key: 'galbi', ko: '갈비', en: 'Korean BBQ Ribs' },
+        { key: 'tteokbokki', ko: '떡볶이', en: 'Tteokbokki' }
+    ],
+    chinese: [
+        { key: 'jjajangmyeon', ko: '짜장면', en: 'Jjajangmyeon' },
+        { key: 'jjampong', ko: '짬뽕', en: 'Spicy Seafood Noodle' },
+        { key: 'sweetAndSourPork', ko: '탕수육', en: 'Sweet & Sour Pork' },
+        { key: 'malatang', ko: '마라탕', en: 'Malatang' },
+        { key: 'mapa', ko: '마파두부', en: 'Mapo Tofu' },
+        { key: 'friedRice', ko: '볶음밥', en: 'Fried Rice' },
+        { key: 'dumplings', ko: '만두', en: 'Dumplings' },
+        { key: 'jambong', ko: '간짜장', en: 'Dry Jjajang' }
+    ],
+    japanese: [
+        { key: 'sushi', ko: '초밥', en: 'Sushi' },
+        { key: 'ramen', ko: '라멘', en: 'Ramen' },
+        { key: 'tonkatsu', ko: '돈카츠', en: 'Tonkatsu' },
+        { key: 'udon', ko: '우동', en: 'Udon' },
+        { key: 'tempura', ko: '텐푸라', en: 'Tempura' },
+        { key: 'curry', ko: '카레', en: 'Japanese Curry' },
+        { key: 'soba', ko: '소바', en: 'Soba' },
+        { key: 'katsudon', ko: '카츠동', en: 'Katsudon' }
+    ],
+    western: [
+        { key: 'steak', ko: '스테이크', en: 'Steak' },
+        { key: 'pasta', ko: '파스타', en: 'Pasta' },
+        { key: 'pizza', ko: '피자', en: 'Pizza' },
+        { key: 'hamburger', ko: '햄버거', en: 'Hamburger' },
+        { key: 'salad', ko: '샐러드', en: 'Salad' },
+        { key: 'risotto', ko: '리조또', en: 'Risotto' },
+        { key: 'sandwich', ko: '샌드위치', en: 'Sandwich' },
+        { key: 'fishAndChips', ko: '피쉬앤칩스', en: 'Fish & Chips' }
+    ]
+};
+
+// Roulette colors
+const rouletteColors = [
+    '#6366f1', '#ec4899', '#14b8a6', '#f59e0b',
+    '#8b5cf6', '#ef4444', '#22c55e', '#3b82f6',
+    '#f97316', '#06b6d4', '#84cc16', '#a855f7'
+];
+
 async function fetchPexelsImage(query) {
     try {
         const response = await fetch(`https://api.pexels.com/v1/search?query=${query}+food&per_page=1`, {
@@ -205,6 +256,11 @@ function applyTranslations() {
     // Update bulletin board translations
     if (typeof updateBulletinTranslations === 'function') {
         updateBulletinTranslations();
+    }
+
+    // Update roulette translations
+    if (typeof updateRouletteTranslations === 'function') {
+        updateRouletteTranslations();
     }
 
     // Update Food Tips Section
@@ -658,8 +714,203 @@ function updateBulletinTranslations() {
     }
 }
 
+// ============ ROULETTE FUNCTIONALITY ============
+
+const rouletteWheel = document.getElementById('roulette-wheel');
+const rouletteSpinBtn = document.getElementById('roulette-spin-btn');
+const rouletteResult = document.getElementById('roulette-result');
+const rouletteResultText = document.getElementById('roulette-result-text');
+const categoryFilter = document.getElementById('category-filter');
+
+let currentCategory = 'all';
+let currentRouletteMenus = [];
+let isSpinning = false;
+let currentRotation = 0;
+
+// Get roulette translation
+function getRouletteTranslation(key) {
+    const translations = {
+        'English': {
+            title: 'Menu Roulette',
+            desc: 'Spin the wheel to decide your meal!',
+            all: 'All',
+            korean: 'Korean',
+            chinese: 'Chinese',
+            japanese: 'Japanese',
+            western: 'Western',
+            spin: 'SPIN',
+            result: 'Today\'s menu is'
+        },
+        'Korean': {
+            title: '메뉴 룰렛',
+            desc: '룰렛을 돌려서 오늘의 메뉴를 정해보세요!',
+            all: '전체',
+            korean: '한식',
+            chinese: '중식',
+            japanese: '일식',
+            western: '양식',
+            spin: 'SPIN',
+            result: '오늘의 메뉴는'
+        },
+        'Japanese': {
+            title: 'メニュールーレット',
+            desc: 'ルーレットを回して今日のメニューを決めよう！',
+            all: '全て',
+            korean: '韓国料理',
+            chinese: '中華',
+            japanese: '和食',
+            western: '洋食',
+            spin: 'SPIN',
+            result: '今日のメニューは'
+        },
+        'Mandarin Chinese': {
+            title: '菜单转盘',
+            desc: '转动轮盘来决定今天吃什么！',
+            all: '全部',
+            korean: '韩餐',
+            chinese: '中餐',
+            japanese: '日料',
+            western: '西餐',
+            spin: 'SPIN',
+            result: '今天的菜单是'
+        }
+    };
+    const langData = translations[currentLanguage] || translations['English'];
+    return langData[key] || translations['English'][key];
+}
+
+// Get menu name based on language
+function getRouletteMenuName(menu) {
+    if (currentLanguage === 'Korean') return menu.ko;
+    return menu.en;
+}
+
+// Build wheel menus based on category
+function buildWheelMenus() {
+    if (currentCategory === 'all') {
+        currentRouletteMenus = [
+            ...rouletteMenus.korean.slice(0, 3),
+            ...rouletteMenus.chinese.slice(0, 3),
+            ...rouletteMenus.japanese.slice(0, 3),
+            ...rouletteMenus.western.slice(0, 3)
+        ];
+    } else {
+        currentRouletteMenus = [...rouletteMenus[currentCategory]];
+    }
+    renderWheel();
+}
+
+// Render the wheel segments
+function renderWheel() {
+    if (!rouletteWheel) return;
+
+    rouletteWheel.innerHTML = '';
+    const segmentCount = currentRouletteMenus.length;
+    const segmentAngle = 360 / segmentCount;
+
+    currentRouletteMenus.forEach((menu, index) => {
+        const segment = document.createElement('div');
+        segment.className = 'roulette-segment';
+        segment.style.transform = `rotate(${index * segmentAngle - 90}deg) skewY(${-(90 - segmentAngle)}deg)`;
+        segment.style.backgroundColor = rouletteColors[index % rouletteColors.length];
+
+        const content = document.createElement('span');
+        content.className = 'roulette-segment-content';
+        content.style.transform = `skewY(${90 - segmentAngle}deg) rotate(${segmentAngle / 2}deg)`;
+        content.textContent = getRouletteMenuName(menu);
+
+        segment.appendChild(content);
+        rouletteWheel.appendChild(segment);
+    });
+}
+
+// Spin the wheel
+function spinWheel() {
+    if (isSpinning || !rouletteWheel) return;
+
+    isSpinning = true;
+    rouletteSpinBtn.disabled = true;
+    rouletteResultText.textContent = '';
+    rouletteResult.style.opacity = '0';
+
+    const segmentCount = currentRouletteMenus.length;
+    const segmentAngle = 360 / segmentCount;
+
+    // Random number of full rotations (5-8) plus random segment
+    const fullRotations = 5 + Math.floor(Math.random() * 4);
+    const randomSegment = Math.floor(Math.random() * segmentCount);
+    const extraAngle = randomSegment * segmentAngle + segmentAngle / 2;
+
+    const totalRotation = currentRotation + (fullRotations * 360) + extraAngle;
+    currentRotation = totalRotation;
+
+    rouletteWheel.classList.add('spinning');
+    rouletteWheel.style.transform = `rotate(${totalRotation}deg)`;
+
+    // Show result after spin
+    setTimeout(() => {
+        isSpinning = false;
+        rouletteSpinBtn.disabled = false;
+        rouletteWheel.classList.remove('spinning');
+
+        // Calculate which segment is at the top
+        const normalizedRotation = totalRotation % 360;
+        const winningIndex = Math.floor((360 - normalizedRotation + segmentAngle / 2) / segmentAngle) % segmentCount;
+        const winningMenu = currentRouletteMenus[winningIndex];
+
+        rouletteResultText.textContent = `${getRouletteTranslation('result')} ${getRouletteMenuName(winningMenu)}!`;
+        rouletteResult.style.opacity = '1';
+    }, 4000);
+}
+
+// Update roulette translations
+function updateRouletteTranslations() {
+    const titleEl = document.getElementById('roulette-title');
+    const descEl = document.getElementById('roulette-desc');
+    const categoryBtns = document.querySelectorAll('.category-btn');
+
+    if (titleEl) titleEl.textContent = getRouletteTranslation('title');
+    if (descEl) descEl.textContent = getRouletteTranslation('desc');
+    if (rouletteSpinBtn) rouletteSpinBtn.querySelector('span').textContent = getRouletteTranslation('spin');
+
+    const categories = ['all', 'korean', 'chinese', 'japanese', 'western'];
+    categoryBtns.forEach((btn, index) => {
+        if (categories[index]) {
+            btn.textContent = getRouletteTranslation(categories[index]);
+        }
+    });
+
+    // Re-render wheel with new language
+    renderWheel();
+}
+
+// Category filter click handler
+if (categoryFilter) {
+    categoryFilter.addEventListener('click', (e) => {
+        if (e.target.classList.contains('category-btn') && !isSpinning) {
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            currentCategory = e.target.dataset.category;
+            buildWheelMenus();
+            rouletteResultText.textContent = '';
+            rouletteResult.style.opacity = '0';
+        }
+    });
+}
+
+// Spin button click handler
+if (rouletteSpinBtn) {
+    rouletteSpinBtn.addEventListener('click', spinWheel);
+}
+
 // Initialize
 initLanguageSelector();
+
+// Initialize roulette
+if (rouletteWheel) {
+    buildWheelMenus();
+    updateRouletteTranslations();
+}
 
 // Initialize bulletin board
 if (bulletinPosts) {
