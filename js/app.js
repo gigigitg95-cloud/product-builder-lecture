@@ -6,56 +6,6 @@ const dinnerMenuKeys = [
     "friedRice", "jjajangmyeon", "jjampong", "sweetAndSourPork"
 ];
 
-// Roulette menu items with categories
-const rouletteMenus = {
-    korean: [
-        { key: 'bibimbap', ko: '비빔밥', en: 'Bibimbap' },
-        { key: 'kimchijjigae', ko: '김치찌개', en: 'Kimchi Stew' },
-        { key: 'bulgogi', ko: '불고기', en: 'Bulgogi' },
-        { key: 'japchae', ko: '잡채', en: 'Japchae' },
-        { key: 'samgyetang', ko: '삼계탕', en: 'Ginseng Chicken' },
-        { key: 'sundubu', ko: '순두부찌개', en: 'Soft Tofu Stew' },
-        { key: 'galbi', ko: '갈비', en: 'Korean BBQ Ribs' },
-        { key: 'tteokbokki', ko: '떡볶이', en: 'Tteokbokki' }
-    ],
-    chinese: [
-        { key: 'jjajangmyeon', ko: '짜장면', en: 'Jjajangmyeon' },
-        { key: 'jjampong', ko: '짬뽕', en: 'Spicy Seafood Noodle' },
-        { key: 'sweetAndSourPork', ko: '탕수육', en: 'Sweet & Sour Pork' },
-        { key: 'malatang', ko: '마라탕', en: 'Malatang' },
-        { key: 'mapa', ko: '마파두부', en: 'Mapo Tofu' },
-        { key: 'friedRice', ko: '볶음밥', en: 'Fried Rice' },
-        { key: 'dumplings', ko: '만두', en: 'Dumplings' },
-        { key: 'jambong', ko: '간짜장', en: 'Dry Jjajang' }
-    ],
-    japanese: [
-        { key: 'sushi', ko: '초밥', en: 'Sushi' },
-        { key: 'ramen', ko: '라멘', en: 'Ramen' },
-        { key: 'tonkatsu', ko: '돈카츠', en: 'Tonkatsu' },
-        { key: 'udon', ko: '우동', en: 'Udon' },
-        { key: 'tempura', ko: '텐푸라', en: 'Tempura' },
-        { key: 'curry', ko: '카레', en: 'Japanese Curry' },
-        { key: 'soba', ko: '소바', en: 'Soba' },
-        { key: 'katsudon', ko: '카츠동', en: 'Katsudon' }
-    ],
-    western: [
-        { key: 'steak', ko: '스테이크', en: 'Steak' },
-        { key: 'pasta', ko: '파스타', en: 'Pasta' },
-        { key: 'pizza', ko: '피자', en: 'Pizza' },
-        { key: 'hamburger', ko: '햄버거', en: 'Hamburger' },
-        { key: 'salad', ko: '샐러드', en: 'Salad' },
-        { key: 'risotto', ko: '리조또', en: 'Risotto' },
-        { key: 'sandwich', ko: '샌드위치', en: 'Sandwich' },
-        { key: 'fishAndChips', ko: '피쉬앤칩스', en: 'Fish & Chips' }
-    ]
-};
-
-// Roulette colors
-const rouletteColors = [
-    '#6366f1', '#ec4899', '#14b8a6', '#f59e0b',
-    '#8b5cf6', '#ef4444', '#22c55e', '#3b82f6',
-    '#f97316', '#06b6d4', '#84cc16', '#a855f7'
-];
 
 async function fetchPexelsImage(query) {
     try {
@@ -184,9 +134,10 @@ function applyTranslations() {
     if (subtitle) subtitle.textContent = t.subtitle;
 
     // Update recommendation section
-    const sectionTitles = document.querySelectorAll('.section-title');
-    if (sectionTitles[0]) sectionTitles[0].textContent = t.todayRecommendation;
-    if (sectionTitles[1]) sectionTitles[1].textContent = t.partnershipTitle;
+    const recommendationTitle = document.getElementById('recommendation-title');
+    if (recommendationTitle) recommendationTitle.textContent = t.todayRecommendation;
+    const contactTitle = document.getElementById('contact-title');
+    if (contactTitle) contactTitle.textContent = t.partnershipTitle;
 
     // Update menu recommendation placeholder
     const menuRec = document.getElementById('menu-recommendation');
@@ -714,202 +665,468 @@ function updateBulletinTranslations() {
     }
 }
 
-// ============ ROULETTE FUNCTIONALITY ============
+// ============ SLOT MACHINE FUNCTIONALITY ============
 
-const rouletteWheel = document.getElementById('roulette-wheel');
-const rouletteSpinBtn = document.getElementById('roulette-spin-btn');
-const rouletteResult = document.getElementById('roulette-result');
-const rouletteResultText = document.getElementById('roulette-result-text');
+// Slot machine menu items with emojis
+const slotMenuEmojis = {
+    korean: [
+        { key: 'bibimbap', ko: '비빔밥', en: 'Bibimbap', emoji: '🍚' },
+        { key: 'kimchijjigae', ko: '김치찌개', en: 'Kimchi Stew', emoji: '🍲' },
+        { key: 'bulgogi', ko: '불고기', en: 'Bulgogi', emoji: '🥩' },
+        { key: 'japchae', ko: '잡채', en: 'Japchae', emoji: '🍜' },
+        { key: 'samgyetang', ko: '삼계탕', en: 'Ginseng Chicken', emoji: '🐔' },
+        { key: 'sundubu', ko: '순두부찌개', en: 'Soft Tofu Stew', emoji: '🥘' },
+        { key: 'galbi', ko: '갈비', en: 'Korean BBQ Ribs', emoji: '🍖' },
+        { key: 'tteokbokki', ko: '떡볶이', en: 'Tteokbokki', emoji: '🌶️' }
+    ],
+    chinese: [
+        { key: 'jjajangmyeon', ko: '짜장면', en: 'Jjajangmyeon', emoji: '🍝' },
+        { key: 'jjampong', ko: '짬뽕', en: 'Spicy Seafood Noodle', emoji: '🍜' },
+        { key: 'sweetAndSourPork', ko: '탕수육', en: 'Sweet & Sour Pork', emoji: '🐷' },
+        { key: 'malatang', ko: '마라탕', en: 'Malatang', emoji: '🌶️' },
+        { key: 'mapa', ko: '마파두부', en: 'Mapo Tofu', emoji: '🫕' },
+        { key: 'friedRice', ko: '볶음밥', en: 'Fried Rice', emoji: '🍛' },
+        { key: 'dumplings', ko: '만두', en: 'Dumplings', emoji: '🥟' },
+        { key: 'jambong', ko: '간짜장', en: 'Dry Jjajang', emoji: '🥡' }
+    ],
+    japanese: [
+        { key: 'sushi', ko: '초밥', en: 'Sushi', emoji: '🍣' },
+        { key: 'ramen', ko: '라멘', en: 'Ramen', emoji: '🍜' },
+        { key: 'tonkatsu', ko: '돈카츠', en: 'Tonkatsu', emoji: '🍗' },
+        { key: 'udon', ko: '우동', en: 'Udon', emoji: '🍲' },
+        { key: 'tempura', ko: '텐푸라', en: 'Tempura', emoji: '🍤' },
+        { key: 'curry', ko: '카레', en: 'Japanese Curry', emoji: '🍛' },
+        { key: 'soba', ko: '소바', en: 'Soba', emoji: '🥢' },
+        { key: 'katsudon', ko: '카츠동', en: 'Katsudon', emoji: '🍱' }
+    ],
+    western: [
+        { key: 'steak', ko: '스테이크', en: 'Steak', emoji: '🥩' },
+        { key: 'pasta', ko: '파스타', en: 'Pasta', emoji: '🍝' },
+        { key: 'pizza', ko: '피자', en: 'Pizza', emoji: '🍕' },
+        { key: 'hamburger', ko: '햄버거', en: 'Hamburger', emoji: '🍔' },
+        { key: 'salad', ko: '샐러드', en: 'Salad', emoji: '🥗' },
+        { key: 'risotto', ko: '리조또', en: 'Risotto', emoji: '🍚' },
+        { key: 'sandwich', ko: '샌드위치', en: 'Sandwich', emoji: '🥪' },
+        { key: 'fishAndChips', ko: '피쉬앤칩스', en: 'Fish & Chips', emoji: '🐟' }
+    ]
+};
+
+const slotReel1 = document.getElementById('slot-reel-1');
+const slotReel2 = document.getElementById('slot-reel-2');
+const slotReel3 = document.getElementById('slot-reel-3');
+const slotLeverBtn = document.getElementById('slot-lever-btn');
+const slotResult = document.getElementById('slot-result');
+const slotResultText = document.getElementById('slot-result-text');
 const categoryFilter = document.getElementById('category-filter');
 
 let currentCategory = 'all';
-let currentRouletteMenus = [];
-let isSpinning = false;
-let currentRotation = 0;
+let currentSlotMenus = [];
+let isSlotSpinning = false;
+let spinIntervals = [null, null, null];
 
-// Get roulette translation
-function getRouletteTranslation(key) {
-    const translations = {
+// Get slot translation
+function getSlotTranslation(key) {
+    const slotTranslations = {
         'English': {
-            title: 'Menu Roulette',
-            desc: 'Spin the wheel to decide your meal!',
+            title: 'Menu Slot Machine',
+            desc: 'Pull the lever to decide your meal!',
             all: 'All',
             korean: 'Korean',
             chinese: 'Chinese',
             japanese: 'Japanese',
             western: 'Western',
-            spin: 'SPIN',
-            result: 'Today\'s menu is'
+            start: 'START',
+            result: "Today's menu is",
+            jackpot: 'JACKPOT!'
         },
         'Korean': {
-            title: '메뉴 룰렛',
-            desc: '룰렛을 돌려서 오늘의 메뉴를 정해보세요!',
+            title: '메뉴 슬롯머신',
+            desc: '슬롯머신을 돌려서 오늘의 메뉴를 정해보세요!',
             all: '전체',
             korean: '한식',
             chinese: '중식',
             japanese: '일식',
             western: '양식',
-            spin: 'SPIN',
-            result: '오늘의 메뉴는'
+            start: 'START',
+            result: '오늘의 메뉴는',
+            jackpot: '잭팟!'
         },
         'Japanese': {
-            title: 'メニュールーレット',
-            desc: 'ルーレットを回して今日のメニューを決めよう！',
+            title: 'メニュースロット',
+            desc: 'スロットを回して今日のメニューを決めよう！',
             all: '全て',
             korean: '韓国料理',
             chinese: '中華',
             japanese: '和食',
             western: '洋食',
-            spin: 'SPIN',
-            result: '今日のメニューは'
+            start: 'START',
+            result: '今日のメニューは',
+            jackpot: 'ジャックポット！'
         },
         'Mandarin Chinese': {
-            title: '菜单转盘',
-            desc: '转动轮盘来决定今天吃什么！',
+            title: '菜单老虎机',
+            desc: '拉动拉杆来决定今天吃什么！',
             all: '全部',
             korean: '韩餐',
             chinese: '中餐',
             japanese: '日料',
             western: '西餐',
-            spin: 'SPIN',
-            result: '今天的菜单是'
+            start: 'START',
+            result: '今天的菜单是',
+            jackpot: '大奖！'
+        },
+        'Spanish': {
+            title: 'Tragamonedas de Menú',
+            desc: '¡Tira de la palanca para decidir tu comida!',
+            all: 'Todo',
+            korean: 'Coreana',
+            chinese: 'China',
+            japanese: 'Japonesa',
+            western: 'Occidental',
+            start: 'START',
+            result: 'El menú de hoy es',
+            jackpot: '¡JACKPOT!'
         }
     };
-    const langData = translations[currentLanguage] || translations['English'];
-    return langData[key] || translations['English'][key];
+    const langData = slotTranslations[currentLanguage] || slotTranslations['English'];
+    return langData[key] || slotTranslations['English'][key];
 }
 
-// Get menu name based on language
-function getRouletteMenuName(menu) {
+// Get menu name for slot
+function getSlotMenuName(menu) {
     if (currentLanguage === 'Korean') return menu.ko;
     return menu.en;
 }
 
-// Build wheel menus based on category
-function buildWheelMenus() {
+// Build slot menus based on category
+function buildSlotMenus() {
     if (currentCategory === 'all') {
-        currentRouletteMenus = [
-            ...rouletteMenus.korean.slice(0, 3),
-            ...rouletteMenus.chinese.slice(0, 3),
-            ...rouletteMenus.japanese.slice(0, 3),
-            ...rouletteMenus.western.slice(0, 3)
+        currentSlotMenus = [
+            ...slotMenuEmojis.korean,
+            ...slotMenuEmojis.chinese,
+            ...slotMenuEmojis.japanese,
+            ...slotMenuEmojis.western
         ];
     } else {
-        currentRouletteMenus = [...rouletteMenus[currentCategory]];
+        currentSlotMenus = [...slotMenuEmojis[currentCategory]];
     }
-    renderWheel();
+    renderSlotReels();
 }
 
-// Render the wheel segments
-function renderWheel() {
-    if (!rouletteWheel) return;
+// Shuffle array
+function shuffleArray(arr) {
+    const shuffled = [...arr];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
 
-    rouletteWheel.innerHTML = '';
-    const segmentCount = currentRouletteMenus.length;
-    const segmentAngle = 360 / segmentCount;
+// Render slot reel items
+function renderSlotReels() {
+    [slotReel1, slotReel2, slotReel3].forEach(reel => {
+        if (!reel) return;
+        reel.innerHTML = '';
+        reel.style.transform = 'translateY(0)';
 
-    currentRouletteMenus.forEach((menu, index) => {
-        const segment = document.createElement('div');
-        segment.className = 'roulette-segment';
-        segment.style.transform = `rotate(${index * segmentAngle - 90}deg) skewY(${-(90 - segmentAngle)}deg)`;
-        segment.style.backgroundColor = rouletteColors[index % rouletteColors.length];
-
-        const content = document.createElement('span');
-        content.className = 'roulette-segment-content';
-        content.style.transform = `skewY(${90 - segmentAngle}deg) rotate(${segmentAngle / 2}deg)`;
-        content.textContent = getRouletteMenuName(menu);
-
-        segment.appendChild(content);
-        rouletteWheel.appendChild(segment);
+        // Create 3 visible items (center one is selected)
+        const shuffled = shuffleArray(currentSlotMenus);
+        for (let i = 0; i < 3; i++) {
+            const menu = shuffled[i % shuffled.length];
+            const item = document.createElement('div');
+            item.className = 'slot-item';
+            item.innerHTML = `<span class="slot-emoji">${menu.emoji}</span><span class="slot-name">${getSlotMenuName(menu)}</span>`;
+            item.dataset.index = i;
+            reel.appendChild(item);
+        }
     });
 }
 
-// Spin the wheel
-function spinWheel() {
-    if (isSpinning || !rouletteWheel) return;
+// Spin slot machine
+function spinSlotMachine() {
+    if (isSlotSpinning) return;
 
-    isSpinning = true;
-    rouletteSpinBtn.disabled = true;
-    rouletteResultText.textContent = '';
-    rouletteResult.style.opacity = '0';
+    isSlotSpinning = true;
+    slotLeverBtn.disabled = true;
+    slotResult.classList.remove('visible');
+    slotResultText.textContent = '';
 
-    const segmentCount = currentRouletteMenus.length;
-    const segmentAngle = 360 / segmentCount;
+    const reels = [slotReel1, slotReel2, slotReel3];
+    const results = [];
 
-    // Random number of full rotations (5-8) plus random segment
-    const fullRotations = 5 + Math.floor(Math.random() * 4);
-    const randomSegment = Math.floor(Math.random() * segmentCount);
-    const extraAngle = randomSegment * segmentAngle + segmentAngle / 2;
+    // For each reel, pick a random winning item
+    reels.forEach((reel, reelIndex) => {
+        if (!reel) return;
 
-    const totalRotation = currentRotation + (fullRotations * 360) + extraAngle;
-    currentRotation = totalRotation;
+        const winningIndex = Math.floor(Math.random() * currentSlotMenus.length);
+        results.push(currentSlotMenus[winningIndex]);
 
-    rouletteWheel.classList.add('spinning');
-    rouletteWheel.style.transform = `rotate(${totalRotation}deg)`;
+        // Build many items for spinning animation
+        reel.innerHTML = '';
+        reel.classList.remove('stopping');
 
-    // Show result after spin
+        const totalItems = 20 + reelIndex * 5; // More items = longer spin
+        for (let i = 0; i < totalItems; i++) {
+            const menu = currentSlotMenus[i % currentSlotMenus.length];
+            const item = document.createElement('div');
+            item.className = 'slot-item';
+            item.innerHTML = `<span class="slot-emoji">${menu.emoji}</span><span class="slot-name">${getSlotMenuName(menu)}</span>`;
+            reel.appendChild(item);
+        }
+
+        // Add winning items at the end (3 items: before, winner, after)
+        const prevIndex = (winningIndex - 1 + currentSlotMenus.length) % currentSlotMenus.length;
+        const nextIndex = (winningIndex + 1) % currentSlotMenus.length;
+
+        [currentSlotMenus[prevIndex], currentSlotMenus[winningIndex], currentSlotMenus[nextIndex]].forEach(menu => {
+            const item = document.createElement('div');
+            item.className = 'slot-item';
+            item.innerHTML = `<span class="slot-emoji">${menu.emoji}</span><span class="slot-name">${getSlotMenuName(menu)}</span>`;
+            reel.appendChild(item);
+        });
+
+        // Start spinning animation
+        const itemHeight = 60;
+        const targetOffset = (totalItems) * itemHeight;
+
+        reel.style.transition = 'none';
+        reel.style.transform = 'translateY(0)';
+
+        // Force reflow
+        reel.offsetHeight;
+
+        // Animate with delay per reel
+        setTimeout(() => {
+            reel.classList.add('stopping');
+            reel.style.transition = `transform ${1.5 + reelIndex * 0.5}s cubic-bezier(0.2, 0.8, 0.3, 1.02)`;
+            reel.style.transform = `translateY(-${targetOffset}px)`;
+        }, 100);
+    });
+
+    // Show result after all reels stop
+    const totalDuration = 1500 + 2 * 500 + 800;
     setTimeout(() => {
-        isSpinning = false;
-        rouletteSpinBtn.disabled = false;
-        rouletteWheel.classList.remove('spinning');
+        isSlotSpinning = false;
+        slotLeverBtn.disabled = false;
 
-        // Calculate which segment is at the top
-        const normalizedRotation = totalRotation % 360;
-        const winningIndex = Math.floor((360 - normalizedRotation + segmentAngle / 2) / segmentAngle) % segmentCount;
-        const winningMenu = currentRouletteMenus[winningIndex];
+        // Check for jackpot (all 3 same)
+        const isJackpot = results.length === 3 && results[0].key === results[1].key && results[1].key === results[2].key;
 
-        rouletteResultText.textContent = `${getRouletteTranslation('result')} ${getRouletteMenuName(winningMenu)}!`;
-        rouletteResult.style.opacity = '1';
-    }, 4000);
+        if (isJackpot) {
+            slotResultText.textContent = `🎉 ${getSlotTranslation('jackpot')} ${getSlotMenuName(results[0])}! 🎉`;
+            document.querySelector('.slot-frame')?.classList.add('slot-jackpot');
+            setTimeout(() => document.querySelector('.slot-frame')?.classList.remove('slot-jackpot'), 1500);
+        } else {
+            // Pick a random one from the 3 results
+            const chosen = results[Math.floor(Math.random() * results.length)];
+            slotResultText.textContent = `${getSlotTranslation('result')} ${getSlotMenuName(chosen)}!`;
+        }
+
+        slotResult.classList.add('visible');
+    }, totalDuration);
 }
 
-// Update roulette translations
-function updateRouletteTranslations() {
-    const titleEl = document.getElementById('roulette-title');
-    const descEl = document.getElementById('roulette-desc');
+// Update slot translations
+function updateSlotTranslations() {
+    const titleEl = document.getElementById('slot-title');
+    const descEl = document.getElementById('slot-desc');
+    const leverText = document.getElementById('slot-lever-text');
     const categoryBtns = document.querySelectorAll('.category-btn');
 
-    if (titleEl) titleEl.textContent = getRouletteTranslation('title');
-    if (descEl) descEl.textContent = getRouletteTranslation('desc');
-    if (rouletteSpinBtn) rouletteSpinBtn.querySelector('span').textContent = getRouletteTranslation('spin');
+    if (titleEl) titleEl.textContent = getSlotTranslation('title');
+    if (descEl) descEl.textContent = getSlotTranslation('desc');
+    if (leverText) leverText.textContent = getSlotTranslation('start');
 
     const categories = ['all', 'korean', 'chinese', 'japanese', 'western'];
     categoryBtns.forEach((btn, index) => {
         if (categories[index]) {
-            btn.textContent = getRouletteTranslation(categories[index]);
+            btn.textContent = getSlotTranslation(categories[index]);
         }
     });
 
-    // Re-render wheel with new language
-    renderWheel();
+    renderSlotReels();
+}
+
+// Alias for backward compatibility with applyTranslations
+function updateRouletteTranslations() {
+    updateSlotTranslations();
+    updateSituationTranslations();
+    updateSeasonalTranslations();
 }
 
 // Category filter click handler
 if (categoryFilter) {
     categoryFilter.addEventListener('click', (e) => {
-        if (e.target.classList.contains('category-btn') && !isSpinning) {
+        if (e.target.classList.contains('category-btn') && !isSlotSpinning) {
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
             e.target.classList.add('active');
             currentCategory = e.target.dataset.category;
-            buildWheelMenus();
-            rouletteResultText.textContent = '';
-            rouletteResult.style.opacity = '0';
+            buildSlotMenus();
+            slotResult.classList.remove('visible');
+            slotResultText.textContent = '';
         }
     });
 }
 
-// Spin button click handler
-if (rouletteSpinBtn) {
-    rouletteSpinBtn.addEventListener('click', spinWheel);
+// Slot lever click handler
+if (slotLeverBtn) {
+    slotLeverBtn.addEventListener('click', spinSlotMachine);
+}
+
+// ============ SITUATION-BASED RECOMMENDATIONS ============
+
+const situationData = {
+    'English': {
+        title: 'Situation-Based Recommendations',
+        desc: 'What situation are you in? We\'ll recommend the perfect menu!',
+        solo: { title: 'Solo Dining', menus: ['Ramen', 'Kimbap', 'Rice Bowl', 'Noodles'] },
+        family: { title: 'Family Dinner', menus: ['Pork Belly', 'Braised Ribs', 'Stew', 'Bulgogi'] },
+        friends: { title: 'Friends Gathering', menus: ['Chicken', 'Pizza', 'Pork Feet', 'Tteokbokki'] },
+        office: { title: 'Office Party', menus: ['BBQ Grill', 'Seafood Stew', 'Shabu-shabu', 'Ribs'] },
+        date: { title: 'Date Night', menus: ['Pasta', 'Steak', 'Sushi', 'Risotto'] },
+        quick: { title: 'Quick Meal', menus: ['Sandwich', 'Kimbap', 'Cup Noodle', 'Toast'] },
+        diet: { title: 'Diet', menus: ['Salad', 'Chicken Breast', 'Poke', 'Konjac'] },
+        drinking: { title: 'Bar Snacks', menus: ['Chicken', 'Tripe', 'Sashimi', 'Pancake'] }
+    },
+    'Korean': {
+        title: '상황별 메뉴 추천',
+        desc: '어떤 상황인가요? 딱 맞는 메뉴를 추천해드려요!',
+        solo: { title: '혼밥', menus: ['라멘', '김밥', '덮밥', '국수'] },
+        family: { title: '가족 식사', menus: ['삼겹살', '갈비찜', '찌개', '불고기'] },
+        friends: { title: '친구 모임', menus: ['치킨', '피자', '족발', '떡볶이'] },
+        office: { title: '회식', menus: ['고기구이', '해물탕', '샤브샤브', '갈비'] },
+        date: { title: '데이트', menus: ['파스타', '스테이크', '초밥', '리조또'] },
+        quick: { title: '간편식', menus: ['샌드위치', '김밥', '컵라면', '토스트'] },
+        diet: { title: '다이어트', menus: ['샐러드', '닭가슴살', '포케', '곤약'] },
+        drinking: { title: '술안주', menus: ['치킨', '곱창', '회', '전'] }
+    },
+    'Japanese': {
+        title: 'シーン別おすすめ',
+        desc: 'どんなシチュエーションですか？ぴったりのメニューをおすすめします！',
+        solo: { title: 'ひとりご飯', menus: ['ラーメン', 'キンパ', '丼物', 'そば'] },
+        family: { title: '家族の食事', menus: ['サムギョプサル', '煮込み', 'チゲ', 'プルコギ'] },
+        friends: { title: '友達の集まり', menus: ['チキン', 'ピザ', '豚足', 'トッポッキ'] },
+        office: { title: '会食', menus: ['焼肉', '海鮮鍋', 'しゃぶしゃぶ', 'カルビ'] },
+        date: { title: 'デート', menus: ['パスタ', 'ステーキ', '寿司', 'リゾット'] },
+        quick: { title: '軽食', menus: ['サンドイッチ', 'キンパ', 'カップ麺', 'トースト'] },
+        diet: { title: 'ダイエット', menus: ['サラダ', 'チキンブレスト', 'ポケ', 'こんにゃく'] },
+        drinking: { title: 'おつまみ', menus: ['チキン', 'ホルモン', '刺身', 'チヂミ'] }
+    },
+    'Mandarin Chinese': {
+        title: '场景推荐',
+        desc: '您在什么场景下用餐？推荐最合适的菜单！',
+        solo: { title: '独食', menus: ['拉面', '紫菜包饭', '盖饭', '面条'] },
+        family: { title: '家庭聚餐', menus: ['五花肉', '炖排骨', '汤锅', '烤肉'] },
+        friends: { title: '朋友聚会', menus: ['炸鸡', '披萨', '猪蹄', '辣炒年糕'] },
+        office: { title: '公司聚餐', menus: ['烤肉', '海鲜锅', '涮锅', '排骨'] },
+        date: { title: '约会', menus: ['意面', '牛排', '寿司', '烩饭'] },
+        quick: { title: '简餐', menus: ['三明治', '紫菜包饭', '杯面', '吐司'] },
+        diet: { title: '减肥餐', menus: ['沙拉', '鸡胸肉', '波奇', '魔芋'] },
+        drinking: { title: '下酒菜', menus: ['炸鸡', '大肠', '生鱼片', '煎饼'] }
+    }
+};
+
+function updateSituationTranslations() {
+    const lang = situationData[currentLanguage] || situationData['English'];
+    const titleEl = document.getElementById('situation-title');
+    const descEl = document.getElementById('situation-desc');
+
+    if (titleEl) titleEl.textContent = lang.title;
+    if (descEl) descEl.textContent = lang.desc;
+
+    const situations = ['solo', 'family', 'friends', 'office', 'date', 'quick', 'diet', 'drinking'];
+    const cards = document.querySelectorAll('.situation-card');
+
+    cards.forEach((card, index) => {
+        const situationKey = situations[index];
+        if (!situationKey || !lang[situationKey]) return;
+
+        const titleSpan = card.querySelector('.situation-card-title');
+        if (titleSpan) titleSpan.textContent = lang[situationKey].title;
+
+        const tags = card.querySelectorAll('.situation-menu-tag');
+        tags.forEach((tag, tagIndex) => {
+            if (lang[situationKey].menus[tagIndex]) {
+                tag.textContent = lang[situationKey].menus[tagIndex];
+            }
+        });
+    });
+}
+
+// ============ SEASONAL RECOMMENDATIONS ============
+
+const seasonalData = {
+    'English': {
+        title: 'Seasonal / Weather Menu',
+        desc: 'Find the perfect menu for today\'s weather!',
+        hot: { title: 'Hot Weather', menus: ['Cold Noodles', 'Bean Noodles', 'Raw Fish Bowl', 'Shaved Ice', 'Salad'] },
+        cold: { title: 'Cold Weather', menus: ['Dumpling Soup', 'Rice Cake Soup', 'Kimchi Stew', 'Sundae Soup', 'Shabu-shabu'] },
+        rainy: { title: 'Rainy Day', menus: ['Green Onion Pancake', 'Kalguksu', 'Sujebi', 'Ramen', 'Jeon'] },
+        hangover: { title: 'Hangover Cure', menus: ['Bone Soup', 'Bean Sprout Soup', 'Dried Pollack Soup', 'Ramen', 'Rice Soup'] }
+    },
+    'Korean': {
+        title: '계절/날씨별 메뉴',
+        desc: '오늘 날씨에 딱 맞는 메뉴를 찾아보세요!',
+        hot: { title: '더울 때', menus: ['냉면', '콩국수', '물회', '빙수', '샐러드'] },
+        cold: { title: '추울 때', menus: ['만둣국', '떡국', '김치찌개', '순대국', '샤브샤브'] },
+        rainy: { title: '비 올 때', menus: ['파전', '칼국수', '수제비', '라면', '부침개'] },
+        hangover: { title: '해장', menus: ['뼈해장국', '콩나물국밥', '북어국', '라면', '국밥'] }
+    },
+    'Japanese': {
+        title: '季節・天気別メニュー',
+        desc: '今日の天気にぴったりのメニューを見つけましょう！',
+        hot: { title: '暑い日', menus: ['冷麺', '豆乳麺', '海鮮丼', 'かき氷', 'サラダ'] },
+        cold: { title: '寒い日', menus: ['餃子スープ', '雑煮', 'キムチチゲ', 'スンデスープ', 'しゃぶしゃぶ'] },
+        rainy: { title: '雨の日', menus: ['チヂミ', 'カルグクス', 'スジェビ', 'ラーメン', '煎餅'] },
+        hangover: { title: '二日酔い', menus: ['骨スープ', 'もやしスープ', '干しダラスープ', 'ラーメン', 'クッパ'] }
+    },
+    'Mandarin Chinese': {
+        title: '季节/天气菜单',
+        desc: '找到适合今天天气的完美菜单！',
+        hot: { title: '热天', menus: ['冷面', '豆浆面', '生鱼饭', '刨冰', '沙拉'] },
+        cold: { title: '冷天', menus: ['饺子汤', '年糕汤', '泡菜锅', '米肠汤', '涮锅'] },
+        rainy: { title: '下雨天', menus: ['葱饼', '刀削面', '面疙瘩', '拉面', '煎饼'] },
+        hangover: { title: '解酒', menus: ['骨汤', '豆芽汤', '明太鱼汤', '拉面', '汤饭'] }
+    }
+};
+
+function updateSeasonalTranslations() {
+    const lang = seasonalData[currentLanguage] || seasonalData['English'];
+    const titleEl = document.getElementById('seasonal-title');
+    const descEl = document.getElementById('seasonal-desc');
+
+    if (titleEl) titleEl.textContent = lang.title;
+    if (descEl) descEl.textContent = lang.desc;
+
+    const seasons = ['hot', 'cold', 'rainy', 'hangover'];
+    const cards = document.querySelectorAll('.seasonal-card');
+
+    cards.forEach((card, index) => {
+        const seasonKey = seasons[index];
+        if (!seasonKey || !lang[seasonKey]) return;
+
+        const titleSpan = card.querySelector('.seasonal-card-title');
+        if (titleSpan) titleSpan.textContent = lang[seasonKey].title;
+
+        const listItems = card.querySelectorAll('.seasonal-menu-list li');
+        listItems.forEach((li, liIndex) => {
+            if (lang[seasonKey].menus[liIndex]) {
+                li.textContent = lang[seasonKey].menus[liIndex];
+            }
+        });
+    });
 }
 
 // Initialize
 initLanguageSelector();
 
-// Initialize roulette
-if (rouletteWheel) {
-    buildWheelMenus();
-    updateRouletteTranslations();
+// Initialize slot machine
+if (slotReel1) {
+    buildSlotMenus();
+    updateSlotTranslations();
+    updateSituationTranslations();
+    updateSeasonalTranslations();
 }
 
 // Initialize bulletin board
