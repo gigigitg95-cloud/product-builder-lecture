@@ -35,8 +35,7 @@ const translations = {
         howToUseStep2Title: 'Check the Recommended Menu',
         howToUseStep2Desc: 'Check the menu and image displayed on the screen. Does it look delicious?',
         howToUseStep3Title: 'If You Don\'t Like It, Try Again!',
-        howToUseStep3Desc: 'If you don\'t like the recommended menu, click the button again to get a new recommendation.',
-        aiBarText: 'AI-Powered Menu Recommendation - Get personalized food suggestions instantly!'
+        howToUseStep3Desc: 'If you don\'t like the recommended menu, click the button again to get a new recommendation.'
     },
     'Korean': {
         title: '저녁 메뉴 추천',
@@ -73,8 +72,7 @@ const translations = {
         howToUseStep2Title: '추천 메뉴 확인',
         howToUseStep2Desc: '화면에 표시되는 메뉴와 이미지를 확인하세요. 맛있어 보이나요?',
         howToUseStep3Title: '마음에 안 들면 다시!',
-        howToUseStep3Desc: '추천된 메뉴가 마음에 들지 않으면 버튼을 다시 클릭해서 새로운 메뉴를 추천받으세요.',
-        aiBarText: 'AI 기반 메뉴 추천 - 맞춤형 음식 추천을 즉시 받아보세요!'
+        howToUseStep3Desc: '추천된 메뉴가 마음에 들지 않으면 버튼을 다시 클릭해서 새로운 메뉴를 추천받으세요.'
     },
     'Japanese': {
         title: '夕食メニューのおすすめ',
@@ -111,8 +109,7 @@ const translations = {
         howToUseStep2Title: 'おすすめメニューを確認',
         howToUseStep2Desc: '画面に表示されるメニューと画像を確認してください。美味しそうですか？',
         howToUseStep3Title: '気に入らなければもう一度！',
-        howToUseStep3Desc: 'おすすめされたメニューが気に入らない場合は、ボタンをもう一度クリックして新しいメニューをおすすめしてもらいます。',
-        aiBarText: 'AIパワード メニュー推薦 - パーソナライズされた食事の提案を即座に取得！'
+        howToUseStep3Desc: 'おすすめされたメニューが気に入らない場合は、ボタンをもう一度クリックして新しいメニューをおすすめしてもらいます。'
     },
     'Mandarin Chinese': {
         title: '晚餐菜单推荐',
@@ -149,8 +146,7 @@ const translations = {
         howToUseStep2Title: '查看推荐菜单',
         howToUseStep2Desc: '查看屏幕上显示的菜单和图片。看起来好吃吗？',
         howToUseStep3Title: '不满意？再试一次！',
-        howToUseStep3Desc: '如果您不满意推荐的菜单，请再次点击按钮以获取新的推荐。',
-        aiBarText: 'AI驱动菜单推荐 - 即时获取个性化美食建议！'
+        howToUseStep3Desc: '如果您不满意推荐的菜单，请再次点击按钮以获取新的推荐。'
     },
     'Spanish': {
         title: 'Recomendación de Menú para la Cena',
@@ -187,8 +183,7 @@ const translations = {
         howToUseStep2Title: 'Verifica el Menú Recomendado',
         howToUseStep2Desc: 'Verifica el menú y la imagen que se muestran en la pantalla. ¿Se ve delicioso?',
         howToUseStep3Title: '¡Si no te gusta, inténtalo de nuevo!',
-        howToUseStep3Desc: 'Si no te gusta el menú recomendado, haz clic en el botón nuevamente para obtener una nueva recomendación.',
-        aiBarText: 'Recomendación de Menú con IA - ¡Obtén sugerencias de comida personalizadas al instante!'
+        howToUseStep3Desc: 'Si no te gusta el menú recomendado, haz clic en el botón nuevamente para obtener una nueva recomendación.'
     },
     'French': {
         title: 'Recommandation de Menu pour le Dîner',
@@ -225,8 +220,7 @@ const translations = {
         howToUseStep2Title: 'Vérifiez le menu recommandé',
         howToUseStep2Desc: 'Vérifiez le menu et l\'image affichés à l\'écran. Ça a l\'air délicieux?',
         howToUseStep3Title: 'Si vous n\'aimez pas, réessayez !',
-        howToUseStep3Desc: 'Si vous n\'aimez pas le menu recommandé, cliquez à nouveau sur le bouton pour obtenir une nouvelle recommandation.',
-        aiBarText: 'Recommandation de Menu par IA - Obtenez des suggestions culinaires personnalisées instantanément !'
+        howToUseStep3Desc: 'Si vous n\'aimez pas le menu recommandé, cliquez à nouveau sur le bouton pour obtenir une nouvelle recommandation.'
     },
     'German': {
         title: 'Abendessen-Menü-Empfehlung',
@@ -263,8 +257,7 @@ const translations = {
         howToUseStep2Title: 'Überprüfen Sie das empfohlene Menü',
         howToUseStep2Desc: 'Überprüfen Sie das auf dem Bildschirm angezeigte Menü und Bild. Sieht es lecker aus?',
         howToUseStep3Title: 'Wenn es Ihnen nicht gefällt, versuchen Sie es erneut!',
-        howToUseStep3Desc: 'Wenn Ihnen das empfohlene Menü nicht gefällt, klicken Sie erneut auf die Schaltfläche, um eine neue Empfehlung zu erhalten.',
-        aiBarText: 'KI-gestützte Menüempfehlung - Erhalten Sie sofort personalisierte Essensvorschläge!'
+        howToUseStep3Desc: 'Wenn Ihnen das empfohlene Menü nicht gefällt, klicken Sie erneut auf die Schaltfläche, um eine neue Empfehlung zu erhalten.'
     },
     'Portuguese': {
         title: 'Recomendação de Menu para o Jantar',
@@ -301,8 +294,7 @@ const translations = {
         howToUseStep2Title: 'Verifique o Menu Recomendado',
         howToUseStep2Desc: 'Verifique o menu e a imagem exibidos na tela. Parece delicioso?',
         howToUseStep3Title: 'Se não gostar, tente novamente!',
-        howToUseStep3Desc: 'Se não gostar do menu recomendado, clique no botão novamente para obter uma nova recomendação.',
-        aiBarText: 'Recomendação de Menu com IA - Receba sugestões de comida personalizadas instantaneamente!'
+        howToUseStep3Desc: 'Se não gostar do menu recomendado, clique no botão novamente para obter uma nova recomendação.'
     },
     'Russian': {
         title: 'Рекомендация меню на ужин',
@@ -339,8 +331,7 @@ const translations = {
         howToUseStep2Title: 'Проверьте рекомендуемое меню',
         howToUseStep2Desc: 'Проверьте меню и изображение, отображаемые на экране. Выглядит аппетитно?',
         howToUseStep3Title: 'Если вам не нравится, попробуйте еще раз!',
-        howToUseStep3Desc: 'Если вам не нравится рекомендуемое меню, нажмите кнопку еще раз, чтобы получить новую рекомендацию.',
-        aiBarText: 'Рекомендации меню на основе ИИ - Получите персонализированные предложения блюд мгновенно!'
+        howToUseStep3Desc: 'Если вам не нравится рекомендуемое меню, нажмите кнопку еще раз, чтобы получить новую рекомендацию.'
     },
     'Arabic': {
         title: 'توصية قائمة العشاء',
@@ -377,8 +368,7 @@ const translations = {
         howToUseStep2Title: 'تحقق من القائمة الموصى بها',
         howToUseStep2Desc: 'تحقق من القائمة والصورة المعروضة على الشاشة. هل تبدو لذيذة؟',
         howToUseStep3Title: 'إذا لم تعجبك، حاول مرة أخرى!',
-        howToUseStep3Desc: 'إذا لم تعجبك القائمة الموصى بها، فانقر فوق الزر مرة أخرى للحصول على توصية جديدة.',
-        aiBarText: 'توصية قائمة الطعام بالذكاء الاصطناعي - احصل على اقتراحات طعام مخصصة على الفور!'
+        howToUseStep3Desc: 'إذا لم تعجبك القائمة الموصى بها، فانقر فوق الزر مرة أخرى للحصول على توصية جديدة.'
     },
     'Thai': {
         title: 'แนะนำเมนูอาหารเย็น',
@@ -415,8 +405,7 @@ const translations = {
         howToUseStep2Title: 'ตรวจสอบเมนูที่แนะนำ',
         howToUseStep2Desc: 'ตรวจสอบเมนูและรูปภาพที่แสดงบนหน้าจอ ดูน่าอร่อยไหม?',
         howToUseStep3Title: 'ถ้าไม่ชอบ ลองอีกครั้ง!',
-        howToUseStep3Desc: 'หากคุณไม่ชอบเมนูที่แนะนำ ให้คลิกปุ่มอีกครั้งเพื่อรับคำแนะนำใหม่',
-        aiBarText: 'แนะนำเมนูด้วย AI - รับคำแนะนำอาหารส่วนตัวทันที!'
+        howToUseStep3Desc: 'หากคุณไม่ชอบเมนูที่แนะนำ ให้คลิกปุ่มอีกครั้งเพื่อรับคำแนะนำใหม่'
     },
     'Vietnamese': {
         title: 'Gợi ý Thực đơn Bữa tối',
@@ -453,8 +442,7 @@ const translations = {
         howToUseStep2Title: 'Kiểm tra thực đơn được đề xuất',
         howToUseStep2Desc: 'Kiểm tra thực đơn và hình ảnh hiển thị trên màn hình. Trông có ngon không?',
         howToUseStep3Title: 'Nếu bạn không thích, hãy thử lại!',
-        howToUseStep3Desc: 'Nếu bạn không thích thực đơn được đề xuất, hãy nhấp lại vào nút để nhận gợi ý mới.',
-        aiBarText: 'Gợi ý Thực đơn bằng AI - Nhận đề xuất món ăn cá nhân ngay lập tức!'
+        howToUseStep3Desc: 'Nếu bạn không thích thực đơn được đề xuất, hãy nhấp lại vào nút để nhận gợi ý mới.'
     },
     'Indonesian': {
         title: 'Rekomendasi Menu Makan Malam',
@@ -491,8 +479,7 @@ const translations = {
         howToUseStep2Title: 'Periksa Menu yang Direkomendasikan',
         howToUseStep2Desc: 'Periksa menu dan gambar yang ditampilkan di layar. Apakah terlihat lezat?',
         howToUseStep3Title: 'Jika Anda tidak suka, coba lagi!',
-        howToUseStep3Desc: 'Jika Anda tidak suka menu yang direkomendasikan, klik tombol lagi untuk mendapatkan rekomendasi baru.',
-        aiBarText: 'Rekomendasi Menu dengan AI - Dapatkan saran makanan yang dipersonalisasi secara instan!'
+        howToUseStep3Desc: 'Jika Anda tidak suka menu yang direkomendasikan, klik tombol lagi untuk mendapatkan rekomendasi baru.'
     },
     'Hindi': {
         title: 'रात के खाने के मेनू की सिफारिश',
@@ -529,8 +516,7 @@ const translations = {
         howToUseStep2Title: 'अनुशंसित मेनू की जाँच करें',
         howToUseStep2Desc: 'स्क्रीन पर प्रदर्शित मेनू और छवि की जाँच करें। क्या यह स्वादिष्ट लग रहा है?',
         howToUseStep3Title: 'यदि आपको यह पसंद नहीं है, तो फिर से प्रयास करें!',
-        howToUseStep3Desc: 'यदि आपको अनुशंसित मेनू पसंद नहीं है, तो नई सिफारिश प्राप्त करने के लिए फिर से बटन पर क्लिक करें।',
-        aiBarText: 'AI-संचालित मेनू अनुशंसा - तुरंत व्यक्तिगत भोजन सुझाव प्राप्त करें!'
+        howToUseStep3Desc: 'यदि आपको अनुशंसित मेनू पसंद नहीं है, तो नई सिफारिश प्राप्त करने के लिए फिर से बटन पर क्लिक करें।' 
     },
     'Italian': {
         title: 'Raccomandazione Menu per la Cena',
@@ -567,8 +553,7 @@ const translations = {
         howToUseStep2Title: 'Controlla il menu consigliato',
         howToUseStep2Desc: 'Controlla il menu e l\'immagine visualizzati sullo schermo. Sembra delizioso?',
         howToUseStep3Title: 'Se non ti piace, riprova!',
-        howToUseStep3Desc: 'Se non ti piace il menu consigliato, fai di nuovo clic sul pulsante per ottenere una nuova raccomandazione.',
-        aiBarText: 'Raccomandazione Menu con AI - Ricevi suggerimenti alimentari personalizzati istantaneamente!'
+        howToUseStep3Desc: 'Se non ti piace il menu consigliato, fai di nuovo clic sul pulsante per ottenere una nuova raccomandazione.'
     },
     'Dutch': {
         title: 'Aanbeveling voor het Avondmenu',
@@ -605,8 +590,7 @@ const translations = {
         howToUseStep2Title: 'Controleer het aanbevolen menu',
         howToUseStep2Desc: 'Controleer het menu en de afbeelding die op het scherm worden weergegeven. Ziet het er heerlijk uit?',
         howToUseStep3Title: 'Als je het niet lekker vindt, probeer het dan opnieuw!',
-        howToUseStep3Desc: 'Als je het aanbevolen menu niet lekker vindt, klik dan nogmaals op de knop om een nieuwe aanbeveling te krijgen.',
-        aiBarText: 'AI-gestuurde Menu Aanbeveling - Krijg direct gepersonaliseerde voedselssuggesties!'
+        howToUseStep3Desc: 'Als je het aanbevolen menu niet lekker vindt, klik dan nogmaals op de knop om een nieuwe aanbeveling te krijgen.'
     },
     'Polish': {
         title: 'Rekomendacja Menu na Kolację',
@@ -643,8 +627,7 @@ const translations = {
         howToUseStep2Title: 'Sprawdź zalecane menu',
         howToUseStep2Desc: 'Sprawdź menu i obraz wyświetlany na ekranie. Czy wygląda smacznie?',
         howToUseStep3Title: 'Jeśli Ci się nie podoba, spróbuj ponownie!',
-        howToUseStep3Desc: 'Jeśli nie podoba Ci się zalecane menu, kliknij przycisk ponownie, aby uzyskać nową rekomendację.',
-        aiBarText: 'Rekomendacja Menu z AI - Otrzymuj spersonalizowane propozycje jedzenia natychmiast!'
+        howToUseStep3Desc: 'Jeśli nie podoba Ci się zalecane menu, kliknij przycisk ponownie, aby uzyskać nową rekomendację.'
     },
     'Turkish': {
         title: 'Akşam Yemeği Menü Önerisi',
@@ -681,8 +664,7 @@ const translations = {
         howToUseStep2Title: 'Önerilen Menüyü Kontrol Edin',
         howToUseStep2Desc: 'Ekranda görüntülenen menüyü ve resmi kontrol edin. Lezzetli görünüyor mu?',
         howToUseStep3Title: 'Beğenmezseniz Tekrar Deneyin!',
-        howToUseStep3Desc: 'Önerilen menüyü beğenmezseniz, yeni bir öneri almak için düğmeyi tekrar tıklayın.',
-        aiBarText: 'Yapay Zeka Destekli Menü Önerisi - Kişiselleştirilmiş yemek önerilerini anında alın!'
+        howToUseStep3Desc: 'Önerilen menüyü beğenmezseniz, yeni bir öneri almak için düğmeyi tekrar tıklayın.'
     }
 };
 
