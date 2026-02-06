@@ -702,6 +702,7 @@ footer {
 .slot-result-image {
     width: 100%;
     height: 200px;
+    aspect-ratio: 4/3;
     object-fit: cover;
     border-radius: 14px;
     background: var(--card-background);

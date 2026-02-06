@@ -219,7 +219,7 @@ function applyTranslations() {
     if (foodTipsTitle) foodTipsTitle.textContent = t.foodTipsTitle;
 
     const tipCards = document.querySelectorAll('.tip-card');
-    if (tipCards.length > 0) {
+    if (tipCards.length >= 4) {
         tipCards[0].querySelector('h3').textContent = t.foodTip1Title;
         tipCards[0].querySelector('p').textContent = t.foodTip1Desc;
         tipCards[1].querySelector('h3').textContent = t.foodTip2Title;
@@ -235,7 +235,7 @@ function applyTranslations() {
     if (howToUseTitle) howToUseTitle.textContent = t.howToUseTitle;
 
     const steps = document.querySelectorAll('.step-content');
-    if (steps.length > 0) {
+    if (steps.length >= 3) {
         steps[0].querySelector('h3').textContent = t.howToUseStep1Title;
         steps[0].querySelector('p').textContent = t.howToUseStep1Desc;
         steps[1].querySelector('h3').textContent = t.howToUseStep2Title;
@@ -437,7 +437,6 @@ const bulletinSubmit = document.getElementById('bulletin-submit');
 
 // Get bulletin translations
 function getBulletinTranslation(key) {
-    const t = translations[currentLanguage] || translations['English'];
     const bulletinTranslations = {
         'English': {
             title: 'Community Board',
@@ -963,7 +962,7 @@ if (categoryFilter) {
             currentCategory = e.target.dataset.category;
             buildSlotMenus();
             slotResult.classList.remove('visible');
-            slotResultText.textContent = '';
+            slotResultName.textContent = '';
         }
     });
 }

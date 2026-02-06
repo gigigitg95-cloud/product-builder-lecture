@@ -43,6 +43,7 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/favicon.svg">
 
     <!-- Preconnect for Performance -->
@@ -57,8 +58,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
     <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-7066264300961815">
@@ -280,7 +281,7 @@
                 <!-- Result Display -->
                 <div class="slot-result" id="slot-result">
                     <div class="slot-result-card" id="slot-result-card">
-                        <img class="slot-result-image" id="slot-result-image" src="" alt="" loading="lazy">
+                        <img class="slot-result-image" id="slot-result-image" src="" alt="" loading="lazy" decoding="async">
                         <div class="slot-result-info">
                             <span class="slot-result-emoji" id="slot-result-emoji"></span>
                             <span class="slot-result-name" id="slot-result-name"></span>
@@ -293,7 +294,7 @@
                 <h2 class="section-title" id="recommendation-title">오늘의 추천 메뉴</h2>
                 <div class="menu-card">
                     <div class="image-container">
-                        <img id="menu-image" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80" alt="추천 메뉴 이미지 - 맛있는 음식 사진" width="800" height="600" loading="eager" itemprop="image">
+                        <img id="menu-image" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80" alt="추천 메뉴 이미지 - 맛있는 음식 사진" width="800" height="600" loading="eager" fetchpriority="high" decoding="async" itemprop="image">
                     </div>
                     <div id="menu-recommendation" class="menu-recommendation" role="status" aria-live="polite">아래 버튼을 클릭하세요!</div>
                     <button id="recommend-btn" class="recommend-btn" aria-label="메뉴 추천받기">
@@ -350,7 +351,7 @@
                      data-ad-format="horizontal"
                      data-full-width-responsive="true"></ins>
                 <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
+                     try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
                 </script>
             </div>
 
@@ -523,7 +524,7 @@
                      data-ad-format="horizontal"
                      data-full-width-responsive="true"></ins>
                 <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
+                     try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
                 </script>
             </div>
 
@@ -592,7 +593,7 @@
                      data-ad-format="horizontal"
                      data-full-width-responsive="true"></ins>
             <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
+                 try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
             </script>
         </div>
 
@@ -610,8 +611,8 @@
         </footer>
     </div>
 
-    <script src="js/countryLanguageService.js"></script>
-    <script src="js/translations.js"></script>
-    <script src="js/app.js"></script>
+    <script defer src="js/countryLanguageService.js"></script>
+    <script defer src="js/translations.js"></script>
+    <script defer src="js/app.js"></script>
 </body>
 </html>

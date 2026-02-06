@@ -25,6 +25,10 @@
           {
             "key": "Referrer-Policy",
             "value": "strict-origin-when-cross-origin"
+          },
+          {
+            "key": "Strict-Transport-Security",
+            "value": "max-age=31536000; includeSubDomains"
           }
         ]
       },
@@ -73,10 +77,28 @@
         ]
       }
     ],
+    "cleanUrls": true,
+    "trailingSlash": false,
     "rewrites": [
       {
-        "source": "**",
+        "source": "/index.html",
         "destination": "/index.html"
+      },
+      {
+        "source": "/about.html",
+        "destination": "/about.html"
+      },
+      {
+        "source": "/privacy.html",
+        "destination": "/privacy.html"
+      },
+      {
+        "source": "/terms.html",
+        "destination": "/terms.html"
+      },
+      {
+        "source": "**",
+        "destination": "/404.html"
       }
     ]
   }
