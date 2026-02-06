@@ -202,6 +202,11 @@ function applyTranslations() {
     const searchInput = document.getElementById('language-search');
     if (searchInput) searchInput.placeholder = t.searchLanguages;
 
+    // Update bulletin board translations
+    if (typeof updateBulletinTranslations === 'function') {
+        updateBulletinTranslations();
+    }
+
     // Update Food Tips Section
     const foodTipsTitle = document.getElementById('food-tips-title');
     if (foodTipsTitle) foodTipsTitle.textContent = t.foodTipsTitle;
@@ -394,5 +399,270 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyBxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    authDomain: "productai-8845e.firebaseapp.com",
+    projectId: "productai-8845e",
+    storageBucket: "productai-8845e.appspot.com",
+    messagingSenderId: "000000000000",
+    appId: "1:000000000000:web:xxxxxxxxxxxxxxxx"
+};
+
+// Initialize Firebase
+let db;
+try {
+    if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+    }
+} catch (e) {
+    console.log('Firebase initialization skipped or failed:', e);
+}
+
+// Bulletin Board functionality
+const bulletinForm = document.getElementById('bulletin-form');
+const bulletinNickname = document.getElementById('bulletin-nickname');
+const bulletinMessage = document.getElementById('bulletin-message');
+const bulletinPosts = document.getElementById('bulletin-posts');
+const bulletinLoading = document.getElementById('bulletin-loading');
+const bulletinSubmit = document.getElementById('bulletin-submit');
+
+// Get bulletin translations
+function getBulletinTranslation(key) {
+    const t = translations[currentLanguage] || translations['English'];
+    const bulletinTranslations = {
+        'English': {
+            title: 'Community Board',
+            desc: 'What did you eat today? Share your food stories with others!',
+            nicknamePlaceholder: 'Nickname',
+            messagePlaceholder: 'Enter your message...',
+            submit: 'Post',
+            loading: 'Loading posts...',
+            empty: 'No posts yet. Be the first to share!',
+            justNow: 'Just now',
+            minutesAgo: 'minutes ago',
+            hoursAgo: 'hours ago',
+            daysAgo: 'days ago'
+        },
+        'Korean': {
+            title: '커뮤니티 게시판',
+            desc: '오늘 뭐 먹었나요? 다른 사용자들과 음식 이야기를 나눠보세요!',
+            nicknamePlaceholder: '닉네임',
+            messagePlaceholder: '메시지를 입력하세요...',
+            submit: '게시',
+            loading: '게시물을 불러오는 중...',
+            empty: '아직 게시물이 없습니다. 첫 번째로 공유해보세요!',
+            justNow: '방금 전',
+            minutesAgo: '분 전',
+            hoursAgo: '시간 전',
+            daysAgo: '일 전'
+        },
+        'Japanese': {
+            title: 'コミュニティ掲示板',
+            desc: '今日は何を食べましたか？他のユーザーと食べ物の話を共有しましょう！',
+            nicknamePlaceholder: 'ニックネーム',
+            messagePlaceholder: 'メッセージを入力...',
+            submit: '投稿',
+            loading: '投稿を読み込み中...',
+            empty: 'まだ投稿がありません。最初に共有してください！',
+            justNow: 'たった今',
+            minutesAgo: '分前',
+            hoursAgo: '時間前',
+            daysAgo: '日前'
+        },
+        'Mandarin Chinese': {
+            title: '社区留言板',
+            desc: '今天吃了什么？与其他用户分享您的美食故事！',
+            nicknamePlaceholder: '昵称',
+            messagePlaceholder: '输入您的消息...',
+            submit: '发布',
+            loading: '加载帖子中...',
+            empty: '还没有帖子。成为第一个分享的人！',
+            justNow: '刚刚',
+            minutesAgo: '分钟前',
+            hoursAgo: '小时前',
+            daysAgo: '天前'
+        },
+        'Spanish': {
+            title: 'Tablón Comunitario',
+            desc: '¿Qué comiste hoy? ¡Comparte tus historias de comida con otros!',
+            nicknamePlaceholder: 'Apodo',
+            messagePlaceholder: 'Escribe tu mensaje...',
+            submit: 'Publicar',
+            loading: 'Cargando publicaciones...',
+            empty: 'Aún no hay publicaciones. ¡Sé el primero en compartir!',
+            justNow: 'Justo ahora',
+            minutesAgo: 'minutos atrás',
+            hoursAgo: 'horas atrás',
+            daysAgo: 'días atrás'
+        }
+    };
+
+    const langData = bulletinTranslations[currentLanguage] || bulletinTranslations['English'];
+    return langData[key] || bulletinTranslations['English'][key];
+}
+
+// Format time ago
+function formatTimeAgo(timestamp) {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return getBulletinTranslation('justNow');
+    if (minutes < 60) return `${minutes} ${getBulletinTranslation('minutesAgo')}`;
+    if (hours < 24) return `${hours} ${getBulletinTranslation('hoursAgo')}`;
+    return `${days} ${getBulletinTranslation('daysAgo')}`;
+}
+
+// Render a single post
+function renderPost(post) {
+    const postEl = document.createElement('div');
+    postEl.className = 'bulletin-post';
+    postEl.innerHTML = `
+        <div class="bulletin-post-header">
+            <span class="bulletin-post-nickname">${escapeHtml(post.nickname)}</span>
+            <span class="bulletin-post-time">${formatTimeAgo(post.timestamp)}</span>
+        </div>
+        <div class="bulletin-post-message">${escapeHtml(post.message)}</div>
+    `;
+    return postEl;
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Load posts from Firestore
+async function loadPosts() {
+    if (!db) {
+        // Fallback to localStorage if Firebase is not available
+        loadPostsFromLocalStorage();
+        return;
+    }
+
+    try {
+        const snapshot = await db.collection('bulletin')
+            .orderBy('timestamp', 'desc')
+            .limit(50)
+            .get();
+
+        bulletinPosts.innerHTML = '';
+
+        if (snapshot.empty) {
+            bulletinPosts.innerHTML = `<div class="bulletin-empty">${getBulletinTranslation('empty')}</div>`;
+            return;
+        }
+
+        snapshot.forEach(doc => {
+            const post = doc.data();
+            bulletinPosts.appendChild(renderPost(post));
+        });
+    } catch (error) {
+        console.error('Error loading posts:', error);
+        loadPostsFromLocalStorage();
+    }
+}
+
+// Fallback: Load posts from localStorage
+function loadPostsFromLocalStorage() {
+    const posts = JSON.parse(localStorage.getItem('bulletinPosts') || '[]');
+    bulletinPosts.innerHTML = '';
+
+    if (posts.length === 0) {
+        bulletinPosts.innerHTML = `<div class="bulletin-empty">${getBulletinTranslation('empty')}</div>`;
+        return;
+    }
+
+    posts.sort((a, b) => b.timestamp - a.timestamp);
+    posts.slice(0, 50).forEach(post => {
+        bulletinPosts.appendChild(renderPost(post));
+    });
+}
+
+// Save post
+async function savePost(nickname, message) {
+    const post = {
+        nickname: nickname.trim(),
+        message: message.trim(),
+        timestamp: Date.now()
+    };
+
+    if (db) {
+        try {
+            await db.collection('bulletin').add(post);
+            return true;
+        } catch (error) {
+            console.error('Error saving to Firestore:', error);
+        }
+    }
+
+    // Fallback to localStorage
+    const posts = JSON.parse(localStorage.getItem('bulletinPosts') || '[]');
+    posts.unshift(post);
+    localStorage.setItem('bulletinPosts', JSON.stringify(posts.slice(0, 100)));
+    return true;
+}
+
+// Handle form submission
+if (bulletinForm) {
+    bulletinForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nickname = bulletinNickname.value.trim();
+        const message = bulletinMessage.value.trim();
+
+        if (!nickname || !message) return;
+
+        bulletinSubmit.disabled = true;
+
+        const success = await savePost(nickname, message);
+
+        if (success) {
+            bulletinMessage.value = '';
+            localStorage.setItem('bulletinNickname', nickname);
+            await loadPosts();
+        }
+
+        bulletinSubmit.disabled = false;
+    });
+
+    // Restore saved nickname
+    const savedNickname = localStorage.getItem('bulletinNickname');
+    if (savedNickname && bulletinNickname) {
+        bulletinNickname.value = savedNickname;
+    }
+}
+
+// Update bulletin board translations
+function updateBulletinTranslations() {
+    const titleEl = document.getElementById('bulletin-title');
+    const descEl = document.getElementById('bulletin-desc');
+
+    if (titleEl) titleEl.textContent = getBulletinTranslation('title');
+    if (descEl) descEl.textContent = getBulletinTranslation('desc');
+    if (bulletinNickname) bulletinNickname.placeholder = getBulletinTranslation('nicknamePlaceholder');
+    if (bulletinMessage) bulletinMessage.placeholder = getBulletinTranslation('messagePlaceholder');
+    if (bulletinSubmit) bulletinSubmit.querySelector('span').textContent = getBulletinTranslation('submit');
+    if (bulletinLoading) bulletinLoading.textContent = getBulletinTranslation('loading');
+
+    // Refresh posts to update time format
+    const emptyEl = bulletinPosts?.querySelector('.bulletin-empty');
+    if (emptyEl) {
+        emptyEl.textContent = getBulletinTranslation('empty');
+    }
+}
+
 // Initialize
 initLanguageSelector();
+
+// Initialize bulletin board
+if (bulletinPosts) {
+    loadPosts();
+    updateBulletinTranslations();
+}

@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Bulletin board - public read, write with rate limiting
+    match /bulletin/{postId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['nickname', 'message', 'timestamp'])
+                    && request.resource.data.nickname is string
+                    && request.resource.data.nickname.size() > 0
+                    && request.resource.data.nickname.size() <= 20
+                    && request.resource.data.message is string
+                    && request.resource.data.message.size() > 0
+                    && request.resource.data.message.size() <= 200
+                    && request.resource.data.timestamp is number;
+      allow update, delete: if false;
+    }
+  }
+}
