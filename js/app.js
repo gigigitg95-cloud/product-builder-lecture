@@ -716,7 +716,10 @@ const slotReel2 = document.getElementById('slot-reel-2');
 const slotReel3 = document.getElementById('slot-reel-3');
 const slotLeverBtn = document.getElementById('slot-lever-btn');
 const slotResult = document.getElementById('slot-result');
-const slotResultText = document.getElementById('slot-result-text');
+const slotResultCard = document.getElementById('slot-result-card');
+const slotResultImage = document.getElementById('slot-result-image');
+const slotResultEmoji = document.getElementById('slot-result-emoji');
+const slotResultName = document.getElementById('slot-result-name');
 const categoryFilter = document.getElementById('category-filter');
 
 let currentCategory = 'all';
@@ -850,23 +853,20 @@ function spinSlotMachine() {
     isSlotSpinning = true;
     slotLeverBtn.disabled = true;
     slotResult.classList.remove('visible');
-    slotResultText.textContent = '';
 
     const reels = [slotReel1, slotReel2, slotReel3];
-    const results = [];
 
-    // For each reel, pick a random winning item
+    // Pick ONE winning food - all 3 reels land on the same item
+    const winningIndex = Math.floor(Math.random() * currentSlotMenus.length);
+    const winningMenu = currentSlotMenus[winningIndex];
+
     reels.forEach((reel, reelIndex) => {
         if (!reel) return;
 
-        const winningIndex = Math.floor(Math.random() * currentSlotMenus.length);
-        results.push(currentSlotMenus[winningIndex]);
-
-        // Build many items for spinning animation
         reel.innerHTML = '';
         reel.classList.remove('stopping');
 
-        const totalItems = 20 + reelIndex * 5; // More items = longer spin
+        const totalItems = 20 + reelIndex * 5;
         for (let i = 0; i < totalItems; i++) {
             const menu = currentSlotMenus[i % currentSlotMenus.length];
             const item = document.createElement('div');
@@ -875,28 +875,24 @@ function spinSlotMachine() {
             reel.appendChild(item);
         }
 
-        // Add winning items at the end (3 items: before, winner, after)
+        // All reels land on the same winning item
         const prevIndex = (winningIndex - 1 + currentSlotMenus.length) % currentSlotMenus.length;
         const nextIndex = (winningIndex + 1) % currentSlotMenus.length;
 
-        [currentSlotMenus[prevIndex], currentSlotMenus[winningIndex], currentSlotMenus[nextIndex]].forEach(menu => {
+        [currentSlotMenus[prevIndex], winningMenu, currentSlotMenus[nextIndex]].forEach(menu => {
             const item = document.createElement('div');
             item.className = 'slot-item';
             item.innerHTML = `<span class="slot-emoji">${menu.emoji}</span><span class="slot-name">${getSlotMenuName(menu)}</span>`;
             reel.appendChild(item);
         });
 
-        // Start spinning animation
         const itemHeight = 60;
         const targetOffset = (totalItems) * itemHeight;
 
         reel.style.transition = 'none';
         reel.style.transform = 'translateY(0)';
-
-        // Force reflow
         reel.offsetHeight;
 
-        // Animate with delay per reel
         setTimeout(() => {
             reel.classList.add('stopping');
             reel.style.transition = `transform ${1.5 + reelIndex * 0.5}s cubic-bezier(0.2, 0.8, 0.3, 1.02)`;
@@ -906,21 +902,24 @@ function spinSlotMachine() {
 
     // Show result after all reels stop
     const totalDuration = 1500 + 2 * 500 + 800;
-    setTimeout(() => {
+    setTimeout(async () => {
         isSlotSpinning = false;
         slotLeverBtn.disabled = false;
 
-        // Check for jackpot (all 3 same)
-        const isJackpot = results.length === 3 && results[0].key === results[1].key && results[1].key === results[2].key;
+        // Jackpot effect since all 3 match
+        document.querySelector('.slot-frame')?.classList.add('slot-jackpot');
+        setTimeout(() => document.querySelector('.slot-frame')?.classList.remove('slot-jackpot'), 1500);
 
-        if (isJackpot) {
-            slotResultText.textContent = `🎉 ${getSlotTranslation('jackpot')} ${getSlotMenuName(results[0])}! 🎉`;
-            document.querySelector('.slot-frame')?.classList.add('slot-jackpot');
-            setTimeout(() => document.querySelector('.slot-frame')?.classList.remove('slot-jackpot'), 1500);
-        } else {
-            // Pick a random one from the 3 results
-            const chosen = results[Math.floor(Math.random() * results.length)];
-            slotResultText.textContent = `${getSlotTranslation('result')} ${getSlotMenuName(chosen)}!`;
+        // Show result card with food image
+        if (slotResultEmoji) slotResultEmoji.textContent = winningMenu.emoji;
+        if (slotResultName) slotResultName.textContent = `${getSlotTranslation('result')} ${getSlotMenuName(winningMenu)}!`;
+
+        // Fetch and show food image
+        if (slotResultImage) {
+            slotResultImage.src = '';
+            slotResultImage.alt = getSlotMenuName(winningMenu);
+            const imageUrl = await fetchPexelsImage(winningMenu.key);
+            slotResultImage.src = imageUrl;
         }
 
         slotResult.classList.add('visible');
@@ -1060,34 +1059,34 @@ const seasonalData = {
     'English': {
         title: 'Seasonal / Weather Menu',
         desc: 'Find the perfect menu for today\'s weather!',
-        hot: { title: 'Hot Weather', menus: ['Cold Noodles', 'Bean Noodles', 'Raw Fish Bowl', 'Shaved Ice', 'Salad'] },
-        cold: { title: 'Cold Weather', menus: ['Dumpling Soup', 'Rice Cake Soup', 'Kimchi Stew', 'Sundae Soup', 'Shabu-shabu'] },
-        rainy: { title: 'Rainy Day', menus: ['Green Onion Pancake', 'Kalguksu', 'Sujebi', 'Ramen', 'Jeon'] },
-        hangover: { title: 'Hangover Cure', menus: ['Bone Soup', 'Bean Sprout Soup', 'Dried Pollack Soup', 'Ramen', 'Rice Soup'] }
+        hot: { title: 'Hot Weather', menus: ['Cold Noodles', 'Bean Noodles', 'Raw Fish Bowl', 'Shaved Ice', 'Salad', 'Cold Soba', 'Ice Cream', 'Fruit Punch'] },
+        cold: { title: 'Cold Weather', menus: ['Dumpling Soup', 'Rice Cake Soup', 'Kimchi Stew', 'Sundae Soup', 'Shabu-shabu', 'Soybean Stew', 'Army Stew', 'Pork Bone Stew'] },
+        rainy: { title: 'Rainy Day', menus: ['Green Onion Pancake', 'Kalguksu', 'Sujebi', 'Ramen', 'Jeon', 'Seafood Pancake', 'Kimchi Pancake', 'Rice Wine'] },
+        hangover: { title: 'Hangover Cure', menus: ['Bone Soup', 'Bean Sprout Soup', 'Dried Pollack Soup', 'Ramen', 'Rice Soup', 'Blood Sausage Soup', 'Cabbage Stew', 'Dried Pollack Hangover Soup'] }
     },
     'Korean': {
         title: '계절/날씨별 메뉴',
         desc: '오늘 날씨에 딱 맞는 메뉴를 찾아보세요!',
-        hot: { title: '더울 때', menus: ['냉면', '콩국수', '물회', '빙수', '샐러드'] },
-        cold: { title: '추울 때', menus: ['만둣국', '떡국', '김치찌개', '순대국', '샤브샤브'] },
-        rainy: { title: '비 올 때', menus: ['파전', '칼국수', '수제비', '라면', '부침개'] },
-        hangover: { title: '해장', menus: ['뼈해장국', '콩나물국밥', '북어국', '라면', '국밥'] }
+        hot: { title: '더울 때', menus: ['냉면', '콩국수', '물회', '빙수', '샐러드', '냉모밀', '아이스크림', '과일화채'] },
+        cold: { title: '추울 때', menus: ['만둣국', '떡국', '김치찌개', '순대국', '샤브샤브', '된장찌개', '부대찌개', '감자탕'] },
+        rainy: { title: '비 올 때', menus: ['파전', '칼국수', '수제비', '라면', '부침개', '해물전', '김치전', '동동주'] },
+        hangover: { title: '해장', menus: ['뼈해장국', '콩나물국밥', '북어국', '라면', '국밥', '선지국', '우거지탕', '황태해장국'] }
     },
     'Japanese': {
         title: '季節・天気別メニュー',
         desc: '今日の天気にぴったりのメニューを見つけましょう！',
-        hot: { title: '暑い日', menus: ['冷麺', '豆乳麺', '海鮮丼', 'かき氷', 'サラダ'] },
-        cold: { title: '寒い日', menus: ['餃子スープ', '雑煮', 'キムチチゲ', 'スンデスープ', 'しゃぶしゃぶ'] },
-        rainy: { title: '雨の日', menus: ['チヂミ', 'カルグクス', 'スジェビ', 'ラーメン', '煎餅'] },
-        hangover: { title: '二日酔い', menus: ['骨スープ', 'もやしスープ', '干しダラスープ', 'ラーメン', 'クッパ'] }
+        hot: { title: '暑い日', menus: ['冷麺', '豆乳麺', '海鮮丼', 'かき氷', 'サラダ', '冷やしそば', 'アイスクリーム', 'フルーツポンチ'] },
+        cold: { title: '寒い日', menus: ['餃子スープ', '雑煮', 'キムチチゲ', 'スンデスープ', 'しゃぶしゃぶ', '味噌チゲ', 'プデチゲ', 'カムジャタン'] },
+        rainy: { title: '雨の日', menus: ['チヂミ', 'カルグクス', 'スジェビ', 'ラーメン', '煎餅', '海鮮チヂミ', 'キムチチヂミ', 'マッコリ'] },
+        hangover: { title: '二日酔い', menus: ['骨スープ', 'もやしスープ', '干しダラスープ', 'ラーメン', 'クッパ', 'ソンジグク', 'ウゴジタン', '干しスケトウダラスープ'] }
     },
     'Mandarin Chinese': {
         title: '季节/天气菜单',
         desc: '找到适合今天天气的完美菜单！',
-        hot: { title: '热天', menus: ['冷面', '豆浆面', '生鱼饭', '刨冰', '沙拉'] },
-        cold: { title: '冷天', menus: ['饺子汤', '年糕汤', '泡菜锅', '米肠汤', '涮锅'] },
-        rainy: { title: '下雨天', menus: ['葱饼', '刀削面', '面疙瘩', '拉面', '煎饼'] },
-        hangover: { title: '解酒', menus: ['骨汤', '豆芽汤', '明太鱼汤', '拉面', '汤饭'] }
+        hot: { title: '热天', menus: ['冷面', '豆浆面', '生鱼饭', '刨冰', '沙拉', '冷荞麦面', '冰淇淋', '水果宾治'] },
+        cold: { title: '冷天', menus: ['饺子汤', '年糕汤', '泡菜锅', '米肠汤', '涮锅', '大酱汤', '部队锅', '土豆汤'] },
+        rainy: { title: '下雨天', menus: ['葱饼', '刀削面', '面疙瘩', '拉面', '煎饼', '海鲜饼', '泡菜饼', '米酒'] },
+        hangover: { title: '解酒', menus: ['骨汤', '豆芽汤', '明太鱼汤', '拉面', '汤饭', '血肠汤', '大白菜汤', '黄太鱼解酒汤'] }
     }
 };
 
