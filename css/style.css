@@ -1907,3 +1907,444 @@ body.light-mode .seasonal-menu-list li {
         border-radius: 12px;
     }
 }
+
+/* ========================================
+   Content Sections for AdSense Compliance
+   ======================================== */
+
+/* Popular Menu Top 10 */
+.popular-menu-section {
+    grid-column: 1 / -1;
+    background: var(--card-background);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 20px 60px var(--shadow-color);
+}
+
+.popular-menu-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.popular-menu-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    background: var(--input-background);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.popular-menu-item:hover {
+    border-color: var(--primary-color);
+    transform: translateX(4px);
+}
+
+.popular-rank {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+
+.popular-rank.top3 {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+}
+
+.popular-menu-info h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.popular-menu-info p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+/* Delivery Category Section */
+.delivery-section {
+    grid-column: 1 / -1;
+    background: var(--card-background);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 20px 60px var(--shadow-color);
+}
+
+.delivery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.delivery-card {
+    background: var(--input-background);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+}
+
+.delivery-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-3px);
+}
+
+.delivery-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.delivery-card-header span {
+    font-size: 1.5rem;
+}
+
+.delivery-card-header h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.delivery-card p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+
+.delivery-menus {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.delivery-menu-tag {
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--primary-color);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Meal Time Section */
+.meal-time-section {
+    grid-column: 1 / -1;
+    background: var(--card-background);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 20px 60px var(--shadow-color);
+}
+
+.meal-time-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.meal-time-card {
+    background: var(--input-background);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 28px;
+}
+
+.meal-time-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.meal-time-card p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+.meal-time-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.meal-time-card ul li {
+    padding: 6px 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    border-bottom: 1px solid var(--card-border);
+    font-size: 0.95rem;
+}
+
+.meal-time-card ul li:last-child {
+    border-bottom: none;
+}
+
+.meal-time-card ul li strong {
+    color: var(--text-color);
+}
+
+/* Home Cooking Section */
+.home-cooking-section {
+    grid-column: 1 / -1;
+    background: var(--card-background);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 20px 60px var(--shadow-color);
+}
+
+.home-cooking-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.home-cooking-card {
+    background: var(--input-background);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+}
+
+.home-cooking-card:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-3px);
+}
+
+.home-cooking-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.home-cooking-card p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+/* Breakfast Section */
+.breakfast-section {
+    grid-column: 1 / -1;
+    background: var(--card-background);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 20px 60px var(--shadow-color);
+}
+
+.breakfast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.breakfast-card {
+    background: var(--input-background);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+}
+
+.breakfast-card:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-3px);
+}
+
+.breakfast-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.breakfast-card p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+}
+
+.breakfast-card ul {
+    list-style: disc;
+    padding-left: 20px;
+}
+
+.breakfast-card ul li {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 4px;
+}
+
+/* Calorie Guide Section */
+.calorie-section {
+    grid-column: 1 / -1;
+    background: var(--card-background);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 20px 60px var(--shadow-color);
+}
+
+.calorie-table-wrap {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.calorie-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.calorie-table thead th {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
+    padding: 14px 16px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: left;
+}
+
+.calorie-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.calorie-table tbody tr:nth-child(even) {
+    background: var(--input-background);
+}
+
+.calorie-table tbody tr:hover {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.calorie-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--card-border);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.calorie-table tbody td:first-child {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.calorie-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.calorie-low {
+    background: rgba(20, 184, 166, 0.2);
+    color: #14b8a6;
+}
+
+.calorie-mid {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.calorie-high {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+/* Section description reusable */
+.section-desc {
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+/* Content article text */
+.content-article {
+    margin-top: 16px;
+}
+
+.content-article p {
+    color: var(--text-secondary);
+    line-height: 1.9;
+    margin-bottom: 14px;
+    font-size: 1.02rem;
+}
+
+/* Responsive for new sections */
+@media (max-width: 768px) {
+    .popular-menu-section,
+    .delivery-section,
+    .meal-time-section,
+    .home-cooking-section,
+    .breakfast-section,
+    .calorie-section {
+        padding: 32px 24px;
+    }
+
+    .delivery-grid,
+    .home-cooking-grid,
+    .breakfast-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .meal-time-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .calorie-table {
+        font-size: 0.85rem;
+    }
+
+    .calorie-table thead th,
+    .calorie-table tbody td {
+        padding: 10px 12px;
+    }
+}
