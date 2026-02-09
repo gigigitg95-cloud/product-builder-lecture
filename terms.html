@@ -32,9 +32,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Google AdSense -->
-    <meta name="google-adsense-account" content="ca-pub-7066264300961815">
-
     <!-- JSON-LD Structured Data: BreadcrumbList -->
     <script type="application/ld+json">
     {
@@ -89,69 +86,102 @@
 </head>
 <body>
     <div class="policy-container">
-        <article class="policy-content" id="policy-content"></article>
+        <article class="policy-content" id="policy-content">
+            <h1 id="terms-title">이용약관</h1>
+            <p id="terms-intro">본 이용약관은 메뉴 추천 서비스(이하 "본 서비스")의 이용 조건을 규정합니다. 본 서비스를 이용함으로써 이 약관에 동의하는 것으로 간주됩니다.</p>
+
+            <h2 id="t1-title">제1조 (목적)</h2>
+            <p id="t1-desc">본 약관은 본 서비스가 제공하는 메뉴 추천 서비스 이용에 관한 조건 및 절차, 이용자와 서비스 제공자의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+
+            <h2 id="t2-title">제2조 (서비스의 내용)</h2>
+            <p id="t2-desc">본 서비스는 다음과 같은 서비스를 제공합니다:</p>
+            <ul>
+                <li id="t2-item1">무작위 메뉴 추천</li>
+                <li id="t2-item2">다국어 지원 (18개 언어)</li>
+                <li id="t2-item3">음식 이미지 및 정보 제공</li>
+                <li id="t2-item4">제휴 문의 서비스</li>
+            </ul>
+
+            <h2 id="t3-title">제3조 (서비스 이용)</h2>
+            <p id="t3-desc">본 서비스는 무료로 제공되며, 별도의 회원가입 없이 누구나 이용할 수 있습니다.</p>
+
+            <h2 id="t4-title">제4조 (이용자의 의무)</h2>
+            <p id="t4-desc">이용자는 다음 행위를 해서는 안 됩니다:</p>
+            <ul>
+                <li id="t4-item1">서비스의 운영을 방해하는 행위</li>
+                <li id="t4-item2">타인의 정보를 부정하게 사용하는 행위</li>
+                <li id="t4-item3">서비스를 이용하여 법령 또는 공서양속에 위배되는 행위</li>
+                <li id="t4-item4">서비스의 정보를 무단으로 복제, 수정, 배포하는 행위</li>
+            </ul>
+
+            <h2 id="t5-title">제5조 (지적재산권)</h2>
+            <p id="t5-desc">본 서비스에서 제공하는 콘텐츠에 대한 저작권 및 지적재산권은 본 서비스에 귀속됩니다. 단, 외부 이미지는 해당 저작권자의 라이선스를 따릅니다.</p>
+
+            <h2 id="t6-title">제6조 (서비스의 변경 및 중단)</h2>
+            <p id="t6-desc">본 서비스는 운영상, 기술상의 필요에 따라 제공하고 있는 서비스의 전부 또는 일부를 변경하거나 중단할 수 있습니다.</p>
+
+            <h2 id="t7-title">제7조 (면책조항)</h2>
+            <ul>
+                <li id="t7-item1">본 서비스는 메뉴 추천의 정확성이나 적합성을 보장하지 않습니다.</li>
+                <li id="t7-item2">이용자가 본 서비스를 이용하여 얻은 정보로 인한 결과에 대해 책임을 지지 않습니다.</li>
+                <li id="t7-item3">천재지변, 시스템 장애 등 불가항력으로 인한 서비스 제공 불능에 대해 책임을 지지 않습니다.</li>
+            </ul>
+
+            <h2 id="t8-title">제8조 (광고)</h2>
+            <p id="t8-desc">본 서비스는 Google AdSense를 통해 광고를 게재할 수 있습니다. 광고 관련 상세 내용은 개인정보처리방침을 참조하시기 바랍니다.</p>
+
+            <h2 id="t9-title">제9조 (약관의 변경)</h2>
+            <p id="t9-desc">본 약관은 필요에 따라 변경될 수 있으며, 변경된 약관은 웹사이트에 게시함으로써 효력이 발생합니다.</p>
+
+            <h2 id="t10-title">제10조 (준거법 및 관할)</h2>
+            <p id="t10-desc">본 약관의 해석 및 분쟁에 관하여는 대한민국 법령을 적용합니다.</p>
+
+            <p class="last-updated"><span id="last-updated-label">최종 수정일</span>: 2026-02-09</p>
+
+            <a href="index.html" class="back-link" id="back-link" rel="noopener">&#x2190; 메인으로 돌아가기</a>
+        </article>
     </div>
     <script src="js/translations.js"></script>
     <script>
         const lang = localStorage.getItem('selectedLanguage') || 'Korean';
-        const t = key => getPageTranslation(lang, key);
-
-        document.title = t('termsPageTitle');
-
-        document.getElementById('policy-content').innerHTML = `
-            <h1>${t('termsTitle')}</h1>
-            <p>${t('termsIntro')}</p>
-
-            <h2>${t('termsSection1Title')}</h2>
-            <p>${t('termsSection1Desc')}</p>
-
-            <h2>${t('termsSection2Title')}</h2>
-            <p>${t('termsSection2Desc')}</p>
-            <ul>
-                <li>${t('termsSection2Item1')}</li>
-                <li>${t('termsSection2Item2')}</li>
-                <li>${t('termsSection2Item3')}</li>
-                <li>${t('termsSection2Item4')}</li>
-            </ul>
-
-            <h2>${t('termsSection3Title')}</h2>
-            <p>${t('termsSection3Desc')}</p>
-
-            <h2>${t('termsSection4Title')}</h2>
-            <p>${t('termsSection4Desc')}</p>
-            <ul>
-                <li>${t('termsSection4Item1')}</li>
-                <li>${t('termsSection4Item2')}</li>
-                <li>${t('termsSection4Item3')}</li>
-                <li>${t('termsSection4Item4')}</li>
-            </ul>
-
-            <h2>${t('termsSection5Title')}</h2>
-            <p>${t('termsSection5Desc')}</p>
-
-            <h2>${t('termsSection6Title')}</h2>
-            <p>${t('termsSection6Desc')}</p>
-
-            <h2>${t('termsSection7Title')}</h2>
-            <ul>
-                <li>${t('termsSection7Item1')}</li>
-                <li>${t('termsSection7Item2')}</li>
-                <li>${t('termsSection7Item3')}</li>
-            </ul>
-
-            <h2>${t('termsSection8Title')}</h2>
-            <p>${t('termsSection8Desc')}</p>
-
-            <h2>${t('termsSection9Title')}</h2>
-            <p>${t('termsSection9Desc')}</p>
-
-            <h2>${t('termsSection10Title')}</h2>
-            <p>${t('termsSection10Desc')}</p>
-
-            <p class="last-updated">${t('lastUpdated')}: 2026-02-03</p>
-
-            <a href="index.html" class="back-link" rel="noopener">${t('backToHome')}</a>
-        `;
+        if (lang !== 'Korean' && typeof getPageTranslation === 'function') {
+            const t = key => getPageTranslation(lang, key);
+            document.title = t('termsPageTitle');
+            document.getElementById('terms-title').textContent = t('termsTitle');
+            document.getElementById('terms-intro').textContent = t('termsIntro');
+            document.getElementById('t1-title').textContent = t('termsSection1Title');
+            document.getElementById('t1-desc').textContent = t('termsSection1Desc');
+            document.getElementById('t2-title').textContent = t('termsSection2Title');
+            document.getElementById('t2-desc').textContent = t('termsSection2Desc');
+            document.getElementById('t2-item1').textContent = t('termsSection2Item1');
+            document.getElementById('t2-item2').textContent = t('termsSection2Item2');
+            document.getElementById('t2-item3').textContent = t('termsSection2Item3');
+            document.getElementById('t2-item4').textContent = t('termsSection2Item4');
+            document.getElementById('t3-title').textContent = t('termsSection3Title');
+            document.getElementById('t3-desc').textContent = t('termsSection3Desc');
+            document.getElementById('t4-title').textContent = t('termsSection4Title');
+            document.getElementById('t4-desc').textContent = t('termsSection4Desc');
+            document.getElementById('t4-item1').textContent = t('termsSection4Item1');
+            document.getElementById('t4-item2').textContent = t('termsSection4Item2');
+            document.getElementById('t4-item3').textContent = t('termsSection4Item3');
+            document.getElementById('t4-item4').textContent = t('termsSection4Item4');
+            document.getElementById('t5-title').textContent = t('termsSection5Title');
+            document.getElementById('t5-desc').textContent = t('termsSection5Desc');
+            document.getElementById('t6-title').textContent = t('termsSection6Title');
+            document.getElementById('t6-desc').textContent = t('termsSection6Desc');
+            document.getElementById('t7-title').textContent = t('termsSection7Title');
+            document.getElementById('t7-item1').textContent = t('termsSection7Item1');
+            document.getElementById('t7-item2').textContent = t('termsSection7Item2');
+            document.getElementById('t7-item3').textContent = t('termsSection7Item3');
+            document.getElementById('t8-title').textContent = t('termsSection8Title');
+            document.getElementById('t8-desc').textContent = t('termsSection8Desc');
+            document.getElementById('t9-title').textContent = t('termsSection9Title');
+            document.getElementById('t9-desc').textContent = t('termsSection9Desc');
+            document.getElementById('t10-title').textContent = t('termsSection10Title');
+            document.getElementById('t10-desc').textContent = t('termsSection10Desc');
+            document.getElementById('last-updated-label').textContent = t('lastUpdated');
+            document.getElementById('back-link').textContent = t('backToHome');
+        }
     </script>
 </body>
 </html>

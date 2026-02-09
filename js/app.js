@@ -1,26 +1,40 @@
 const PEXELS_API_KEY = 'QbxVLvleSjxbgjiZMi0OtIk65nhgmOi43gYXjEawILbJ3OaxeT8qHFYp';
 const dinnerMenuKeys = [
-    // Korean
+    // Korean (26)
     "chicken", "porkBelly", "pigFeet", "boiledPork", "tteokbokki", "sundae", "kimbap", "bibimbap", "japchae", "kimchijjigae",
     "bulgogi", "samgyetang", "sundubu", "galbi", "naengmyeon", "dakgalbi", "budaeJjigae", "gamjatang", "seolleongtang",
     "gopchang", "kimchiBokkeum", "tteokguk", "haemulPajeon", "dwaejiGukbap", "kongnamulGukbap",
-    // Japanese
+    "doenjangJjigae", "yukgaejang", "jjimdak", "janchiGuksu",
+    // Japanese (21)
     "ramen", "udon", "sushi", "tonkatsu", "sushiRoll", "tempura", "curry", "katsudon", "soba", "okonomiyaki",
     "gyudon", "yakitori", "takoyaki", "onigiri", "nabeyaki",
-    // Chinese
+    "karaage", "oyakodon", "unagi", "chirashi", "misoSoup", "hirekatsu", "gyukatsu",
+    // Chinese (20)
     "malatang", "dumplings", "friedRice", "jjajangmyeon", "jjampong", "sweetAndSourPork", "mapoTofu", "kungPaoChicken",
     "pekingDuck", "dimSum", "hotPot", "danDanNoodles", "charSiuBao", "springRoll",
-    // Western
+    "xiaolongbao", "yangKkochi", "congYouBing", "chowMein", "wonton", "jjajangBap",
+    // Western / Italian (22)
     "pizza", "pasta", "steak", "hamburger", "sandwich", "salad", "fishAndChips", "paella", "risotto", "lasagna",
-    "gnocchi", "nachos", "hotdog", "lobster", "clamChowder", "carbonara", "bbqRibs", "chickenWings", "grilledSalmon",
-    // Southeast Asian
+    "gnocchi", "nachos", "hotdog", "lobster", "carbonara", "bbqRibs", "chickenWings", "grilledSalmon",
+    "caesarSalad", "omelet", "meatball", "gratin", "clubSandwich", "bruschetta",
+    // Southeast Asian (15)
     "pho", "padThai", "greenCurry", "satay", "banhMi", "laksa", "nasiGoreng", "somTam", "rendang",
-    // Mexican / Latin
+    "tomYumGoong", "massamanCurry", "bunCha", "miGoreng", "adobo", "sisig",
+    // Mexican / Latin (12)
     "tacos", "burrito", "quesadilla", "enchilada", "churros", "ceviche", "empanada",
-    // Indian
+    "tamale", "pozole", "arepa", "feijoada", "guacamole",
+    // Indian (12)
     "tikkaMasala", "biryani", "naan", "samosa", "butterChicken", "palakPaneer", "tandooriChicken",
-    // Middle Eastern
-    "kebab", "falafel", "shawarma", "hummus"
+    "dalMakhani", "roganJosh", "vindaloo", "dosa", "choleBhature",
+    // Middle Eastern (9)
+    "kebab", "falafel", "shawarma", "hummus",
+    "kofta", "tabouleh", "babaGanoush", "dolma", "mansaf",
+    // African (8)
+    "jollofRice", "injera", "doroWot", "tagine", "couscous", "suya", "bobotie", "fufu",
+    // European (10)
+    "moussaka", "gyros", "ratatouille", "croquemonsieur", "schnitzel", "bratwurst", "pierogi", "borscht", "gazpacho", "poutine",
+    // American (8)
+    "macAndCheese", "clamChowder", "jambalaya", "gumbo", "pulledPork", "cheesesteak", "poBoy", "pancakes"
 ];
 
 
@@ -723,7 +737,17 @@ const slotMenuEmojis = {
         { key: 'seolleongtang', ko: '설렁탕', en: 'Ox Bone Soup', emoji: '🍲' },
         { key: 'gopchang', ko: '곱창', en: 'Grilled Intestines', emoji: '🔥' },
         { key: 'haemulPajeon', ko: '해물파전', en: 'Seafood Pancake', emoji: '🥞' },
-        { key: 'dwaejiGukbap', ko: '돼지국밥', en: 'Pork Rice Soup', emoji: '🍲' }
+        { key: 'dwaejiGukbap', ko: '돼지국밥', en: 'Pork Rice Soup', emoji: '🍲' },
+        { key: 'chicken', ko: '치킨', en: 'Fried Chicken', emoji: '🍗' },
+        { key: 'porkBelly', ko: '삼겹살', en: 'Grilled Pork Belly', emoji: '🥓' },
+        { key: 'pigFeet', ko: '족발', en: 'Braised Pig Feet', emoji: '🦶' },
+        { key: 'boiledPork', ko: '보쌈', en: 'Boiled Pork', emoji: '🥬' },
+        { key: 'sundae', ko: '순대', en: 'Korean Blood Sausage', emoji: '🌭' },
+        { key: 'kimbap', ko: '김밥', en: 'Kimbap', emoji: '🍙' },
+        { key: 'doenjangJjigae', ko: '된장찌개', en: 'Soybean Paste Stew', emoji: '🥘' },
+        { key: 'yukgaejang', ko: '육개장', en: 'Spicy Beef Soup', emoji: '🍲' },
+        { key: 'jjimdak', ko: '찜닭', en: 'Braised Chicken', emoji: '🐔' },
+        { key: 'janchiGuksu', ko: '잔치국수', en: 'Banquet Noodles', emoji: '🍜' }
     ],
     chinese: [
         { key: 'jjajangmyeon', ko: '짜장면', en: 'Jjajangmyeon', emoji: '🍝' },
@@ -739,7 +763,13 @@ const slotMenuEmojis = {
         { key: 'hotPot', ko: '훠궈', en: 'Hot Pot', emoji: '🫕' },
         { key: 'danDanNoodles', ko: '단단면', en: 'Dan Dan Noodles', emoji: '🍜' },
         { key: 'charSiuBao', ko: '차슈빵', en: 'Char Siu Bao', emoji: '🥟' },
-        { key: 'springRoll', ko: '춘권', en: 'Spring Roll', emoji: '🥡' }
+        { key: 'springRoll', ko: '춘권', en: 'Spring Roll', emoji: '🥡' },
+        { key: 'xiaolongbao', ko: '샤오롱바오', en: 'Soup Dumplings', emoji: '🥟' },
+        { key: 'yangKkochi', ko: '양꼬치', en: 'Lamb Skewers', emoji: '🍢' },
+        { key: 'congYouBing', ko: '총유빙', en: 'Scallion Pancake', emoji: '🥞' },
+        { key: 'chowMein', ko: '차오미엔', en: 'Chow Mein', emoji: '🍜' },
+        { key: 'wonton', ko: '완탕', en: 'Wonton', emoji: '🥟' },
+        { key: 'jjajangBap', ko: '짜장밥', en: 'Black Bean Rice', emoji: '🍛' }
     ],
     japanese: [
         { key: 'sushi', ko: '초밥', en: 'Sushi', emoji: '🍣' },
@@ -755,7 +785,14 @@ const slotMenuEmojis = {
         { key: 'yakitori', ko: '야키토리', en: 'Yakitori', emoji: '🍢' },
         { key: 'takoyaki', ko: '타코야키', en: 'Takoyaki', emoji: '🐙' },
         { key: 'onigiri', ko: '오니기리', en: 'Onigiri', emoji: '🍙' },
-        { key: 'nabeyaki', ko: '나베', en: 'Nabeyaki', emoji: '🍲' }
+        { key: 'nabeyaki', ko: '나베', en: 'Nabeyaki', emoji: '🍲' },
+        { key: 'karaage', ko: '가라아게', en: 'Karaage', emoji: '🍗' },
+        { key: 'oyakodon', ko: '오야코동', en: 'Oyakodon', emoji: '🍚' },
+        { key: 'unagi', ko: '우나기', en: 'Grilled Eel', emoji: '🐟' },
+        { key: 'chirashi', ko: '치라시', en: 'Chirashi', emoji: '🍣' },
+        { key: 'misoSoup', ko: '미소시루', en: 'Miso Soup', emoji: '🥣' },
+        { key: 'hirekatsu', ko: '히레카츠', en: 'Hirekatsu', emoji: '🍖' },
+        { key: 'gyukatsu', ko: '규카츠', en: 'Gyukatsu', emoji: '🥩' }
     ],
     western: [
         { key: 'steak', ko: '스테이크', en: 'Steak', emoji: '🥩' },
@@ -773,7 +810,13 @@ const slotMenuEmojis = {
         { key: 'bbqRibs', ko: 'BBQ 립', en: 'BBQ Ribs', emoji: '🍖' },
         { key: 'grilledSalmon', ko: '연어 스테이크', en: 'Grilled Salmon', emoji: '🐟' },
         { key: 'chickenWings', ko: '치킨윙', en: 'Chicken Wings', emoji: '🍗' },
-        { key: 'hotdog', ko: '핫도그', en: 'Hot Dog', emoji: '🌭' }
+        { key: 'hotdog', ko: '핫도그', en: 'Hot Dog', emoji: '🌭' },
+        { key: 'caesarSalad', ko: '시저샐러드', en: 'Caesar Salad', emoji: '🥗' },
+        { key: 'omelet', ko: '오믈렛', en: 'Omelet', emoji: '🥚' },
+        { key: 'meatball', ko: '미트볼', en: 'Meatball', emoji: '🧆' },
+        { key: 'gratin', ko: '그라탕', en: 'Gratin', emoji: '🧀' },
+        { key: 'clubSandwich', ko: '클럽샌드위치', en: 'Club Sandwich', emoji: '🥪' },
+        { key: 'bruschetta', ko: '브루스케타', en: 'Bruschetta', emoji: '🍞' }
     ],
     southeastAsian: [
         { key: 'pho', ko: '쌀국수', en: 'Pho', emoji: '🍜' },
@@ -784,7 +827,13 @@ const slotMenuEmojis = {
         { key: 'laksa', ko: '락사', en: 'Laksa', emoji: '🍜' },
         { key: 'nasiGoreng', ko: '나시고렝', en: 'Nasi Goreng', emoji: '🍛' },
         { key: 'somTam', ko: '솜탐', en: 'Som Tam', emoji: '🥗' },
-        { key: 'rendang', ko: '렌당', en: 'Rendang', emoji: '🍖' }
+        { key: 'rendang', ko: '렌당', en: 'Rendang', emoji: '🍖' },
+        { key: 'tomYumGoong', ko: '똠양꿍', en: 'Tom Yum Goong', emoji: '🦐' },
+        { key: 'massamanCurry', ko: '마싸만커리', en: 'Massaman Curry', emoji: '🍛' },
+        { key: 'bunCha', ko: '분짜', en: 'Bun Cha', emoji: '🍖' },
+        { key: 'miGoreng', ko: '미고렝', en: 'Mi Goreng', emoji: '🍜' },
+        { key: 'adobo', ko: '아도보', en: 'Chicken Adobo', emoji: '🍗' },
+        { key: 'sisig', ko: '시식', en: 'Sisig', emoji: '🔥' }
     ],
     mexican: [
         { key: 'tacos', ko: '타코', en: 'Tacos', emoji: '🌮' },
@@ -794,7 +843,11 @@ const slotMenuEmojis = {
         { key: 'nachos', ko: '나초', en: 'Nachos', emoji: '🧀' },
         { key: 'churros', ko: '츄러스', en: 'Churros', emoji: '🍩' },
         { key: 'ceviche', ko: '세비체', en: 'Ceviche', emoji: '🐟' },
-        { key: 'empanada', ko: '엠파나다', en: 'Empanada', emoji: '🥟' }
+        { key: 'empanada', ko: '엠파나다', en: 'Empanada', emoji: '🥟' },
+        { key: 'tamale', ko: '타말레', en: 'Tamale', emoji: '🫔' },
+        { key: 'pozole', ko: '포졸레', en: 'Pozole', emoji: '🍲' },
+        { key: 'arepa', ko: '아레파', en: 'Arepa', emoji: '🫓' },
+        { key: 'feijoada', ko: '페이조아다', en: 'Feijoada', emoji: '🫘' }
     ],
     indian: [
         { key: 'tikkaMasala', ko: '티카마살라', en: 'Tikka Masala', emoji: '🍛' },
@@ -803,13 +856,55 @@ const slotMenuEmojis = {
         { key: 'samosa', ko: '사모사', en: 'Samosa', emoji: '🥟' },
         { key: 'butterChicken', ko: '버터치킨', en: 'Butter Chicken', emoji: '🍗' },
         { key: 'palakPaneer', ko: '팔락파니르', en: 'Palak Paneer', emoji: '🥬' },
-        { key: 'tandooriChicken', ko: '탄두리치킨', en: 'Tandoori Chicken', emoji: '🍗' }
+        { key: 'tandooriChicken', ko: '탄두리치킨', en: 'Tandoori Chicken', emoji: '🍗' },
+        { key: 'dalMakhani', ko: '달마카니', en: 'Dal Makhani', emoji: '🥘' },
+        { key: 'roganJosh', ko: '로간조시', en: 'Rogan Josh', emoji: '🍖' },
+        { key: 'vindaloo', ko: '빈달루', en: 'Vindaloo', emoji: '🌶️' },
+        { key: 'dosa', ko: '도사', en: 'Dosa', emoji: '🥞' },
+        { key: 'choleBhature', ko: '초레바투레', en: 'Chole Bhature', emoji: '🫓' }
     ],
     middleEastern: [
         { key: 'kebab', ko: '케밥', en: 'Kebab', emoji: '🥙' },
         { key: 'falafel', ko: '팔라펠', en: 'Falafel', emoji: '🧆' },
         { key: 'shawarma', ko: '샤와르마', en: 'Shawarma', emoji: '🥙' },
-        { key: 'hummus', ko: '후무스', en: 'Hummus', emoji: '🫘' }
+        { key: 'hummus', ko: '후무스', en: 'Hummus', emoji: '🫘' },
+        { key: 'kofta', ko: '코프타', en: 'Kofta', emoji: '🍖' },
+        { key: 'tabouleh', ko: '타불레', en: 'Tabouleh', emoji: '🥗' },
+        { key: 'babaGanoush', ko: '바바가누쉬', en: 'Baba Ganoush', emoji: '🍆' },
+        { key: 'dolma', ko: '돌마', en: 'Dolma', emoji: '🥬' },
+        { key: 'mansaf', ko: '만사프', en: 'Mansaf', emoji: '🍚' }
+    ],
+    african: [
+        { key: 'jollofRice', ko: '졸로프라이스', en: 'Jollof Rice', emoji: '🍚' },
+        { key: 'injera', ko: '인제라', en: 'Injera', emoji: '🫓' },
+        { key: 'doroWot', ko: '도로왓', en: 'Doro Wot', emoji: '🍗' },
+        { key: 'tagine', ko: '타진', en: 'Tagine', emoji: '🥘' },
+        { key: 'couscous', ko: '쿠스쿠스', en: 'Couscous', emoji: '🍚' },
+        { key: 'suya', ko: '수야', en: 'Suya', emoji: '🍢' },
+        { key: 'bobotie', ko: '보보티', en: 'Bobotie', emoji: '🥧' },
+        { key: 'fufu', ko: '푸푸', en: 'Fufu', emoji: '🍚' }
+    ],
+    european: [
+        { key: 'moussaka', ko: '무사카', en: 'Moussaka', emoji: '🍆' },
+        { key: 'gyros', ko: '기로스', en: 'Gyros', emoji: '🥙' },
+        { key: 'ratatouille', ko: '라따뚜이', en: 'Ratatouille', emoji: '🍆' },
+        { key: 'croquemonsieur', ko: '크로크무슈', en: 'Croque Monsieur', emoji: '🥪' },
+        { key: 'schnitzel', ko: '슈니첼', en: 'Schnitzel', emoji: '🍖' },
+        { key: 'bratwurst', ko: '브라트부르스트', en: 'Bratwurst', emoji: '🌭' },
+        { key: 'pierogi', ko: '피에로기', en: 'Pierogi', emoji: '🥟' },
+        { key: 'borscht', ko: '보르시치', en: 'Borscht', emoji: '🍲' },
+        { key: 'gazpacho', ko: '가스파초', en: 'Gazpacho', emoji: '🥣' },
+        { key: 'poutine', ko: '푸틴', en: 'Poutine', emoji: '🍟' }
+    ],
+    american: [
+        { key: 'macAndCheese', ko: '맥앤치즈', en: 'Mac & Cheese', emoji: '🧀' },
+        { key: 'clamChowder', ko: '클램차우더', en: 'Clam Chowder', emoji: '🥣' },
+        { key: 'jambalaya', ko: '잠발라야', en: 'Jambalaya', emoji: '🍛' },
+        { key: 'gumbo', ko: '검보', en: 'Gumbo', emoji: '🍲' },
+        { key: 'pulledPork', ko: '풀드포크', en: 'Pulled Pork', emoji: '🍖' },
+        { key: 'cheesesteak', ko: '치즈스테이크', en: 'Philly Cheesesteak', emoji: '🥪' },
+        { key: 'poBoy', ko: '포보이', en: "Po' Boy", emoji: '🥖' },
+        { key: 'pancakes', ko: '팬케이크', en: 'Pancakes', emoji: '🥞' }
     ]
 };
 
@@ -845,6 +940,9 @@ function getSlotTranslation(key) {
             mexican: 'Mexican',
             indian: 'Indian',
             middleEastern: 'Middle East',
+            african: 'African',
+            european: 'European',
+            american: 'American',
             start: 'START',
             result: "Today's menu is",
             jackpot: 'JACKPOT!'
@@ -861,6 +959,9 @@ function getSlotTranslation(key) {
             mexican: '멕시칸',
             indian: '인도',
             middleEastern: '중동',
+            african: '아프리카',
+            european: '유럽',
+            american: '아메리칸',
             start: 'START',
             result: '오늘의 메뉴는',
             jackpot: '잭팟!'
@@ -877,6 +978,9 @@ function getSlotTranslation(key) {
             mexican: 'メキシカン',
             indian: 'インド',
             middleEastern: '中東',
+            african: 'アフリカ',
+            european: 'ヨーロッパ',
+            american: 'アメリカン',
             start: 'START',
             result: '今日のメニューは',
             jackpot: 'ジャックポット！'
@@ -893,6 +997,9 @@ function getSlotTranslation(key) {
             mexican: '墨西哥',
             indian: '印度',
             middleEastern: '中东',
+            african: '非洲',
+            european: '欧洲',
+            american: '美式',
             start: 'START',
             result: '今天的菜单是',
             jackpot: '大奖！'
@@ -909,9 +1016,69 @@ function getSlotTranslation(key) {
             mexican: 'Mexicana',
             indian: 'India',
             middleEastern: 'Medio Oriente',
+            african: 'Africana',
+            european: 'Europea',
+            american: 'Americana',
             start: 'START',
             result: 'El menú de hoy es',
             jackpot: '¡JACKPOT!'
+        },
+        'French': {
+            title: 'Machine à Sous Menu',
+            desc: 'Tirez le levier pour décider votre repas !',
+            all: 'Tout',
+            korean: 'Coréen',
+            chinese: 'Chinois',
+            japanese: 'Japonais',
+            western: 'Occidental',
+            southeastAsian: 'Asie du Sud-Est',
+            mexican: 'Mexicain',
+            indian: 'Indien',
+            middleEastern: 'Moyen-Orient',
+            african: 'Africain',
+            european: 'Européen',
+            american: 'Américain',
+            start: 'START',
+            result: "Le menu d'aujourd'hui est",
+            jackpot: 'JACKPOT !'
+        },
+        'German': {
+            title: 'Menü-Spielautomat',
+            desc: 'Ziehe den Hebel um dein Essen zu bestimmen!',
+            all: 'Alle',
+            korean: 'Koreanisch',
+            chinese: 'Chinesisch',
+            japanese: 'Japanisch',
+            western: 'Westlich',
+            southeastAsian: 'Südostasien',
+            mexican: 'Mexikanisch',
+            indian: 'Indisch',
+            middleEastern: 'Nahost',
+            african: 'Afrikanisch',
+            european: 'Europäisch',
+            american: 'Amerikanisch',
+            start: 'START',
+            result: 'Das heutige Menü ist',
+            jackpot: 'JACKPOT!'
+        },
+        'Portuguese': {
+            title: 'Caça-Níqueis de Menu',
+            desc: 'Puxe a alavanca para decidir sua refeição!',
+            all: 'Todos',
+            korean: 'Coreana',
+            chinese: 'Chinesa',
+            japanese: 'Japonesa',
+            western: 'Ocidental',
+            southeastAsian: 'Sudeste Asiático',
+            mexican: 'Mexicana',
+            indian: 'Indiana',
+            middleEastern: 'Oriente Médio',
+            african: 'Africana',
+            european: 'Europeia',
+            american: 'Americana',
+            start: 'START',
+            result: 'O menu de hoje é',
+            jackpot: 'JACKPOT!'
         }
     };
     const langData = slotTranslations[currentLanguage] || slotTranslations['English'];
@@ -1063,7 +1230,7 @@ function updateSlotTranslations() {
     if (descEl) descEl.textContent = getSlotTranslation('desc');
     if (leverText) leverText.textContent = getSlotTranslation('start');
 
-    const categories = ['all', 'korean', 'chinese', 'japanese', 'western', 'southeastAsian', 'mexican', 'indian', 'middleEastern'];
+    const categories = ['all', 'korean', 'chinese', 'japanese', 'western', 'southeastAsian', 'mexican', 'indian', 'middleEastern', 'african', 'european', 'american'];
     categoryBtns.forEach((btn, index) => {
         if (categories[index]) {
             btn.textContent = getSlotTranslation(categories[index]);
