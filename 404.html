@@ -122,8 +122,8 @@
                 Chinese: { title: '页面未找到', desc: '您访问的页面不存在或已被移动。请使用以下链接导航。', home: '\u{1F3E0} 返回首页', about: '\u2139\uFE0F 关于我们' },
                 Spanish: { title: 'Página no encontrada', desc: 'La página que busca no existe o ha sido movida. Use los enlaces a continuación.', home: '\u{1F3E0} Ir al inicio', about: '\u2139\uFE0F Sobre nosotros' }
             };
-            var lang = localStorage.getItem('selectedLanguage') || 'Korean';
-            var t = translations[lang] || translations['Korean'];
+            var lang = localStorage.getItem('selectedLanguage') || 'English';
+            var t = translations[lang] || translations['English'];
             document.getElementById('error-title').textContent = t.title;
             document.getElementById('error-desc').textContent = t.desc;
             document.getElementById('home-link').innerHTML = t.home;

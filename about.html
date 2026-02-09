@@ -260,10 +260,99 @@
         </main>
         <a href="index.html" class="back-link" id="back-link" rel="noopener">&#x2190; 메인으로 돌아가기</a>
     </div>
+    <script src="js/countryLanguageService.js"></script>
     <script src="js/translations.js"></script>
     <script>
-        const lang = localStorage.getItem('selectedLanguage') || 'Korean';
-        if (lang !== 'Korean' && typeof getPageTranslation === 'function') {
+        const DEFAULT_LANGUAGE = 'English';
+
+        function getCountryCodeFromLocale() {
+            const locale = (navigator.language || '').trim();
+            if (!locale) return null;
+            const match = locale.match(/-([A-Za-z]{2})/);
+            return match ? match[1].toUpperCase() : null;
+        }
+
+        function getLanguageFromLocale() {
+            const locale = (navigator.language || '').trim();
+            if (!locale) return null;
+            const langCode = locale.split('-')[0].toLowerCase();
+            const languageMap = {
+                en: 'English',
+                ko: 'Korean',
+                ja: 'Japanese',
+                zh: 'Chinese',
+                es: 'Spanish',
+                fr: 'French',
+                de: 'German',
+                pt: 'Portuguese',
+                ru: 'Russian',
+                ar: 'Arabic',
+                th: 'Thai',
+                vi: 'Vietnamese',
+                id: 'Indonesian',
+                hi: 'Hindi',
+                it: 'Italian'
+            };
+            return languageMap[langCode] || null;
+        }
+
+        async function getCountryCodeFromIP() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 1200);
+                const response = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+                clearTimeout(timeoutId);
+                if (!response.ok) return null;
+                const data = await response.json();
+                if (!data || !data.country) return null;
+                return String(data.country).toUpperCase();
+            } catch (error) {
+                return null;
+            }
+        }
+
+        async function resolveInitialLanguage() {
+            const savedLang = localStorage.getItem('selectedLanguage');
+            if (savedLang && translations[savedLang]) {
+                return savedLang;
+            }
+
+            let detectedLanguage = null;
+
+            const ipCountryCode = await getCountryCodeFromIP();
+            if (typeof CountryLanguageService !== 'undefined' && ipCountryCode) {
+                const languages = CountryLanguageService.getLanguagesByCountryCode(ipCountryCode);
+                if (languages) {
+                    detectedLanguage = languages.find(lang => translations[lang]) || null;
+                }
+            }
+
+            if (!detectedLanguage && typeof CountryLanguageService !== 'undefined') {
+                const localeCountryCode = getCountryCodeFromLocale();
+                if (localeCountryCode) {
+                    const languages = CountryLanguageService.getLanguagesByCountryCode(localeCountryCode);
+                    if (languages) {
+                        detectedLanguage = languages.find(lang => translations[lang]) || null;
+                    }
+                }
+            }
+
+            if (!detectedLanguage) {
+                const localeLanguage = getLanguageFromLocale();
+                if (localeLanguage && translations[localeLanguage]) {
+                    detectedLanguage = localeLanguage;
+                }
+            }
+
+            return detectedLanguage || DEFAULT_LANGUAGE;
+        }
+
+        (async () => {
+            const lang = await resolveInitialLanguage();
+            if (!localStorage.getItem('selectedLanguage')) {
+                localStorage.setItem('selectedLanguage', lang);
+            }
+            if (lang !== 'Korean' && typeof getPageTranslation === 'function') {
             const t = key => getPageTranslation(lang, key);
             const sub = (translations[lang] || translations['English']).subtitle;
 
@@ -308,7 +397,8 @@
             document.getElementById('about-contact-title').textContent = t('aboutContactTitle');
             document.getElementById('about-contact-p1').textContent = t('aboutContactP1');
             document.getElementById('about-contact-p2').textContent = t('aboutContactP2');
-        }
+            }
+        })();
     </script>
 </body>
 </html>

@@ -38,22 +38,240 @@ const dinnerMenuKeys = [
 ];
 
 
-async function fetchPexelsImage(query) {
+const blockedPexelsPhotoIds = new Set([
+    5107181
+]);
+const recentPexelsPhotoIds = [];
+const MAX_RECENT_PEXELS_IDS = 12;
+
+const imageSearchOverrides = {
+    bibimbap: 'bibimbap bowl korean mixed rice',
+    kimchijjigae: 'kimchi stew korean spicy soup',
+    bulgogi: 'bulgogi korean marinated beef',
+    japchae: 'japchae glass noodles korean',
+    samgyetang: 'samgyetang ginseng chicken soup',
+    sundubu: 'sundubu soft tofu stew korean',
+    galbi: 'galbi korean bbq ribs',
+    tteokbokki: 'tteokbokki spicy rice cakes',
+    naengmyeon: 'naengmyeon cold noodles korean',
+    dakgalbi: 'dakgalbi spicy chicken korean',
+    budaeJjigae: 'budae jjigae army stew korean',
+    gamjatang: 'gamjatang pork bone soup',
+    seolleongtang: 'seolleongtang ox bone soup',
+    gopchang: 'gopchang grilled intestines korean',
+    haemulPajeon: 'haemul pajeon seafood pancake',
+    dwaejiGukbap: 'dwaeji gukbap pork rice soup',
+    chicken: 'fried chicken crispy',
+    porkBelly: 'samgyeopsal grilled pork belly',
+    pigFeet: 'jokbal braised pig feet',
+    boiledPork: 'bossam boiled pork wrap',
+    sundae: 'korean blood sausage sundae',
+    kimbap: 'kimbap korean seaweed rice roll',
+    doenjangJjigae: 'doenjang jjigae soybean paste stew',
+    yukgaejang: 'yukgaejang spicy beef soup',
+    jjimdak: 'jjimdak braised chicken korean',
+    janchiGuksu: 'janchi guksu banquet noodles',
+    jjajangmyeon: 'jjajangmyeon black bean noodles',
+    jjampong: 'jjamppong spicy seafood noodle soup',
+    sweetAndSourPork: 'sweet and sour pork chinese',
+    malatang: 'malatang sichuan spicy hot pot',
+    mapoTofu: 'mapo tofu sichuan',
+    friedRice: 'fried rice chinese',
+    dumplings: 'dumplings chinese jiaozi',
+    kungPaoChicken: 'kung pao chicken sichuan',
+    pekingDuck: 'peking duck crispy',
+    dimSum: 'dim sum assorted',
+    hotPot: 'chinese hot pot',
+    danDanNoodles: 'dan dan noodles sichuan',
+    charSiuBao: 'char siu bao bbq pork bun',
+    springRoll: 'spring rolls chinese',
+    xiaolongbao: 'xiaolongbao soup dumplings',
+    yangKkochi: 'yangkkochi lamb skewers',
+    congYouBing: 'cong you bing scallion pancake',
+    chowMein: 'chow mein stir fried noodles',
+    wonton: 'wonton soup',
+    jjajangBap: 'black bean sauce rice',
+    sushi: 'sushi platter',
+    ramen: 'ramen noodle soup bowl',
+    tonkatsu: 'tonkatsu breaded pork cutlet',
+    udon: 'udon noodle soup',
+    tempura: 'tempura shrimp',
+    curry: 'japanese curry rice',
+    soba: 'soba buckwheat noodles',
+    katsudon: 'katsudon pork cutlet bowl',
+    okonomiyaki: 'okonomiyaki japanese pancake',
+    gyudon: 'gyudon beef bowl japanese',
+    yakitori: 'yakitori chicken skewers',
+    takoyaki: 'takoyaki octopus balls',
+    onigiri: 'onigiri rice ball',
+    nabeyaki: 'nabeyaki udon hot pot',
+    karaage: 'karaage japanese fried chicken',
+    oyakodon: 'oyakodon chicken egg bowl',
+    unagi: 'unagi grilled eel',
+    chirashi: 'chirashi sushi bowl',
+    misoSoup: 'miso soup bowl',
+    hirekatsu: 'hirekatsu pork tenderloin cutlet',
+    gyukatsu: 'gyukatsu beef cutlet',
+    steak: 'steak grilled beef',
+    pasta: 'pasta italian',
+    pizza: 'pizza slice',
+    hamburger: 'hamburger cheeseburger',
+    salad: 'salad bowl',
+    risotto: 'risotto italian rice',
+    sandwich: 'sandwich deli',
+    fishAndChips: 'fish and chips plate',
+    lasagna: 'lasagna baked',
+    carbonara: 'carbonara pasta creamy',
+    gnocchi: 'gnocchi italian',
+    lobster: 'lobster dish',
+    bbqRibs: 'bbq ribs smoked',
+    grilledSalmon: 'grilled salmon fillet',
+    chickenWings: 'chicken wings buffalo',
+    hotdog: 'hot dog',
+    caesarSalad: 'caesar salad',
+    omelet: 'omelet breakfast',
+    meatball: 'meatballs italian',
+    gratin: 'gratin baked',
+    clubSandwich: 'club sandwich',
+    bruschetta: 'bruschetta appetizer',
+    pho: 'pho vietnamese noodle soup',
+    padThai: 'pad thai noodles',
+    greenCurry: 'green curry thai',
+    satay: 'satay skewers',
+    banhMi: 'banh mi sandwich',
+    laksa: 'laksa curry noodle soup',
+    nasiGoreng: 'nasi goreng fried rice',
+    somTam: 'som tam papaya salad',
+    rendang: 'rendang beef curry',
+    tomYumGoong: 'tom yum goong shrimp soup',
+    massamanCurry: 'massaman curry thai',
+    bunCha: 'bun cha vietnam',
+    miGoreng: 'mi goreng noodles',
+    adobo: 'chicken adobo filipino',
+    sisig: 'sisig pork',
+    tacos: 'tacos mexican',
+    burrito: 'burrito wrap',
+    quesadilla: 'quesadilla cheese',
+    enchilada: 'enchiladas mexican',
+    churros: 'churros dessert',
+    ceviche: 'ceviche seafood',
+    empanada: 'empanadas',
+    tamale: 'tamales',
+    pozole: 'pozole soup',
+    arepa: 'arepa corn cake',
+    feijoada: 'feijoada brazilian stew',
+    guacamole: 'guacamole dip',
+    tikkaMasala: 'chicken tikka masala',
+    biryani: 'biryani rice',
+    naan: 'naan bread',
+    samosa: 'samosa snack',
+    butterChicken: 'butter chicken curry',
+    palakPaneer: 'palak paneer spinach',
+    tandooriChicken: 'tandoori chicken grilled',
+    dalMakhani: 'dal makhani lentils',
+    roganJosh: 'rogan josh curry',
+    vindaloo: 'vindaloo curry',
+    dosa: 'dosa crepe',
+    choleBhature: 'chole bhature',
+    kebab: 'kebab skewers',
+    falafel: 'falafel balls',
+    shawarma: 'shawarma wrap',
+    hummus: 'hummus dip',
+    kofta: 'kofta meatballs',
+    tabouleh: 'tabbouleh salad',
+    babaGanoush: 'baba ganoush dip',
+    dolma: 'dolma stuffed grape leaves',
+    mansaf: 'mansaf jordan',
+    jollofRice: 'jollof rice',
+    injera: 'injera flatbread',
+    doroWot: 'doro wat ethiopian stew',
+    tagine: 'tagine moroccan',
+    couscous: 'couscous',
+    suya: 'suya grilled beef',
+    bobotie: 'bobotie south african',
+    fufu: 'fufu african',
+    moussaka: 'moussaka greek',
+    gyros: 'gyros pita',
+    ratatouille: 'ratatouille',
+    croquemonsieur: 'croque monsieur sandwich',
+    schnitzel: 'schnitzel breaded cutlet',
+    bratwurst: 'bratwurst sausage',
+    pierogi: 'pierogi dumplings',
+    borscht: 'borscht beet soup',
+    gazpacho: 'gazpacho cold soup',
+    poutine: 'poutine fries gravy',
+    macAndCheese: 'mac and cheese',
+    clamChowder: 'clam chowder soup',
+    jambalaya: 'jambalaya rice',
+    gumbo: 'gumbo stew',
+    pulledPork: 'pulled pork sandwich',
+    cheesesteak: 'philly cheesesteak sandwich',
+    poBoy: 'po boy sandwich',
+    pancakes: 'pancakes stack'
+};
+
+function rememberPexelsId(id) {
+    if (!id) return;
+    recentPexelsPhotoIds.push(id);
+    while (recentPexelsPhotoIds.length > MAX_RECENT_PEXELS_IDS) {
+        recentPexelsPhotoIds.shift();
+    }
+}
+
+function scorePhoto(photo, keywords) {
+    if (!photo || !photo.alt) return 0;
+    const alt = photo.alt.toLowerCase();
+    let score = 0;
+    keywords.forEach(word => {
+        if (word && alt.includes(word)) score += 2;
+    });
+    return score;
+}
+
+function pickBestPexelsPhoto(photos, keywords) {
+    if (!Array.isArray(photos) || photos.length === 0) return null;
+    const filtered = photos.filter(p => p && !blockedPexelsPhotoIds.has(p.id) && !recentPexelsPhotoIds.includes(p.id));
+    const pool = filtered.length > 0 ? filtered : photos;
+    if (!keywords || keywords.length === 0) {
+        return pool[Math.floor(Math.random() * pool.length)] || null;
+    }
+    const scored = pool
+        .map(photo => ({ photo, score: scorePhoto(photo, keywords) }))
+        .sort((a, b) => b.score - a.score);
+    const topScore = scored[0]?.score ?? 0;
+    const bestPool = scored.filter(item => item.score === topScore).map(item => item.photo);
+    return bestPool[Math.floor(Math.random() * bestPool.length)] || null;
+}
+
+async function fetchPexelsImage(query, fallbackQuery) {
     try {
-        const response = await fetch(`https://api.pexels.com/v1/search?query=${query}+food&per_page=1`, {
+        const baseQuery = (query && query.trim()) ? query.trim() : (fallbackQuery || '').trim();
+        if (!baseQuery) return '';
+        const searchQuery = encodeURIComponent(`${baseQuery} food dish`);
+        const page = 1 + Math.floor(Math.random() * 5);
+        const response = await fetch(`https://api.pexels.com/v1/search?query=${searchQuery}&per_page=10&page=${page}`, {
             headers: {
                 Authorization: PEXELS_API_KEY
             }
         });
         const data = await response.json();
         if (data.photos && data.photos.length > 0) {
-            return data.photos[0].src.large;
-        } else {
-            return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80'; // Fallback image
+            const keywords = baseQuery
+                .toLowerCase()
+                .split(/\s+/)
+                .filter(word => word.length >= 3);
+            const photo = pickBestPexelsPhoto(data.photos, keywords);
+            if (!photo) return '';
+            rememberPexelsId(photo.id);
+            return photo.src.large;
         }
+        if (fallbackQuery && fallbackQuery.trim() && fallbackQuery.trim() !== baseQuery) {
+            return await fetchPexelsImage(fallbackQuery);
+        }
+        return ''; // No image found from Pexels
     } catch (error) {
         console.error('Error fetching Pexels image:', error);
-        return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80'; // Fallback image
+        return ''; // No image found from Pexels due to error
     }
 }
 
@@ -69,8 +287,9 @@ const languageSearch = document.getElementById('language-search');
 const languageList = document.getElementById('language-list');
 const selectedLanguageEl = document.getElementById('selected-language');
 
-// Restore language from localStorage or default to Korean
-let currentLanguage = localStorage.getItem('selectedLanguage') || 'Korean';
+const DEFAULT_LANGUAGE = 'English';
+// Restore language from localStorage or default to English
+let currentLanguage = DEFAULT_LANGUAGE;
 let allCountries = [];
 
 // Country code to flag emoji mapping
@@ -95,20 +314,127 @@ const countryFlags = {
     'MN': '\u{1F1F2}\u{1F1F3}', 'YE': '\u{1F1FE}\u{1F1EA}', 'ZW': '\u{1F1FF}\u{1F1FC}', 'LU': '\u{1F1F1}\u{1F1FA}'
 };
 
+function updateLanguageUI(language, countryCode, explicitFlag) {
+    const iconSpan = languageBtn.querySelector('.icon');
+    const flag = explicitFlag || (countryCode && countryFlags[countryCode] ? countryFlags[countryCode] : '\u{1F310}');
+    if (iconSpan) iconSpan.textContent = flag;
+    selectedLanguageEl.textContent = language;
+}
+
+function getCountryCodeFromLocale() {
+    const locale = (navigator.language || '').trim();
+    if (!locale) return null;
+    const match = locale.match(/-([A-Za-z]{2})/);
+    return match ? match[1].toUpperCase() : null;
+}
+
+function getLanguageFromLocale() {
+    const locale = (navigator.language || '').trim();
+    if (!locale) return null;
+    const langCode = locale.split('-')[0].toLowerCase();
+    const languageMap = {
+        en: 'English',
+        ko: 'Korean',
+        ja: 'Japanese',
+        zh: 'Chinese',
+        es: 'Spanish',
+        fr: 'French',
+        de: 'German',
+        pt: 'Portuguese',
+        ru: 'Russian',
+        ar: 'Arabic',
+        th: 'Thai',
+        vi: 'Vietnamese',
+        id: 'Indonesian',
+        hi: 'Hindi',
+        it: 'Italian'
+    };
+    return languageMap[langCode] || null;
+}
+
+async function getCountryCodeFromIP() {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1200);
+        const response = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!response.ok) return null;
+        const data = await response.json();
+        if (!data || !data.country) return null;
+        return String(data.country).toUpperCase();
+    } catch (error) {
+        return null;
+    }
+}
+
+async function resolveInitialLanguage() {
+    const savedLang = localStorage.getItem('selectedLanguage');
+    if (savedLang && translations[savedLang]) {
+        return { language: savedLang, countryCode: null, unsupportedLanguage: null };
+    }
+
+    let detectedLanguage = null;
+    let countryCode = null;
+    let unsupportedLanguage = null;
+
+    const ipCountryCode = await getCountryCodeFromIP();
+    if (typeof CountryLanguageService !== 'undefined' && ipCountryCode) {
+        const languages = CountryLanguageService.getLanguagesByCountryCode(ipCountryCode);
+        if (languages) {
+            detectedLanguage = languages.find(lang => translations[lang]) || null;
+            if (!detectedLanguage && languages.length > 0) {
+                unsupportedLanguage = languages[0];
+            }
+            countryCode = ipCountryCode;
+        }
+    }
+
+    if (!detectedLanguage && typeof CountryLanguageService !== 'undefined') {
+        const localeCountryCode = getCountryCodeFromLocale();
+        if (localeCountryCode) {
+            const languages = CountryLanguageService.getLanguagesByCountryCode(localeCountryCode);
+            if (languages) {
+                detectedLanguage = languages.find(lang => translations[lang]) || null;
+                if (!detectedLanguage && languages.length > 0) {
+                    unsupportedLanguage = languages[0];
+                }
+                countryCode = countryCode || localeCountryCode;
+            }
+        }
+    }
+
+    if (!detectedLanguage) {
+        const localeLanguage = getLanguageFromLocale();
+        if (localeLanguage && translations[localeLanguage]) {
+            detectedLanguage = localeLanguage;
+        } else if (localeLanguage) {
+            unsupportedLanguage = localeLanguage;
+        }
+    }
+
+    return { language: detectedLanguage || DEFAULT_LANGUAGE, countryCode, unsupportedLanguage };
+}
+
 // Initialize language selector
-function initLanguageSelector() {
+async function initLanguageSelector() {
     if (typeof CountryLanguageService !== 'undefined') {
         allCountries = CountryLanguageService.getAllCountries();
         renderLanguageList(allCountries);
     }
 
-    // Restore saved language on load
-    const savedLang = localStorage.getItem('selectedLanguage');
-    if (savedLang && translations[savedLang]) {
-        currentLanguage = savedLang;
-        selectedLanguageEl.textContent = savedLang;
+    const resolved = await resolveInitialLanguage();
+    currentLanguage = resolved.language;
+    updateLanguageUI(resolved.language, resolved.countryCode);
+    if (!localStorage.getItem('selectedLanguage')) {
+        localStorage.setItem('selectedLanguage', resolved.language);
     }
     applyTranslations();
+    if (resolved.unsupportedLanguage) {
+        const t = translations[currentLanguage] || translations[DEFAULT_LANGUAGE];
+        const template = t.languageNotSupported || 'Sorry, {language} is not supported yet. Showing English.';
+        const message = template.replace('{language}', resolved.unsupportedLanguage);
+        showNotification(message, '\u{1F310}');
+    }
 }
 
 // Render language list
@@ -290,9 +616,7 @@ function selectLanguage(country, language, flag) {
     localStorage.setItem('selectedLanguage', language);
 
     // Update the language bar to show flag and language name immediately
-    const iconSpan = languageBtn.querySelector('.icon');
-    iconSpan.textContent = flag;
-    selectedLanguageEl.textContent = language;
+    updateLanguageUI(language, null, flag);
 
     languageSelector.classList.remove('active');
 
@@ -388,7 +712,9 @@ document.getElementById('recommend-btn').addEventListener('click', async () => {
     recommendBtn.innerHTML = `<span class="btn-icon">⏳</span><span class="btn-text">${t.loadingImage}</span>`;
     menuImage.style.opacity = '0.5';
 
-    const imageUrl = await fetchPexelsImage(recommendedMenuKey);
+    const englishMenuText = (menuTranslations['English'] && menuTranslations['English'][recommendedMenuKey]) ? menuTranslations['English'][recommendedMenuKey] : menuText;
+    const searchTerm = imageSearchOverrides[recommendedMenuKey] || englishMenuText;
+    const imageUrl = await fetchPexelsImage(searchTerm, englishMenuText);
 
     // Preload image to avoid flashing
     const img = new Image();
@@ -401,7 +727,7 @@ document.getElementById('recommend-btn').addEventListener('click', async () => {
     };
     img.onerror = () => {
         console.error('Error loading image for:', recommendedMenuKey);
-        menuImage.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80';
+        menuImage.src = '';
         menuImage.style.opacity = '1';
         recommendBtn.disabled = false;
         recommendBtn.innerHTML = `<span class="btn-icon">🎲</span><span class="btn-text">${t.getAnother}</span>`;
@@ -1116,6 +1442,16 @@ function shuffleArray(arr) {
     return shuffled;
 }
 
+function pickRandomMenu(excludeMenu) {
+    if (currentSlotMenus.length === 0) return null;
+    if (currentSlotMenus.length === 1) return currentSlotMenus[0];
+    let candidate = null;
+    do {
+        candidate = currentSlotMenus[Math.floor(Math.random() * currentSlotMenus.length)];
+    } while (excludeMenu && candidate.key === excludeMenu.key);
+    return candidate;
+}
+
 // Render slot reel items
 function renderSlotReels() {
     if (currentSlotMenus.length === 0) return;
@@ -1166,11 +1502,14 @@ function spinSlotMachine() {
             reel.appendChild(item);
         }
 
-        // All reels land on the same winning item
-        const prevIndex = (winningIndex - 1 + currentSlotMenus.length) % currentSlotMenus.length;
-        const nextIndex = (winningIndex + 1) % currentSlotMenus.length;
+        // Only the center item should match across reels. Adjacent items are random per reel.
+        const prevMenu = pickRandomMenu(winningMenu);
+        let nextMenu = pickRandomMenu(winningMenu);
+        if (nextMenu && prevMenu && nextMenu.key === prevMenu.key) {
+            nextMenu = pickRandomMenu(prevMenu);
+        }
 
-        [currentSlotMenus[prevIndex], winningMenu, currentSlotMenus[nextIndex]].forEach(menu => {
+        [prevMenu, winningMenu, nextMenu].forEach(menu => {
             const item = document.createElement('div');
             item.className = 'slot-item';
             item.innerHTML = `<span class="slot-emoji">${menu.emoji}</span><span class="slot-name">${getSlotMenuName(menu)}</span>`;
@@ -1209,7 +1548,8 @@ function spinSlotMachine() {
         if (slotResultImage) {
             slotResultImage.src = '';
             slotResultImage.alt = getSlotMenuName(winningMenu);
-            const imageUrl = await fetchPexelsImage(winningMenu.key);
+            const searchTerm = imageSearchOverrides[winningMenu.key] || winningMenu.en;
+            const imageUrl = await fetchPexelsImage(searchTerm, winningMenu.en);
             slotResultImage.src = imageUrl;
         }
 
