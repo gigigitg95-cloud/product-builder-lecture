@@ -336,7 +336,7 @@ function getLanguageFromLocale() {
         en: 'English',
         ko: 'Korean',
         ja: 'Japanese',
-        zh: 'Chinese',
+        zh: 'Mandarin Chinese',
         es: 'Spanish',
         fr: 'French',
         de: 'German',
@@ -379,7 +379,7 @@ async function resolveInitialLanguage() {
 
     const ipCountryCode = await getCountryCodeFromIP();
     if (typeof CountryLanguageService !== 'undefined' && ipCountryCode) {
-        const languages = CountryLanguageService.getLanguagesByCountryCode(ipCountryCode);
+        const languages = CountryLanguageService.getLanguagesByCode(ipCountryCode);
         if (languages) {
             detectedLanguage = languages.find(lang => translations[lang]) || null;
             if (!detectedLanguage && languages.length > 0) {
@@ -392,7 +392,7 @@ async function resolveInitialLanguage() {
     if (!detectedLanguage && typeof CountryLanguageService !== 'undefined') {
         const localeCountryCode = getCountryCodeFromLocale();
         if (localeCountryCode) {
-            const languages = CountryLanguageService.getLanguagesByCountryCode(localeCountryCode);
+            const languages = CountryLanguageService.getLanguagesByCode(localeCountryCode);
             if (languages) {
                 detectedLanguage = languages.find(lang => translations[lang]) || null;
                 if (!detectedLanguage && languages.length > 0) {
@@ -442,11 +442,13 @@ function renderLanguageList(countries) {
     languageList.innerHTML = '';
 
     countries.forEach(country => {
+        const flag = countryFlags[country.code] || '\u{1F310}';
+        // Find the first supported language for this country
+        const supportedLang = country.languages.find(lang => translations[lang]);
+        if (!supportedLang) return; // Skip countries with no supported language
+
         const item = document.createElement('div');
         item.className = 'language-item';
-
-        const flag = countryFlags[country.code] || '\u{1F310}';
-        const mainLanguage = country.languages[0];
 
         item.innerHTML = `
             <span class="flag">${flag}</span>
@@ -455,7 +457,7 @@ function renderLanguageList(countries) {
         `;
 
         item.addEventListener('click', () => {
-            selectLanguage(country.country, mainLanguage, flag);
+            selectLanguage(country.country, supportedLang, flag);
         });
 
         languageList.appendChild(item);
