@@ -608,6 +608,47 @@ function applyTranslations() {
         steps[2].querySelector('h3').textContent = t.howToUseStep3Title;
         steps[2].querySelector('p').textContent = t.howToUseStep3Desc;
     }
+
+    // Update Popular Menu Top 10 Section
+    const popularTitle = document.getElementById('popular-title');
+    if (popularTitle) popularTitle.textContent = getTranslation('popularMenuTitle');
+
+    const popularDesc = document.querySelector('.popular-menu-section .section-desc');
+    if (popularDesc) popularDesc.textContent = getTranslation('popularMenuDesc');
+
+    const popularItems = document.querySelectorAll('.popular-menu-item');
+    popularItems.forEach((item) => {
+        const menuHeading = item.querySelector('h3[data-menu-key]');
+        if (menuHeading) {
+            menuHeading.textContent = getMenuTranslation(menuHeading.dataset.menuKey);
+        }
+
+        const desc = item.querySelector('p[data-i18n]');
+        if (desc) {
+            desc.textContent = getTranslation(desc.dataset.i18n);
+        }
+    });
+
+    // Update Delivery Menu Category Guide
+    const deliveryTitle = document.getElementById('delivery-title');
+    if (deliveryTitle) deliveryTitle.textContent = getTranslation('deliveryGuideTitle');
+
+    const deliveryDesc = document.querySelector('.delivery-section .section-desc');
+    if (deliveryDesc) deliveryDesc.textContent = getTranslation('deliveryGuideDesc');
+
+    const deliveryCards = document.querySelectorAll('.delivery-card');
+    deliveryCards.forEach((card) => {
+        const name = card.querySelector('h3[data-i18n]');
+        if (name) name.textContent = getTranslation(name.dataset.i18n);
+
+        const desc = card.querySelector('p[data-i18n]');
+        if (desc) desc.textContent = getTranslation(desc.dataset.i18n);
+
+        const tags = card.querySelectorAll('.delivery-menu-tag[data-menu-key]');
+        tags.forEach((tag) => {
+            tag.textContent = getMenuTranslation(tag.dataset.menuKey);
+        });
+    });
 }
 
 // Select language
