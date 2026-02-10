@@ -239,7 +239,7 @@ const translations = {
         lightMode: 'Mode clair activé',
         darkMode: 'Mode sombre activé',
         selected: 'Sélectionné',
-        languageNotSupported: '{language} n'est pas encore pris en charge. Affichage en anglais.',
+        languageNotSupported: '{language} n\'est pas encore pris en charge. Affichage en anglais.',
         foodTipsTitle: 'Conseils Culinaires',
         foodTip1Title: 'Considérez le temps',
         foodTip1Desc: 'Si vous avez besoin d\'une livraison, tenez compte du délai de livraison. Si vous cuisinez, tenez compte du temps de cuisson.',
