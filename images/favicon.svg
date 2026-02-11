@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- Plate -->
+  <circle cx="32" cy="34" r="16" fill="none" stroke="#fff" stroke-width="2.5" opacity="0.9"/>
+  <circle cx="32" cy="34" r="11" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5"/>
+  <!-- Fork -->
+  <g transform="translate(16, 10) rotate(0)" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.95">
+    <line x1="0" y1="0" x2="0" y2="18"/>
+    <line x1="-3" y1="0" x2="-3" y2="7"/>
+    <line x1="3" y1="0" x2="3" y2="7"/>
+    <path d="M-3 7 Q-3 10 0 10 Q3 10 3 7"/>
+  </g>
+  <!-- Knife -->
+  <g transform="translate(48, 10)" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.95">
+    <line x1="0" y1="7" x2="0" y2="18"/>
+    <path d="M0 0 Q4 3 3 7 Q2 9 0 7" fill="#fff" stroke="none" opacity="0.95"/>
+  </g>
+  <!-- Steam lines -->
+  <path d="M27 16 Q25 12 27 8" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <path d="M32 14 Q30 10 32 6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <path d="M37 16 Q35 12 37 8" stroke="#fff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+</svg>

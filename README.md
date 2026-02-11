@@ -202,17 +202,22 @@
 ├── pages/terms.html         # 이용약관
 ├── pages/bulletin.html      # 커뮤니티 게시판 (패널 로드용)
 ├── 404.html                # 404 에러 페이지
-├── favicon.svg             # 파비콘
+├── images/
+│   ├── favicon.svg         # 파비콘
+│   ├── favicon.ico         # 파비콘 (레거시)
+│   └── og-image-keywords-alt.svg  # OG 이미지
 ├── robots.txt              # 검색엔진 크롤링 설정
 ├── sitemap.xml             # 사이트맵
 ├── firebase.json           # Firebase Hosting 설정
 ├── .firebaserc             # Firebase 프로젝트 설정
 ├── css/
 │   └── style.css           # 전체 스타일시트 (다크/라이트 테마 포함)
-└── js/
-    ├── app.js              # 메인 앱 로직 (추천, 슬롯머신, 공유, 게시판 등)
-    ├── translations.js     # 18개 언어 번역 데이터
-    └── countryLanguageService.js  # 94개국 언어 매핑 서비스
+├── js/
+│   ├── app.js              # 메인 앱 로직 (추천, 슬롯머신, 공유, 게시판 등)
+│   ├── translations.js     # 18개 언어 번역 데이터
+│   └── countryLanguageService.js  # 94개국 언어 매핑 서비스
+└── scripts/
+    └── inject-jsonld.js     # 빌드 시 JSON-LD inline 주입 (npm run build)
 ```
 
 ---
