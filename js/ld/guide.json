@@ -1,0 +1,37 @@
+[
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "홈",
+                "item": "https://product-builder-lecture-8pr.pages.dev/"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "음식 가이드",
+                "item": "https://product-builder-lecture-8pr.pages.dev/pages/guide.html"
+            }
+        ]
+    },
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "메뉴 선택 완벽 가이드 - 상황별, 계절별, 건강 목표별 음식 추천",
+        "description": "매일 반복되는 메뉴 고민을 해결하기 위한 완벽한 가이드. 혼밥부터 데이트, 가족 식사까지 모든 상황에 맞는 메뉴를 찾아보세요.",
+        "author": {
+            "@type": "Organization",
+            "name": "Menu Recommendation"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Menu Recommendation",
+            "url": "https://product-builder-lecture-8pr.pages.dev/"
+        },
+        "datePublished": "2026-02-09",
+        "dateModified": "2026-02-09"
+    }
+]

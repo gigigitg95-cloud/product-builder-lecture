@@ -1,0 +1,9 @@
+.policy-container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+.policy-content { background: var(--card-background); backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 24px; padding: 48px; box-shadow: 0 20px 60px var(--shadow-color); margin-top: 80px; }
+.policy-content h1 { font-size: 2.5rem; margin-bottom: 30px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.policy-content h2 { font-size: 1.5rem; margin-top: 30px; margin-bottom: 15px; color: var(--primary-color); }
+.policy-content p, .policy-content li { line-height: 1.8; color: var(--text-secondary); margin-bottom: 15px; }
+.policy-content ul { padding-left: 20px; }
+.back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--primary-color); text-decoration: none; font-weight: 600; margin-top: 30px; padding: 12px 24px; background: var(--input-background); border-radius: 12px; transition: all 0.3s ease; }
+.back-link:hover { background: rgba(99, 102, 241, 0.2); }
+.last-updated { font-size: 0.9rem; color: var(--text-secondary); margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--card-border); }

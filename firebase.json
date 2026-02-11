@@ -79,22 +79,53 @@
     ],
     "cleanUrls": true,
     "trailingSlash": false,
+    "redirects": [
+      {
+        "source": "/about.html",
+        "destination": "/pages/about.html",
+        "type": 301
+      },
+      {
+        "source": "/guide.html",
+        "destination": "/pages/guide.html",
+        "type": 301
+      },
+      {
+        "source": "/privacy.html",
+        "destination": "/pages/privacy.html",
+        "type": 301
+      },
+      {
+        "source": "/terms.html",
+        "destination": "/pages/terms.html",
+        "type": 301
+      },
+      {
+        "source": "/bulletin.html",
+        "destination": "/pages/bulletin.html",
+        "type": 301
+      }
+    ],
     "rewrites": [
       {
         "source": "/index.html",
         "destination": "/index.html"
       },
       {
-        "source": "/about.html",
-        "destination": "/about.html"
+        "source": "/pages/about.html",
+        "destination": "/pages/about.html"
       },
       {
-        "source": "/privacy.html",
-        "destination": "/privacy.html"
+        "source": "/pages/guide.html",
+        "destination": "/pages/guide.html"
       },
       {
-        "source": "/terms.html",
-        "destination": "/terms.html"
+        "source": "/pages/privacy.html",
+        "destination": "/pages/privacy.html"
+      },
+      {
+        "source": "/pages/terms.html",
+        "destination": "/pages/terms.html"
       },
       {
         "source": "**",

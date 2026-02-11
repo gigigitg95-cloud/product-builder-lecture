@@ -554,15 +554,15 @@ function applyTranslations() {
     const termsLink = document.getElementById('terms-link');
     if (aboutLink) {
         aboutLink.textContent = getPageTranslation(currentLanguage, 'aboutTitle');
-        aboutLink.href = `about.html?lang=${currentLanguage}`;
+        aboutLink.href = `/pages/about.html?lang=${currentLanguage}`;
     }
     if (privacyLink) {
         privacyLink.textContent = getPageTranslation(currentLanguage, 'privacyTitle');
-        privacyLink.href = `privacy.html?lang=${currentLanguage}`;
+        privacyLink.href = `/pages/privacy.html?lang=${currentLanguage}`;
     }
     if (termsLink) {
         termsLink.textContent = getPageTranslation(currentLanguage, 'termsTitle');
-        termsLink.href = `terms.html?lang=${currentLanguage}`;
+        termsLink.href = `/pages/terms.html?lang=${currentLanguage}`;
     }
 
     // Update search placeholder
@@ -1970,7 +1970,7 @@ function updateSeasonalTranslations() {
 async function loadBulletinInclude() {
     const container = document.getElementById('bulletin-container');
     if (!container) return;
-    const includePath = container.dataset.include || 'bulletin.html';
+    const includePath = container.dataset.include || 'pages/bulletin.html';
 
     try {
         const response = await fetch(includePath, { cache: 'no-cache' });

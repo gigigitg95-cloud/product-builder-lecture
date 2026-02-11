@@ -138,10 +138,10 @@
 | 페이지 | 경로 | 설명 |
 |--------|------|------|
 | 메인 | `/` | 메뉴 추천, 슬롯머신, 상황별/계절별 추천, 인기메뉴, 배달가이드, 칼로리 가이드, FAQ |
-| 소개 | `/about.html` | 서비스 소개, 주요 기능, 서비스 현황, 메뉴 목록, 이용 방법 |
-| 음식 가이드 | `/guide.html` | 상황별/계절별/건강목표별/예산별/세계음식/에티켓 가이드 |
-| 개인정보처리방침 | `/privacy.html` | 개인정보 수집 및 이용 안내 |
-| 이용약관 | `/terms.html` | 서비스 이용 약관 |
+| 소개 | `/pages/about.html` | 서비스 소개, 주요 기능, 서비스 현황, 메뉴 목록, 이용 방법 |
+| 음식 가이드 | `/pages/guide.html` | 상황별/계절별/건강목표별/예산별/세계음식/에티켓 가이드 |
+| 개인정보처리방침 | `/pages/privacy.html` | 개인정보 수집 및 이용 안내 |
+| 이용약관 | `/pages/terms.html` | 서비스 이용 약관 |
 
 ---
 
@@ -196,11 +196,11 @@
 
 ```
 ├── index.html              # 메인 페이지
-├── about.html              # 서비스 소개
-├── guide.html              # 음식 가이드
-├── privacy.html            # 개인정보처리방침
-├── terms.html              # 이용약관
-├── bulletin.html           # 커뮤니티 게시판 (패널 로드용)
+├── pages/about.html         # 서비스 소개
+├── pages/guide.html         # 음식 가이드
+├── pages/privacy.html       # 개인정보처리방침
+├── pages/terms.html         # 이용약관
+├── pages/bulletin.html      # 커뮤니티 게시판 (패널 로드용)
 ├── 404.html                # 404 에러 페이지
 ├── favicon.svg             # 파비콘
 ├── robots.txt              # 검색엔진 크롤링 설정
@@ -237,3 +237,11 @@ firebase deploy --only hosting
 ## 라이선스
 
 &copy; 2026 Menu Recommendation. All rights reserved.
+
+---
+
+## 업데이트 기록
+
+- 2026-02-11: `code.html` 제외한 모든 HTML을 `pages/`로 이동. 기존 경로에서 새 경로로 301 리다이렉트 설정.
+- 2026-02-11: `canonical`, `og:url`, `sitemap.xml`을 `/pages/` 경로로 업데이트하여 SEO 영향 최소화.
+- 2026-02-11: JSON-LD는 `js/ld/*.json`으로 유지보수하고, `npm run build`로 HTML에 inline 주입하도록 구성.

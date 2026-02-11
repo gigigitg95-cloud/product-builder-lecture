@@ -1,2 +1,7 @@
 # Cloudflare Pages redirects
+/about.html /pages/about.html 301
+/guide.html /pages/guide.html 301
+/privacy.html /pages/privacy.html 301
+/terms.html /pages/terms.html 301
+/bulletin.html /pages/bulletin.html 301
 /* /index.html 200

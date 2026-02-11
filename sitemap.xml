@@ -12,7 +12,7 @@
 
     <!-- About Page -->
     <url>
-        <loc>https://product-builder-lecture-8pr.pages.dev/about.html</loc>
+        <loc>https://product-builder-lecture-8pr.pages.dev/pages/about.html</loc>
         <lastmod>2026-02-09</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
@@ -20,7 +20,7 @@
 
     <!-- Food Guide -->
     <url>
-        <loc>https://product-builder-lecture-8pr.pages.dev/guide.html</loc>
+        <loc>https://product-builder-lecture-8pr.pages.dev/pages/guide.html</loc>
         <lastmod>2026-02-09</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -28,7 +28,7 @@
 
     <!-- Privacy Policy -->
     <url>
-        <loc>https://product-builder-lecture-8pr.pages.dev/privacy.html</loc>
+        <loc>https://product-builder-lecture-8pr.pages.dev/pages/privacy.html</loc>
         <lastmod>2026-02-09</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
@@ -36,7 +36,7 @@
 
     <!-- Terms of Service -->
     <url>
-        <loc>https://product-builder-lecture-8pr.pages.dev/terms.html</loc>
+        <loc>https://product-builder-lecture-8pr.pages.dev/pages/terms.html</loc>
         <lastmod>2026-02-09</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
