@@ -194,30 +194,56 @@
 
 ## 프로젝트 구조
 
-```
-├── index.html              # 메인 페이지
-├── pages/about.html         # 서비스 소개
-├── pages/guide.html         # 음식 가이드
-├── pages/privacy.html       # 개인정보처리방침
-├── pages/terms.html         # 이용약관
-├── pages/bulletin.html      # 커뮤니티 게시판 (패널 로드용)
-├── 404.html                # 404 에러 페이지
+``` 
+├── index.html               # 메인 페이지
+├── 404.html                 # 404 에러 페이지
+├── pages/
+│   ├── about.html           # 서비스 소개
+│   ├── guide.html           # 음식 가이드
+│   ├── privacy.html         # 개인정보처리방침
+│   ├── terms.html           # 이용약관
+│   └── bulletin.html        # 커뮤니티 게시판 (패널 로드용)
 ├── images/
-│   ├── favicon.svg         # 파비콘
-│   ├── favicon.ico         # 파비콘 (레거시)
+│   ├── favicon.svg          # 파비콘
+│   ├── favicon.ico          # 파비콘 (레거시)
 │   └── og-image-keywords-alt.svg  # OG 이미지
-├── robots.txt              # 검색엔진 크롤링 설정
-├── sitemap.xml             # 사이트맵
-├── firebase.json           # Firebase Hosting 설정
-├── .firebaserc             # Firebase 프로젝트 설정
+├── robots.txt               # 검색엔진 크롤링 설정
+├── sitemap.xml              # 사이트맵
+├── ads.txt                  # 광고 크롤러 허용 설정
+├── _headers                 # 호스팅 응답 헤더 설정
+├── _redirects               # 추가 리다이렉트 규칙
+├── firebase.json            # Firebase Hosting 설정
+├── firestore.rules          # Firestore 보안 규칙
+├── package.json             # 빌드 스크립트 정의
 ├── css/
-│   └── style.css           # 전체 스타일시트 (다크/라이트 테마 포함)
+│   ├── style.css            # 공통 스타일 (메인/공통 컴포넌트)
+│   ├── about.css            # 소개 페이지 스타일
+│   ├── guide.css            # 가이드 페이지 스타일
+│   ├── privacy.css          # 개인정보처리방침 스타일
+│   ├── terms.css            # 이용약관 스타일
+│   └── 404.css              # 404 페이지 스타일
 ├── js/
-│   ├── app.js              # 메인 앱 로직 (추천, 슬롯머신, 공유, 게시판 등)
-│   ├── translations.js     # 18개 언어 번역 데이터
-│   └── countryLanguageService.js  # 94개국 언어 매핑 서비스
-└── scripts/
-    └── inject-jsonld.js     # 빌드 시 JSON-LD inline 주입 (npm run build)
+│   ├── app.js               # 메인 앱 로직 (추천, 슬롯머신, 공유, 게시판 등)
+│   ├── translations.js      # 18개 언어 번역 데이터
+│   ├── countryLanguageService.js  # 94개국 언어 매핑 서비스
+│   ├── about.js             # 소개 페이지 스크립트
+│   ├── privacy.js           # 개인정보처리방침 스크립트
+│   ├── terms.js             # 이용약관 스크립트
+│   ├── 404.js               # 404 페이지 스크립트
+│   ├── analytics/
+│   │   ├── gtag.js          # Google Analytics 초기화
+│   │   └── clarity.js       # Microsoft Clarity 초기화
+│   └── ld/
+│       ├── index.json       # 메인 페이지 구조화 데이터
+│       ├── about.json       # 소개 페이지 구조화 데이터
+│       ├── guide.json       # 가이드 페이지 구조화 데이터
+│       ├── privacy.json     # 개인정보처리방침 구조화 데이터
+│       └── terms.json       # 이용약관 구조화 데이터
+├── scripts/
+│   ├── inject-jsonld.js     # 빌드 시 JSON-LD inline 주입 (npm run build)
+│   └── check-dom-contract.js # DOM 계약 검증 스크립트
+└── docs/
+    └── dom-contract.json    # DOM 계약 정의 파일
 ```
 
 ---
