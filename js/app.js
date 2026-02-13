@@ -319,6 +319,8 @@ function updateLanguageUI(language, countryCode, explicitFlag) {
     const flag = explicitFlag || (countryCode && countryFlags[countryCode] ? countryFlags[countryCode] : '\u{1F310}');
     if (iconSpan) iconSpan.textContent = flag;
     selectedLanguageEl.textContent = language;
+    const mobileLabel = document.getElementById('mobile-selected-language');
+    if (mobileLabel) mobileLabel.textContent = language;
 }
 
 function getCountryCodeFromLocale() {
@@ -420,6 +422,26 @@ async function initLanguageSelector() {
     if (typeof CountryLanguageService !== 'undefined') {
         allCountries = CountryLanguageService.getAllCountries();
         renderLanguageList(allCountries);
+        // Expose for mobile language panel
+        window._allCountries = allCountries;
+        window._countryFlags = countryFlags;
+        window._translations = translations;
+    }
+
+    // Mobile language search
+    const mobileSearch = document.getElementById('mobile-language-search');
+    if (mobileSearch) {
+        mobileSearch.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allCountries.filter(c =>
+                c.country.toLowerCase().includes(term) ||
+                c.languages.some(l => l.toLowerCase().includes(term)) ||
+                c.code.toLowerCase().includes(term)
+            );
+            if (typeof renderMobileLanguageList === 'function') {
+                renderMobileLanguageList(filtered);
+            }
+        });
     }
 
     const resolved = await resolveInitialLanguage();
@@ -781,9 +803,11 @@ document.getElementById('recommend-btn').addEventListener('click', async () => {
 // Theme Toggle
 document.getElementById('theme-toggle-btn').addEventListener('click', () => {
     document.body.classList.toggle('light-mode');
+    const isDark = document.documentElement.classList.toggle('dark');
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
     const t = translations[currentLanguage] || translations['English'];
-    const isLight = document.body.classList.contains('light-mode');
-    showNotification(isLight ? t.lightMode : t.darkMode, isLight ? '\u2600\uFE0F' : '\u{1F319}');
+    showNotification(isDark ? t.darkMode : t.lightMode, isDark ? '\u{1F319}' : '\u2600\uFE0F');
 });
 
 // Add animation styles
@@ -1656,7 +1680,7 @@ const panels = document.querySelectorAll('.panel');
 
 function setActivePanel(panelId, pushState = true) {
     const hasPanel = Array.from(panels).some(panel => panel.id === `panel-${panelId}`);
-    const targetId = hasPanel ? panelId : 'recommendation';
+    const targetId = hasPanel ? panelId : 'bulletin';
 
     sideNavButtons.forEach(btn => {
         btn.classList.toggle('active', btn.dataset.panel === targetId);
