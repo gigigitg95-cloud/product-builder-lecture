@@ -324,7 +324,7 @@
                                 <div id="language-list" class="language-list mt-2 max-h-48 overflow-auto text-sm"></div>
                             </div>
                         </div>
-                        <button id="theme-toggle-btn" class="theme-toggle-switch group relative w-12 h-7 rounded-full bg-gray-200 dark:bg-indigo-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/30" aria-label="테마 전환">
+                        <button id="theme-toggle-btn" class="theme-toggle-switch group relative w-12 h-7 rounded-full bg-gray-200 dark:bg-indigo-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/30" onclick="toggleThemeMode(event)" aria-label="테마 전환">
                             <span class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center transition-transform duration-300 dark:translate-x-5">
                                 <span class="material-icons-outlined text-amber-500 dark:hidden" style="font-size:14px;font-family:'Material Icons Outlined'!important">light_mode</span>
                                 <span class="material-icons-outlined text-indigo-500 hidden dark:inline" style="font-size:14px;font-family:'Material Icons Outlined'!important">dark_mode</span>
@@ -428,7 +428,7 @@
                             <span id="mobile-selected-language" class="truncate">English</span>
                             <span class="material-icons-outlined text-sm ml-auto transition-transform" id="mobile-lang-arrow">expand_more</span>
                         </button>
-                        <button class="theme-toggle-switch group relative w-12 h-7 rounded-full bg-gray-200 dark:bg-indigo-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/30" onclick="document.getElementById('theme-toggle-btn').click();" aria-label="테마 전환">
+                        <button class="theme-toggle-switch group relative w-12 h-7 rounded-full bg-gray-200 dark:bg-indigo-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/30" onclick="toggleThemeMode(event)" aria-label="테마 전환">
                             <span class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center transition-transform duration-300 dark:translate-x-5">
                                 <span class="material-icons-outlined text-amber-500 dark:hidden" style="font-size:14px;font-family:'Material Icons Outlined'!important">light_mode</span>
                                 <span class="material-icons-outlined text-indigo-500 hidden dark:inline" style="font-size:14px;font-family:'Material Icons Outlined'!important">dark_mode</span>

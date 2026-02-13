@@ -828,11 +828,14 @@ function applyThemeState(isDark, options = {}) {
 // Sync theme state once on load (head script may set .dark before paint).
 applyThemeState(document.documentElement.classList.contains('dark'), { persist: false, notify: false });
 
-// Theme Toggle
-document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+function toggleThemeMode(event) {
+    if (event) event.preventDefault();
     const nextIsDark = !document.documentElement.classList.contains('dark');
     applyThemeState(nextIsDark, { persist: true, notify: true });
-});
+}
+
+// Expose for inline handlers (desktop/mobile sidebar)
+window.toggleThemeMode = toggleThemeMode;
 
 // Add animation styles
 const style = document.createElement('style');
