@@ -247,6 +247,28 @@ firebase deploy --only hosting
 
 ## 업데이트 기록
 
-- 2026-02-11: `code.html` 제외한 모든 HTML을 `pages/`로 이동. 기존 경로에서 새 경로로 301 리다이렉트 설정.
-- 2026-02-11: `canonical`, `og:url`, `sitemap.xml`을 `/pages/` 경로로 업데이트하여 SEO 영향 최소화.
-- 2026-02-11: JSON-LD는 `js/ld/*.json`으로 유지보수하고, `npm run build`로 HTML에 inline 주입하도록 구성.
+### 2026-02-13 (리팩토링 완료)
+
+**원칙**
+- 콘텐츠/기능 100% 유지, 스타일 단계적 전환
+- SEO/AdSense 관련 메타/콘텐츠/정책 준수 영역 유지
+
+**진행 결과**
+
+| 단계 | 변경 영역 | 핵심 변경 |
+|------|----------|-----------|
+| Step 1 | Head/기본 설정 | Poppins+Inter 폰트 구성, Material Icons 도입, Tailwind `darkMode: "class"` 정비 |
+| Step 2 | Sidebar | 접이식 사이드바, 섹션형 내비게이션, 모바일 토글, 언어 드롭다운 UI 개선 |
+| Step 3 | 헤더/슬롯머신 + 추천/커뮤니티 | 히어로/카드 스타일 개편, 중첩 `<main>` 구조 정리, 패널 디자인 일관화 |
+| Step 4 | 상황별/계절별 | 카드/그리드/태그 스타일 개편, 8개 상황 + 4개 계절 데이터 유지 |
+| Step 5 | 인기 메뉴 Top 10 + 배달 가이드 | 섹션 카드/리스트 디자인 개선, 정보 구조 유지 |
+| Step 6 | 점심·저녁/집밥/아침/칼로리 | 시각 체계/카드 스타일 재정비, 메뉴/칼로리 데이터 유지 |
+| Step 7 | 음식 선택 팁/서비스 소개/카테고리 가이드 | 정보형 카드 레이아웃 개선, 설명 콘텐츠 유지 |
+| Step 8 | How to Use + FAQ | 2/3 + 1/3 그리드 레이아웃, FAQ 아코디언 인터랙션 정리 |
+| Step 9 | Footer + 다크모드 마무리 | 푸터 시맨틱 구조 개선, FOUC 방지/테마 저장/아이콘 전환 로직 정리 |
+
+### 2026-02-11 (구조/SEO/빌드 정리)
+
+- `code.html` 제외 HTML을 `pages/`로 이동하고 기존 경로를 301 리다이렉트로 연결
+- `canonical`, `og:url`, `sitemap.xml`을 `/pages/` 경로 기준으로 정리
+- JSON-LD 관리 방식을 `js/ld/*.json` + `npm run build`(`scripts/inject-jsonld.js`)로 통일
