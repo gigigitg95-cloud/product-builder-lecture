@@ -115,12 +115,28 @@
     <script src="js/analytics/clarity.js"></script>
     <script>
         (function() {
+            function applyThemeState(isDark) {
+                document.documentElement.classList.toggle('dark', isDark);
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                // Keep legacy light-mode styles in sync.
+                if (document.body) {
+                    document.body.classList.toggle('light-mode', !isDark);
+                }
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            }
+
             const saved = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (saved === 'dark' || (!saved && prefersDark)) {
-                document.documentElement.classList.add('dark');
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
+            applyThemeState(saved === 'dark' || (!saved && prefersDark));
+
+            // Ensure inline onclick handlers always have a defined global function,
+            // even before deferred scripts finish loading.
+            window.toggleThemeMode = function(event) {
+                if (event) event.preventDefault();
+                const nextIsDark = !document.documentElement.classList.contains('dark');
+                applyThemeState(nextIsDark);
+                return false;
+            };
         })();
     </script>
     <style id="stitch-tokens">
