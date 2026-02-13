@@ -800,14 +800,38 @@ document.getElementById('recommend-btn').addEventListener('click', async () => {
     img.src = imageUrl;
 });
 
+function applyThemeState(isDark, options = {}) {
+    const { persist = true, notify = false } = options;
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    // Legacy styles still use body.light-mode as "light theme" indicator.
+    document.body.classList.toggle('light-mode', !isDark);
+
+    const desktopThemeBtn = document.getElementById('theme-toggle-btn');
+    if (desktopThemeBtn) {
+        desktopThemeBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    }
+    document.querySelectorAll('#mobile-sidebar .theme-toggle-switch').forEach((btn) => {
+        btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    });
+
+    if (persist) {
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    if (notify) {
+        const t = translations[currentLanguage] || translations['English'];
+        showNotification(isDark ? t.darkMode : t.lightMode, isDark ? '\u{1F319}' : '\u2600\uFE0F');
+    }
+}
+
+// Sync theme state once on load (head script may set .dark before paint).
+applyThemeState(document.documentElement.classList.contains('dark'), { persist: false, notify: false });
+
 // Theme Toggle
 document.getElementById('theme-toggle-btn').addEventListener('click', () => {
-    document.body.classList.toggle('light-mode');
-    const isDark = document.documentElement.classList.toggle('dark');
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    const t = translations[currentLanguage] || translations['English'];
-    showNotification(isDark ? t.darkMode : t.lightMode, isDark ? '\u{1F319}' : '\u2600\uFE0F');
+    const nextIsDark = !document.documentElement.classList.contains('dark');
+    applyThemeState(nextIsDark, { persist: true, notify: true });
 });
 
 // Add animation styles
