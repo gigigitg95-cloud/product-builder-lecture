@@ -202,7 +202,12 @@
 │   ├── guide.html           # 음식 가이드
 │   ├── privacy.html         # 개인정보처리방침
 │   ├── terms.html           # 이용약관
-│   └── bulletin.html        # 커뮤니티 게시판 (패널 로드용)
+│   ├── contact.html         # 제휴 문의 페이지
+│   ├── cookies.html         # 쿠키 정책
+│   ├── faq.html             # 자주 묻는 질문
+│   ├── help.html            # 도움말 센터
+│   ├── footer.html          # 공통 Footer 템플릿
+│   └── bulletin.html        # 커뮤니티 게시판 include
 ├── images/
 │   ├── favicon.svg          # 파비콘
 │   ├── favicon.ico          # 파비콘 (레거시)
@@ -214,19 +219,19 @@
 ├── _redirects               # 추가 리다이렉트 규칙
 ├── firebase.json            # Firebase Hosting 설정
 ├── firestore.rules          # Firestore 보안 규칙
-├── package.json             # 빌드 스크립트 정의
+├── package.json             # 스크립트/메타 정의
 ├── css/
 │   ├── style.css            # 공통 스타일 (메인/공통 컴포넌트)
-│   ├── about.css            # 소개 페이지 스타일
 │   ├── guide.css            # 가이드 페이지 스타일
 │   ├── privacy.css          # 개인정보처리방침 스타일
 │   ├── terms.css            # 이용약관 스타일
 │   └── 404.css              # 404 페이지 스타일
 ├── js/
-│   ├── app.js               # 메인 앱 로직 (추천, 슬롯머신, 공유, 게시판 등)
+│   ├── app.js               # 메인 앱 로직 (추천/슬롯/공유/게시판/테마)
 │   ├── translations.js      # 18개 언어 번역 데이터
-│   ├── countryLanguageService.js  # 94개국 언어 매핑 서비스
-│   ├── about.js             # 소개 페이지 스크립트
+│   ├── countryLanguageService.js  # 국가-언어 매핑 서비스
+│   ├── footer-loader.js     # 공통 Footer 로더
+│   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
 │   ├── privacy.js           # 개인정보처리방침 스크립트
 │   ├── terms.js             # 이용약관 스크립트
 │   ├── 404.js               # 404 페이지 스크립트
