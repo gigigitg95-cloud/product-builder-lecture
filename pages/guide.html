@@ -1,286 +1,390 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>메뉴 선택 완벽 가이드 - MenuRec</title>
+<meta name="description" content="상황별, 계절별, 건강 목표별 메뉴 선택 가이드. 혼밥, 데이트, 가족 식사, 다이어트 등 다양한 상황에 맞는 완벽한 메뉴를 찾아보세요."/>
+<meta name="keywords" content="메뉴 가이드, 음식 추천, 상황별 메뉴, 계절별 음식, 건강 식단, 혼밥 메뉴, 데이트 메뉴"/>
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"/>
+<link rel="canonical" href="https://product-builder-lecture-8pr.pages.dev/pages/guide.html"/>
+<meta property="og:type" content="article"/>
+<meta property="og:site_name" content="메뉴 추천 - Menu Recommendation"/>
+<meta property="og:title" content="음식 가이드 - 메뉴 선택 완벽 가이드"/>
+<meta property="og:description" content="상황별, 계절별, 건강 목표별 메뉴 선택 가이드. 완벽한 메뉴를 찾아보세요."/>
+<meta property="og:url" content="https://product-builder-lecture-8pr.pages.dev/pages/guide.html"/>
+<meta property="og:image" content="https://ninanoo.com/images/og-image-keywords-alt.svg"/>
+<meta property="og:locale" content="ko_KR"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="음식 가이드 - 메뉴 선택 완벽 가이드"/>
+<meta name="twitter:description" content="상황별, 계절별, 건강 목표별 메뉴 선택 가이드."/>
+<meta name="twitter:image" content="https://ninanoo.com/images/og-image-keywords-alt.svg"/>
+<link rel="icon" type="image/svg+xml" href="/images/favicon.svg"/>
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<script src="/js/footer-tailwind-safelist.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+        },
+        colors: {
+          brand: {
+            purple: '#8b5cf6',
+            pink: '#ec4899',
+            light: '#f8fafc',
+            dark: '#1f2937',
+            cardDark: '#374151',
+          }
+        },
+        borderRadius: {
+          xl: '12px',
+          '2xl': '24px',
+        }
+      }
+    }
+  };
+</script>
+<style>
+  .hero-gradient {
+    background: linear-gradient(135deg, #fdf4ff 0%, #f5f3ff 100%);
+  }
+  .dark .hero-gradient {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  }
+  .accent-gradient-text {
+    background: linear-gradient(to right, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .btn-gradient {
+    background: linear-gradient(to right, #8b5cf6, #ec4899);
+  }
+  .btn-gradient:hover {
+    opacity: 0.9;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+</style>
 
-    <!-- Primary SEO Meta Tags -->
-    <title>음식 가이드 - 메뉴 선택 완벽 가이드 | Food Guide - Menu Recommendation</title>
-    <meta name="description" content="상황별, 계절별, 건강 목표별 메뉴 선택 가이드. 혼밥, 데이트, 가족 식사, 다이어트 등 다양한 상황에 맞는 완벽한 메뉴를 찾아보세요.">
-    <meta name="keywords" content="메뉴 가이드, 음식 추천, 상황별 메뉴, 계절별 음식, 건강 식단, 혼밥 메뉴, 데이트 메뉴">
-    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://product-builder-lecture-8pr.pages.dev/pages/guide.html">
-
-    <!-- Open Graph -->
-    <meta property="og:type" content="article">
-    <meta property="og:site_name" content="메뉴 추천 - Menu Recommendation">
-    <meta property="og:title" content="음식 가이드 - 메뉴 선택 완벽 가이드">
-    <meta property="og:description" content="상황별, 계절별, 건강 목표별 메뉴 선택 가이드. 완벽한 메뉴를 찾아보세요.">
-    <meta property="og:url" content="https://product-builder-lecture-8pr.pages.dev/pages/guide.html">
-    <meta property="og:image" content="https://ninanoo.com/images/og-image-keywords-alt.svg">
-    <meta property="og:locale" content="ko_KR">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="음식 가이드 - 메뉴 선택 완벽 가이드">
-    <meta name="twitter:description" content="상황별, 계절별, 건강 목표별 메뉴 선택 가이드.">
-    <meta name="twitter:image" content="https://ninanoo.com/images/og-image-keywords-alt.svg">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
-    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-
-    <!-- Preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/guide.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <!-- Google AdSense -->
-    <meta name="google-adsense-account" content="ca-pub-7066264300961815">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7066264300961815"
-     crossorigin="anonymous"></script>
-
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" src="/js/ld/guide.json"></script>
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KR2HW49NF0"></script>
-    <script src="/js/analytics/gtag.js"></script>
-
-    <!-- Microsoft Clarity -->
-    <script src="/js/analytics/clarity.js"></script>
+<meta name="google-adsense-account" content="ca-pub-7066264300961815"/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7066264300961815" crossorigin="anonymous"></script>
+<script type="application/ld+json" src="/js/ld/guide.json"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KR2HW49NF0"></script>
+<script src="/js/analytics/gtag.js"></script>
+<script src="/js/analytics/clarity.js"></script>
+<script>
+  (function() {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved ? saved === 'dark' : prefersDark;
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.body) document.body.classList.toggle('light-mode', !isDark);
+    });
+  })();
+</script>
 </head>
-<body>
-    <div class="guide-container">
-        <header class="guide-header">
-            <h1>&#x1F4D6; 메뉴 선택 완벽 가이드</h1>
-            <p>매일 반복되는 "오늘 뭐 먹지?" 고민을 해결하기 위한 상황별, 계절별, 건강 목표별 메뉴 선택 가이드입니다. 다양한 팁과 추천으로 완벽한 식사를 계획해보세요.</p>
-        </header>
-
-        <main class="guide-content">
-            <!-- Table of Contents -->
-            <nav class="guide-card">
-                <div class="toc">
-                    <h3>목차</h3>
-                    <ol>
-                        <li><a href="#situation">상황별 메뉴 선택 가이드</a></li>
-                        <li><a href="#season">계절별 추천 메뉴</a></li>
-                        <li><a href="#health">건강 목표별 식단 가이드</a></li>
-                        <li><a href="#budget">예산별 메뉴 선택 팁</a></li>
-                        <li><a href="#world">세계 음식 탐험 가이드</a></li>
-                        <li><a href="#etiquette">음식 에티켓과 매너</a></li>
-                    </ol>
-                </div>
-            </nav>
-
-            <!-- Section 1: Situation-based -->
-            <article class="guide-card" id="situation">
-                <h2>1. 상황별 메뉴 선택 가이드</h2>
-
-                <h3>&#x1F9D1; 혼밥 (혼자 먹을 때)</h3>
-                <p>혼자 식사할 때는 1인분 주문이 편리하고, 빠르게 먹을 수 있는 메뉴가 좋습니다. 최근에는 혼밥 문화가 보편화되면서 1인 메뉴를 제공하는 식당이 많아졌습니다.</p>
-                <ul>
-                    <li><strong>추천 메뉴:</strong> 라멘, 우동, 김밥, 덮밥, 국수, 샌드위치, 쌀국수, 카레라이스</li>
-                    <li><strong>선택 팁:</strong> 너무 큰 사이즈의 메뉴는 피하고, 간편하면서도 영양 균형이 잡힌 메뉴를 선택하세요.</li>
-                    <li><strong>배달 추천:</strong> 1인 세트 메뉴, 도시락, 샐러드 등이 배달 시 적합합니다.</li>
-                </ul>
-
-                <h3>&#x1F468;&#x200D;&#x1F469;&#x200D;&#x1F467;&#x200D;&#x1F466; 가족 식사</h3>
-                <p>가족과 함께하는 식사는 다양한 연령대의 입맛을 고려해야 합니다. 함께 나눠 먹을 수 있는 메뉴가 좋으며, 아이들이 먹기 쉬운 메뉴를 포함하는 것이 중요합니다.</p>
-                <ul>
-                    <li><strong>추천 메뉴:</strong> 삼겹살, 갈비찜, 불고기, 찌개, 피자, 치킨, 샤브샤브</li>
-                    <li><strong>선택 팁:</strong> 매운 음식은 별도로 주문하고, 기본 메뉴는 순한 맛으로 선택하세요.</li>
-                </ul>
-
-                <h3>&#x1F46B; 친구 모임</h3>
-                <p>친구들과의 모임에서는 분위기를 살릴 수 있는 메뉴가 좋습니다. 함께 나눠 먹으면서 대화할 수 있는 음식이 분위기를 더 좋게 만듭니다.</p>
-                <ul>
-                    <li><strong>추천 메뉴:</strong> 치킨, 피자, 족발, 떡볶이, 곱창, 회, 파전</li>
-                    <li><strong>술과 함께:</strong> 치킨+맥주, 삼겹살+소주, 회+사케, 파전+막걸리 등 궁합이 좋은 조합을 고려하세요.</li>
-                </ul>
-
-                <h3>&#x1F491; 데이트</h3>
-                <p>데이트 시에는 분위기와 음식의 품질이 모두 중요합니다. 너무 냄새가 강하거나 먹기 어려운 메뉴는 피하는 것이 좋습니다.</p>
-                <ul>
-                    <li><strong>추천 메뉴:</strong> 파스타, 스테이크, 초밥, 리조또, 오마카세</li>
-                    <li><strong>선택 팁:</strong> 깔끔하게 먹을 수 있고, 대화하면서 즐길 수 있는 코스 요리가 좋습니다.</li>
-                    <li><strong>피해야 할 메뉴:</strong> 마늘 냄새가 강한 음식, 손으로 먹어야 하는 음식은 첫 데이트에서 주의하세요.</li>
-                </ul>
-
-                <h3>&#x1F3E2; 회식</h3>
-                <p>회식은 여러 사람의 취향을 고려해야 하므로 다양한 메뉴를 함께 즐길 수 있는 곳이 좋습니다.</p>
-                <ul>
-                    <li><strong>추천 메뉴:</strong> 고기구이(삼겹살, 갈비), 해물탕, 샤브샤브, 한정식</li>
-                    <li><strong>선택 팁:</strong> 채식주의자나 알레르기가 있는 사람이 있는지 미리 확인하세요.</li>
-                </ul>
-            </article>
-
-            <!-- Section 2: Seasonal -->
-            <article class="guide-card" id="season">
-                <h2>2. 계절별 추천 메뉴</h2>
-
-                <h3>&#x1F338; 봄 (3월~5월)</h3>
-                <p>봄에는 겨울 동안 움츠렸던 입맛을 깨울 수 있는 산뜻한 메뉴가 좋습니다. 봄나물과 제철 해산물을 활용한 요리가 특히 맛있는 계절입니다.</p>
-                <ul>
-                    <li><strong>제철 재료:</strong> 냉이, 달래, 쑥, 미나리, 봄동, 주꾸미, 도다리</li>
-                    <li><strong>추천 메뉴:</strong> 냉이된장국, 달래장, 쑥떡, 봄나물비빔밥, 주꾸미볶음, 도다리쑥국</li>
-                </ul>
-
-                <h3>&#x2600;&#xFE0F; 여름 (6월~8월)</h3>
-                <p>더운 여름에는 시원하고 입맛을 돋워주는 메뉴가 인기입니다. 충분한 수분과 에너지를 보충할 수 있는 음식을 선택하세요.</p>
-                <ul>
-                    <li><strong>시원한 메뉴:</strong> 냉면, 콩국수, 물회, 냉모밀, 빙수, 과일화채</li>
-                    <li><strong>보양식:</strong> 삼계탕, 장어구이, 보신탕 - 더위로 지친 체력을 보충하는 데 좋습니다.</li>
-                    <li><strong>주의사항:</strong> 여름에는 음식이 쉽게 상하므로 신선한 재료를 사용한 메뉴를 선택하세요.</li>
-                </ul>
-
-                <h3>&#x1F341; 가을 (9월~11월)</h3>
-                <p>가을은 풍성한 수확의 계절로, 다양한 제철 재료를 즐길 수 있습니다. 식욕이 돌아오는 계절인 만큼 맛있는 음식이 많습니다.</p>
-                <ul>
-                    <li><strong>제철 재료:</strong> 송이버섯, 전어, 대하, 꽃게, 밤, 고구마, 배</li>
-                    <li><strong>추천 메뉴:</strong> 전어구이, 대하구이, 꽃게탕, 송이버섯밥, 밤밥, 고구마맛탕</li>
-                </ul>
-
-                <h3>&#x2744;&#xFE0F; 겨울 (12월~2월)</h3>
-                <p>추운 겨울에는 몸을 따뜻하게 해주는 국물 요리와 뜨거운 음식이 최고입니다. 겨울 제철 재료로 만든 영양 만점 음식을 즐겨보세요.</p>
-                <ul>
-                    <li><strong>따뜻한 메뉴:</strong> 만둣국, 떡국, 김치찌개, 순대국, 된장찌개, 감자탕, 부대찌개</li>
-                    <li><strong>겨울 간식:</strong> 호떡, 붕어빵, 군밤, 군고구마 - 길거리 간식도 겨울의 별미입니다.</li>
-                    <li><strong>제철 재료:</strong> 굴, 꼬막, 과메기, 무, 배추 - 겨울 해산물은 특히 맛있습니다.</li>
-                </ul>
-            </article>
-
-            <!-- Section 3: Health -->
-            <article class="guide-card" id="health">
-                <h2>3. 건강 목표별 식단 가이드</h2>
-
-                <h3>&#x1F4AA; 다이어트 (체중 감량)</h3>
-                <p>다이어트 중이라면 칼로리는 낮으면서 포만감이 높은 메뉴를 선택하는 것이 중요합니다. 단백질을 충분히 섭취하면 근육 손실을 방지하면서 체지방을 줄일 수 있습니다.</p>
-                <ul>
-                    <li><strong>추천 메뉴:</strong> 샐러드, 닭가슴살, 포케, 곤약, 두부요리, 생선구이</li>
-                    <li><strong>식사 팁:</strong> 탄수화물을 완전히 배제하기보다는 양을 줄이고, 현미나 통곡물로 대체하세요.</li>
-                    <li><strong>피해야 할 메뉴:</strong> 튀김류, 크림파스타, 라면, 떡볶이 등 고칼로리 음식</li>
-                </ul>
-
-                <h3>&#x1F3CB;&#xFE0F; 근력 운동 (벌크업)</h3>
-                <p>근력 운동을 하는 분들은 단백질과 탄수화물을 충분히 섭취해야 합니다. 운동 후 30분~1시간 이내에 식사하면 근육 회복에 도움이 됩니다.</p>
-                <ul>
-                    <li><strong>추천 메뉴:</strong> 스테이크, 삼겹살, 닭가슴살 덮밥, 연어 샐러드, 소고기 덮밥</li>
-                    <li><strong>식사 팁:</strong> 체중 1kg당 단백질 1.5~2g을 목표로 하고, 복합 탄수화물을 함께 섭취하세요.</li>
-                </ul>
-
-                <h3>&#x1F49A; 균형 잡힌 식단</h3>
-                <p>특별한 건강 목표가 없더라도 균형 잡힌 식단은 장기적인 건강에 매우 중요합니다. 다양한 식품군을 골고루 섭취하는 것이 핵심입니다.</p>
-                <ul>
-                    <li><strong>식단 구성:</strong> 탄수화물 50~60%, 단백질 15~20%, 지방 20~25% 비율을 유지하세요.</li>
-                    <li><strong>추천 메뉴:</strong> 비빔밥, 한정식, 정식류 - 한식은 자연스럽게 균형 잡힌 식단을 구성합니다.</li>
-                    <li><strong>채소 섭취:</strong> 매 식사에 채소를 포함시키고, 다양한 색깔의 채소를 섭취하세요.</li>
-                </ul>
-
-                <h3>&#x1F916; 해장 음식</h3>
-                <p>음주 후에는 알코올로 인해 손실된 수분과 영양소를 보충하는 것이 중요합니다. 따뜻한 국물 요리가 속을 편안하게 해줍니다.</p>
-                <ul>
-                    <li><strong>추천 메뉴:</strong> 뼈해장국, 콩나물국밥, 북어국, 선지국, 황태해장국, 우거지탕</li>
-                    <li><strong>해장 팁:</strong> 충분한 물을 마시고, 기름진 음식보다는 맑은 국물 위주로 섭취하세요.</li>
-                </ul>
-            </article>
-
-            <!-- Section 4: Budget -->
-            <article class="guide-card" id="budget">
-                <h2>4. 예산별 메뉴 선택 팁</h2>
-
-                <div class="guide-grid">
-                    <div class="guide-item">
-                        <h4>&#x1FA99; 가성비 메뉴 (1만원 이하)</h4>
-                        <p>김밥, 라면, 떡볶이, 국밥, 김치찌개, 덮밥, 칼국수, 우동 등. 분식과 한식 백반이 가성비가 좋습니다. 학생이나 직장인의 점심으로 적합합니다.</p>
-                    </div>
-                    <div class="guide-item">
-                        <h4>&#x1F4B0; 중간 가격대 (1~2만원)</h4>
-                        <p>삼겹살, 치킨, 피자, 파스타, 돈카츠, 초밥, 쌀국수 등. 대부분의 일반 식당 메뉴가 이 가격대에 해당합니다. 다양한 선택이 가능합니다.</p>
-                    </div>
-                    <div class="guide-item">
-                        <h4>&#x2B50; 프리미엄 (2만원 이상)</h4>
-                        <p>스테이크, 오마카세, 한정식, 갈비, 회 등. 특별한 날이나 중요한 모임에 적합합니다. 분위기와 서비스까지 함께 즐길 수 있습니다.</p>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Section 5: World Food -->
-            <article class="guide-card" id="world">
-                <h2>5. 세계 음식 탐험 가이드</h2>
-                <p>세계 각국의 음식은 그 나라의 역사, 기후, 문화를 반영합니다. 새로운 음식을 시도하는 것은 여행하지 않아도 다른 문화를 경험할 수 있는 좋은 방법입니다.</p>
-
-                <h3>&#x1F1F0;&#x1F1F7; 한식의 매력</h3>
-                <p>한식은 유네스코가 인정한 건강한 식문화입니다. 발효 식품(김치, 된장, 고추장)을 기반으로 한 독특한 맛과 다양한 반찬 문화가 특징입니다. 비빔밥, 불고기, 삼겹살 등은 전 세계적으로 인기 있는 한식 메뉴입니다. 한식은 채소 섭취가 자연스럽게 많아 건강에 좋은 식단으로 알려져 있습니다.</p>
-
-                <h3>&#x1F1EF;&#x1F1F5; 일식의 정수</h3>
-                <p>일본 음식은 재료 본연의 맛을 중시합니다. 초밥, 라멘, 우동, 돈카츠 등 각각의 요리에 장인 정신이 담겨 있습니다. 특히 라멘은 지역마다 독특한 스타일(돈코츠, 쇼유, 미소, 시오)이 있어 같은 라멘이라도 완전히 다른 맛을 즐길 수 있습니다. 정갈한 플레이팅과 제철 재료 사용이 일식의 핵심입니다.</p>
-
-                <h3>&#x1F1EE;&#x1F1F9; 이탈리안의 풍미</h3>
-                <p>이탈리아 음식은 신선한 재료와 심플한 조리법이 핵심입니다. 파스타, 피자, 리조또 등은 전 세계에서 가장 사랑받는 음식 중 하나입니다. 올리브 오일, 토마토, 바질, 모짜렐라 치즈 등 기본 재료만으로도 놀라운 맛을 만들어냅니다. 지역마다 특색 있는 요리가 있으며, 와인과의 궁합이 뛰어납니다.</p>
-
-                <h3>&#x1F1F9;&#x1F1ED; 태국/동남아의 향연</h3>
-                <p>동남아시아 음식은 달콤, 신맛, 매운맛, 짠맛이 조화롭게 어우러진 복합적인 맛이 특징입니다. 팟타이, 똠양꿍, 그린커리, 쌀국수, 나시고렝 등이 대표 메뉴이며, 레몬그라스, 갈랑갈, 코코넛 밀크, 피시소스 등 독특한 재료가 사용됩니다.</p>
-
-                <h3>&#x1F1F2;&#x1F1FD; 멕시칸의 활기</h3>
-                <p>멕시코 음식은 옥수수, 콩, 고추를 기본으로 한 활기 넘치는 요리입니다. 타코, 부리또, 나초, 퀘사디아 등이 대표 메뉴이며, 다양한 살사와 과카몰리가 곁들여집니다. 강렬한 맛과 다채로운 색감이 매력적이며, 라임과 고수가 독특한 풍미를 더합니다.</p>
-            </article>
-
-            <!-- Section 6: Etiquette -->
-            <article class="guide-card" id="etiquette">
-                <h2>6. 음식 에티켓과 매너</h2>
-                <p>올바른 식사 매너는 함께 하는 사람들과 더 즐거운 식사 시간을 만들어줍니다. 음식 문화에 따라 매너도 달라지므로 기본적인 에티켓을 알아두면 좋습니다.</p>
-
-                <h3>한식 매너</h3>
-                <ul>
-                    <li>어른이 먼저 수저를 들 때까지 기다립니다.</li>
-                    <li>밥그릇을 들고 먹지 않으며, 젓가락과 숟가락을 함께 사용합니다.</li>
-                    <li>소리를 내며 먹는 것은 삼가고, 찌개는 함께 나눠 먹는 것이 문화입니다.</li>
-                </ul>
-
-                <h3>일식 매너</h3>
-                <ul>
-                    <li>라멘이나 우동은 소리를 내며 먹어도 괜찮습니다 (맛있다는 표현).</li>
-                    <li>초밥은 생선 쪽에 간장을 살짝 찍어 한 입에 먹습니다.</li>
-                    <li>젓가락으로 음식을 찔러 먹거나 젓가락끼리 음식을 주고받지 않습니다.</li>
-                </ul>
-
-                <h3>양식 매너</h3>
-                <ul>
-                    <li>나이프는 오른손, 포크는 왼손에 들고 사용합니다.</li>
-                    <li>빵은 손으로 한 입 크기로 뜯어 먹습니다.</li>
-                    <li>식사 중 냅킨은 무릎 위에 올려놓고, 입을 닦을 때 사용합니다.</li>
-                </ul>
-            </article>
-
-            <!-- CTA Section -->
-            <article class="guide-card" style="text-align: center;">
-                <h2>&#x1F3B2; 지금 바로 메뉴를 추천받아보세요!</h2>
-                <p style="margin-bottom: 24px;">더 이상 메뉴 선택으로 고민하지 마세요. 버튼 하나로 오늘의 완벽한 메뉴를 찾아보세요. 200가지 이상의 다양한 메뉴가 여러분을 기다리고 있습니다.</p>
-                <a href="/index.html" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; text-decoration: none; border-radius: 16px; font-weight: 700; font-size: 1.1rem; transition: all 0.3s ease;">메뉴 추천받으러 가기 &rarr;</a>
-            </article>
-        </main>
-
-        <a href="/index.html" class="back-link" rel="noopener">&#x2190; 메인으로 돌아가기</a>
-
-        <footer style="margin-top: 40px; text-align: center;">
-            <nav style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; padding: 20px 0;">
-                <a href="/index.html" style="color: var(--text-secondary); text-decoration: none;">홈</a>
-                <span style="color: var(--text-secondary);">|</span>
-                <a href="/pages/about.html" style="color: var(--text-secondary); text-decoration: none;">소개</a>
-                <span style="color: var(--text-secondary);">|</span>
-                <a href="/pages/privacy.html" style="color: var(--text-secondary); text-decoration: none;">개인정보처리방침</a>
-                <span style="color: var(--text-secondary);">|</span>
-                <a href="/pages/terms.html" style="color: var(--text-secondary); text-decoration: none;">이용약관</a>
-            </nav>
-            <p style="color: var(--text-secondary); font-size: 0.9rem;">&copy; 2026 Menu Recommendation. All rights reserved.</p>
-        </footer>
-    </div>
+<body class="bg-brand-light dark:bg-brand-dark font-sans text-slate-800 dark:text-slate-100 antialiased min-h-screen flex flex-col transition-colors duration-300">
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-brand-cardDark/85 backdrop-blur-md border-b border-slate-100 dark:border-slate-700">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<a class="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-brand-purple transition-colors font-medium group" href="/index.html">
+<span class="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+<span>메인으로 돌아가기</span>
+</a>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-gradient-to-br from-brand-purple to-brand-pink rounded-lg flex items-center justify-center text-white shadow-md shadow-purple-200">
+<span class="material-symbols-outlined text-sm">restaurant_menu</span>
+</div>
+<span class="text-xl font-bold tracking-tight accent-gradient-text">MenuRec</span>
+</div>
+</div>
+</header>
+<main class="flex-grow">
+<section class="hero-gradient py-20 px-4 border-b border-slate-100 dark:border-slate-700">
+<div class="max-w-4xl mx-auto text-center">
+<div class="text-6xl mb-6 animate-bounce">📖</div>
+<h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-slate-900 dark:text-white tracking-tight">메뉴 선택 완벽 가이드</h1>
+<p class="text-lg md:text-xl text-slate-600 dark:text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">
+결정 장애는 이제 그만! <br class="hidden md:inline"/>
+상황, 계절, 예산에 맞는 <span class="text-brand-purple font-bold">최적의 메뉴</span>를 찾아보세요.
+</p>
+</div>
+</section>
+<div class="max-w-7xl mx-auto px-4 py-12 flex flex-col lg:flex-row gap-12">
+<aside class="lg:w-1/4">
+<div class="sticky top-24 space-y-8">
+<div class="bg-white dark:bg-brand-cardDark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
+<h3 class="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-purple">list_alt</span>
+목차
+</h3>
+<nav class="space-y-1">
+<a class="block px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-700 hover:text-brand-purple transition-colors text-sm font-medium" href="#situation">상황별 추천</a>
+<a class="block px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-700 hover:text-brand-purple transition-colors text-sm font-medium" href="#seasonal">계절별 별미</a>
+<a class="block px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-700 hover:text-brand-purple transition-colors text-sm font-medium" href="#health">건강 맞춤</a>
+<a class="block px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-700 hover:text-brand-purple transition-colors text-sm font-medium" href="#budget">예산별 가이드</a>
+<a class="block px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-700 hover:text-brand-purple transition-colors text-sm font-medium" href="#world">세계 음식 여행</a>
+<a class="block px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-700 hover:text-brand-purple transition-colors text-sm font-medium" href="#etiquette">식사 에티켓</a>
+</nav>
+</div>
+<div class="hidden lg:block bg-gradient-to-br from-brand-purple to-brand-pink rounded-2xl p-6 text-white shadow-lg shadow-purple-200 dark:shadow-purple-900/50">
+<h3 class="font-bold text-lg mb-2">아직도 고민되시나요?</h3>
+<p class="text-white/90 text-sm mb-4">재미있는 게임으로 메뉴를 정해보세요!</p>
+<a href="/index.html#slot" class="block text-center w-full bg-white text-brand-purple font-bold py-2 rounded-xl shadow-sm hover:bg-purple-50 transition-colors text-sm">
+룰렛 돌리러 가기
+</a>
+</div>
+</div>
+</aside>
+<div class="lg:w-3/4 space-y-16">
+<section class="scroll-mt-24" id="situation">
+<div class="bg-white dark:bg-brand-cardDark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8">
+<div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
+<span class="text-3xl">🤝</span>
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white">상황별 추천 가이드</h2>
+</div>
+<div class="grid md:grid-cols-2 gap-8">
+<div class="space-y-3">
+<h3 class="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-pink">favorite</span> 데이트
+</h3>
+<p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">분위기가 중요한 순간입니다. 대화에 집중할 수 있고 깔끔하게 먹을 수 있는 메뉴를 추천합니다.</p>
+<ul class="space-y-2">
+<li class="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-purple mt-1.5 flex-shrink-0"></span>
+<span><strong>파스타/스테이크:</strong> 실패 없는 클래식한 선택</span>
+</li>
+<li class="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-purple mt-1.5 flex-shrink-0"></span>
+<span><strong>초밥/오마카세:</strong> 깔끔하고 정갈한 분위기</span>
+</li>
+</ul>
+</div>
+<div class="space-y-3">
+<h3 class="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-500">groups</span> 회식/모임
+</h3>
+<p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">호불호가 적고 다 같이 즐길 수 있는 푸짐한 메뉴가 좋습니다.</p>
+<ul class="space-y-2">
+<li class="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-purple mt-1.5 flex-shrink-0"></span>
+<span><strong>삼겹살/갈비:</strong> 한국 회식의 정석</span>
+</li>
+<li class="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-purple mt-1.5 flex-shrink-0"></span>
+<span><strong>치킨/족발:</strong> 편안한 분위기의 모임</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section class="scroll-mt-24" id="seasonal">
+<div class="bg-white dark:bg-brand-cardDark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8">
+<div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
+<span class="text-3xl">🗓️</span>
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white">계절별 제철 음식</h2>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-pink-50 dark:bg-pink-900/20 rounded-xl p-4 text-center group hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-colors">
+<div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🌸</div>
+<h4 class="font-bold text-slate-900 dark:text-white mb-1">봄</h4>
+<p class="text-xs text-slate-600 dark:text-slate-300">쭈꾸미, 도다리쑥국, <br/>딸기 디저트</p>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center group hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
+<div class="text-3xl mb-2 group-hover:scale-110 transition-transform">☀️</div>
+<h4 class="font-bold text-slate-900 dark:text-white mb-1">여름</h4>
+<p class="text-xs text-slate-600 dark:text-slate-300">냉면, 콩국수, <br/>삼계탕, 장어</p>
+</div>
+<div class="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 text-center group hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors">
+<div class="text-3xl mb-2 group-hover:scale-110 transition-transform">🍂</div>
+<h4 class="font-bold text-slate-900 dark:text-white mb-1">가을</h4>
+<p class="text-xs text-slate-600 dark:text-slate-300">전어, 대하구이, <br/>꽃게탕</p>
+</div>
+<div class="bg-slate-50 dark:bg-slate-700/40 rounded-xl p-4 text-center group hover:bg-slate-100 dark:hover:bg-slate-700/70 transition-colors">
+<div class="text-3xl mb-2 group-hover:scale-110 transition-transform">❄️</div>
+<h4 class="font-bold text-slate-900 dark:text-white mb-1">겨울</h4>
+<p class="text-xs text-slate-600 dark:text-slate-300">방어회, 굴, <br/>따뜻한 전골요리</p>
+</div>
+</div>
+</div>
+</section>
+<section class="scroll-mt-24" id="health">
+<div class="bg-white dark:bg-brand-cardDark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8">
+<div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
+<span class="text-3xl">🥗</span>
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white">건강 맞춤 식단</h2>
+</div>
+<div class="space-y-6">
+<div class="flex flex-col md:flex-row gap-6 items-start">
+<div class="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg text-green-600 dark:text-green-300">
+<span class="material-symbols-outlined text-2xl">fitness_center</span>
+</div>
+<div>
+<h3 class="font-bold text-lg text-slate-900 dark:text-white mb-2">다이어트 중이라면?</h3>
+<p class="text-slate-600 dark:text-slate-300 text-sm mb-3">탄수화물은 줄이고 단백질과 식이섬유 섭취를 늘리는 것이 중요합니다.</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-xs font-medium text-slate-600 dark:text-slate-200">포케(Poke)</span>
+<span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-xs font-medium text-slate-600 dark:text-slate-200">샐러드 보울</span>
+<span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-xs font-medium text-slate-600 dark:text-slate-200">샤브샤브</span>
+<span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-xs font-medium text-slate-600 dark:text-slate-200">키토 김밥</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col md:flex-row gap-6 items-start">
+<div class="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg text-red-500 dark:text-red-300">
+<span class="material-symbols-outlined text-2xl">local_fire_department</span>
+</div>
+<div>
+<h3 class="font-bold text-lg text-slate-900 dark:text-white mb-2">스트레스 해소가 필요하다면?</h3>
+<p class="text-slate-600 dark:text-slate-300 text-sm mb-3">매운 음식의 캡사이신 성분은 엔도르핀 분비를 촉진시켜 일시적인 스트레스 해소에 도움을 줍니다.</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-xs font-medium text-slate-600 dark:text-slate-200">마라탕</span>
+<span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-xs font-medium text-slate-600 dark:text-slate-200">불닭</span>
+<span class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-xs font-medium text-slate-600 dark:text-slate-200">낙지볶음</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="scroll-mt-24" id="budget">
+<div class="bg-white dark:bg-brand-cardDark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8">
+<div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
+<span class="text-3xl">💰</span>
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white">예산별 가이드</h2>
+</div>
+<div class="grid md:grid-cols-3 gap-6">
+<div class="border border-slate-200 dark:border-slate-700 rounded-xl p-5 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-center mb-4">
+<span class="text-2xl">💸</span>
+<span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded">가성비</span>
+</div>
+<h3 class="font-bold text-slate-900 dark:text-white mb-2">1만원 이하</h3>
+<p class="text-xs text-slate-500 dark:text-slate-300 mb-4">든든한 한 끼를 저렴하게 해결하고 싶을 때</p>
+<ul class="text-sm text-slate-700 dark:text-slate-200 space-y-1">
+<li>• 편의점 도시락</li>
+<li>• 김밥 &amp; 라면</li>
+<li>• 국밥</li>
+<li>• 햄버거 세트</li>
+</ul>
+</div>
+<div class="border border-slate-200 dark:border-slate-700 rounded-xl p-5 hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="absolute top-0 right-0 w-16 h-16 bg-brand-purple/5 rounded-bl-full"></div>
+<div class="flex justify-between items-center mb-4">
+<span class="text-2xl">💳</span>
+<span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded">데일리</span>
+</div>
+<h3 class="font-bold text-slate-900 dark:text-white mb-2">1~3만원대</h3>
+<p class="text-xs text-slate-500 dark:text-slate-300 mb-4">친구와의 만남이나 맛있는 점심</p>
+<ul class="text-sm text-slate-700 dark:text-slate-200 space-y-1">
+<li>• 파스타</li>
+<li>• 일본 가정식</li>
+<li>• 치킨</li>
+<li>• 쌀국수</li>
+</ul>
+</div>
+<div class="border border-slate-200 dark:border-slate-700 rounded-xl p-5 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-center mb-4">
+<span class="text-2xl">💎</span>
+<span class="px-2 py-1 bg-purple-100 text-brand-purple text-xs font-bold rounded">플렉스</span>
+</div>
+<h3 class="font-bold text-slate-900 dark:text-white mb-2">5만원 이상</h3>
+<p class="text-xs text-slate-500 dark:text-slate-300 mb-4">특별한 날, 나를 위한 선물</p>
+<ul class="text-sm text-slate-700 dark:text-slate-200 space-y-1">
+<li>• 한우 오마카세</li>
+<li>• 호텔 뷔페</li>
+<li>• 파인 다이닝</li>
+<li>• 고급 참치회</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section class="scroll-mt-24" id="world">
+<div class="bg-white dark:bg-brand-cardDark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8">
+<div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
+<span class="text-3xl">🌍</span>
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white">세계 음식 여행</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-700/40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<div class="text-4xl flex-shrink-0">🇰🇷</div>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-white">한식 (Korean)</h3>
+<p class="text-sm text-slate-600 dark:text-slate-300 mt-1">밥심으로 산다! 김치찌개, 된장찌개, 비빔밥, 불고기 등 영양 밸런스가 좋은 식단.</p>
+</div>
+</div>
+<div class="flex gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-700/40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<div class="text-4xl flex-shrink-0">🇯🇵</div>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-white">일식 (Japanese)</h3>
+<p class="text-sm text-slate-600 dark:text-slate-300 mt-1">깔끔하고 정갈한 맛. 초밥, 라멘, 돈카츠, 우동 등 혼밥하기에도 좋은 메뉴들.</p>
+</div>
+</div>
+<div class="flex gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-700/40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<div class="text-4xl flex-shrink-0">🇨🇳</div>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-white">중식 (Chinese)</h3>
+<p class="text-sm text-slate-600 dark:text-slate-300 mt-1">강한 불맛과 풍미. 짜장면, 짬뽕, 탕수육, 마라탕 등 자극적인 맛이 당길 때.</p>
+</div>
+</div>
+<div class="flex gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-700/40 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+<div class="text-4xl flex-shrink-0">🇮🇹</div>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-white">양식 (Western)</h3>
+<p class="text-sm text-slate-600 dark:text-slate-300 mt-1">분위기 있는 식사. 파스타, 피자, 스테이크, 리조또 등 데이트 코스로 제격.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="scroll-mt-24" id="etiquette">
+<div class="bg-white dark:bg-brand-cardDark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8">
+<div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-700">
+<span class="text-3xl">🎩</span>
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white">알아두면 쓸모있는 식사 에티켓</h2>
+</div>
+<div class="space-y-4">
+<div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl border border-purple-100 dark:border-purple-700/40">
+<h4 class="font-bold text-brand-purple mb-2">🥢 젓가락 예절</h4>
+<p class="text-sm text-slate-700 dark:text-slate-200">식사 중에 젓가락으로 사람을 가리키거나, 밥그릇에 젓가락을 꽂아두는 행위는 피해야 합니다. 음식을 건네줄 때 젓가락끼리 주고받는 것도 금기 사항입니다.</p>
+</div>
+<div class="bg-pink-50 dark:bg-pink-900/20 p-4 rounded-xl border border-pink-100 dark:border-pink-700/40">
+<h4 class="font-bold text-brand-pink mb-2">🍽️ 뷔페 이용 팁</h4>
+<p class="text-sm text-slate-700 dark:text-slate-200">차가운 음식(샐러드, 회)부터 따뜻한 음식 순서로 먹는 것이 소화에 좋습니다. 한 번에 너무 많이 담지 말고 조금씩 자주 가져다 먹는 것이 미덕입니다.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<section class="mt-16 bg-gradient-to-r from-brand-purple to-brand-pink py-16 px-4">
+<div class="max-w-4xl mx-auto text-center text-white">
+<h2 class="text-3xl md:text-4xl font-extrabold mb-6">아직도 결정을 못 하셨나요?</h2>
+<p class="text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto">
+가이드를 읽어도 고민된다면, 운명에 맡겨보세요!<br/>
+MenuRec의 슬롯머신이 당신의 메뉴를 골라드립니다.
+</p>
+<a href="/index.html" class="bg-white text-brand-purple font-extrabold text-lg px-8 py-4 rounded-2xl shadow-xl hover:bg-slate-50 hover:scale-105 transition-all transform inline-flex items-center gap-2 mx-auto">
+<span class="material-symbols-outlined">casino</span>
+메뉴 추천 받으러 가기
+</a>
+</div>
+</section>
+</main>
+<div id="site-footer" data-footer-current="guide"></div>
+<script src="/js/footer-loader.js"></script>
 </body>
 </html>

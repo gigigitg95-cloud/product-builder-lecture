@@ -58,6 +58,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script src="/js/footer-tailwind-safelist.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <script>
         tailwind.config = {
@@ -67,6 +69,13 @@
                     colors: {
                         primary: "#A855F7",
                         secondary: "#EC4899",
+                        brand: {
+                            purple: "#8b5cf6",
+                            pink: "#ec4899",
+                            light: "#f8fafc",
+                            dark: "#1f2937",
+                            cardDark: "#374151"
+                        },
                         "background-light": "#F3F4F6",
                         "background-dark": "#1F2937",
                         "surface-light": "#FFFFFF",
@@ -122,6 +131,10 @@
                 if (document.body) {
                     document.body.classList.toggle('light-mode', !isDark);
                 }
+                document.querySelectorAll('.theme-toggle-switch').forEach((btn) => {
+                    btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+                    btn.setAttribute('aria-label', isDark ? '라이트 모드로 전환' : '다크 모드로 전환');
+                });
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
             }
 
@@ -169,6 +182,12 @@
         .stitch-pill { border-radius: var(--stitch-radius-pill); }
         .stitch-primary { background: var(--stitch-gradient-primary); color: #fff; box-shadow: var(--stitch-shadow-primary); }
         .stitch-muted { color: var(--stitch-text-muted); }
+        .accent-gradient-text {
+            background: linear-gradient(to right, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
         body { font-family: 'Poppins', 'Inter', sans-serif; }
         .slot-reel {
             background-image: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.1) 100%);
@@ -193,6 +212,10 @@
             direction: ltr;
             -webkit-font-smoothing: antialiased;
         }
+        .theme-toggle-switch .icon-dark { display: none; }
+        .theme-toggle-switch[aria-pressed="true"] .icon-dark { display: inline; }
+        .theme-toggle-switch[aria-pressed="true"] .icon-light { display: none; }
+        .theme-toggle-switch[aria-pressed="true"] > span { transform: translateX(1.25rem); }
         /* Sidebar nav items */
         .sidebar-nav-item {
             color: #6b7280;
@@ -319,10 +342,10 @@
                     <span class="material-icons-outlined text-[20px]">help_outline</span>
                     <span class="sidebar-text whitespace-nowrap text-sm font-medium">자주 묻는 질문</span>
                 </a>
-                <button class="sidebar-nav-item side-nav-btn flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group w-full text-left transition-colors" data-panel="contact" id="nav-contact" title="제휴 문의">
+                <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group w-full text-left transition-colors" href="/pages/contact.html" id="nav-contact" title="제휴 문의">
                     <span class="material-icons-outlined text-[20px]">mail</span>
                     <span class="sidebar-text whitespace-nowrap text-sm font-medium">제휴 문의</span>
-                </button>
+                </a>
             </nav>
 
             <!-- Footer: Language + Theme -->
@@ -332,18 +355,18 @@
                         <div class="language-selector relative flex-1">
                             <button id="language-btn" class="control-btn w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary transition-colors bg-transparent" aria-label="언어 선택" aria-expanded="false" aria-haspopup="listbox">
                                 <span class="material-icons-outlined text-lg">language</span>
-                                <span id="selected-language" class="sidebar-text truncate max-w-[8rem]">English</span>
+                                <span id="selected-language" class="sidebar-text truncate max-w-[8rem]">Korean</span>
                                 <span class="arrow text-xs opacity-80 sidebar-text">▼</span>
                             </button>
                             <div id="language-dropdown" class="dropdown absolute left-0 bottom-full mb-2 w-64 z-50 max-h-64 overflow-y-auto rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl p-2" role="listbox" aria-label="언어 목록">
-                                <input type="text" id="language-search" placeholder="Search languages..." class="search-input w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 text-gray-800 dark:text-gray-200" aria-label="언어 검색">
+                                <input type="text" id="language-search" placeholder="언어 검색..." class="search-input w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 text-gray-800 dark:text-gray-200" aria-label="언어 검색">
                                 <div id="language-list" class="language-list mt-2 max-h-48 overflow-auto text-sm"></div>
                             </div>
                         </div>
-                        <button id="theme-toggle-btn" class="theme-toggle-switch group relative w-12 h-7 rounded-full bg-gray-200 dark:bg-indigo-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/30" onclick="toggleThemeMode(event)" aria-label="테마 전환">
+                        <button id="theme-toggle-btn" class="theme-toggle-switch group relative w-12 h-7 rounded-full bg-gray-200 dark:bg-indigo-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/30" onclick="toggleThemeMode(event)" aria-label="다크 모드로 전환">
                             <span class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center transition-transform duration-300 dark:translate-x-5">
-                                <span class="material-icons-outlined text-amber-500 dark:hidden" style="font-size:14px;font-family:'Material Icons Outlined'!important">light_mode</span>
-                                <span class="material-icons-outlined text-indigo-500 hidden dark:inline" style="font-size:14px;font-family:'Material Icons Outlined'!important">dark_mode</span>
+                                <span class="material-icons-outlined icon-light text-amber-500 dark:hidden" style="font-size:14px;font-family:'Material Icons Outlined'!important">light_mode</span>
+                                <span class="material-icons-outlined icon-dark text-indigo-500 hidden dark:inline" style="font-size:14px;font-family:'Material Icons Outlined'!important">dark_mode</span>
                             </span>
                         </button>
                     </div>
@@ -420,10 +443,10 @@
                         <span class="material-icons-outlined">help_outline</span>
                         <span>자주 묻는 질문</span>
                     </a>
-                    <button class="mobile-nav-btn side-nav-btn flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-left" data-panel="contact" onclick="setActivePanel('contact'); localStorage.setItem('lastPanel','contact'); document.getElementById('mobile-sidebar').style.display='none';">
+                    <a class="mobile-nav-btn flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-left" href="/pages/contact.html" onclick="document.getElementById('mobile-sidebar').style.display='none';">
                         <span class="material-icons-outlined">mail</span>
                         <span>제휴 문의</span>
-                    </button>
+                    </a>
                 </nav>
                 </div><!-- /scrollable area -->
                 <!-- Mobile Sidebar Footer: Language + Theme -->
@@ -432,7 +455,7 @@
                     <div id="mobile-lang-panel" style="display:none">
                         <div class="p-3">
                             <div class="relative mb-2">
-                                <input type="text" id="mobile-language-search" placeholder="Search languages..." class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 text-gray-800 dark:text-gray-200">
+                                <input type="text" id="mobile-language-search" placeholder="언어 검색..." class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 text-gray-800 dark:text-gray-200">
                             </div>
                             <div id="mobile-language-list" class="max-h-48 overflow-y-auto space-y-0.5"></div>
                         </div>
@@ -441,13 +464,13 @@
                     <div class="p-4 flex items-center justify-between gap-2">
                         <button id="mobile-lang-btn" class="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex-1" onclick="toggleMobileLangPanel()">
                             <span class="material-icons-outlined text-lg">language</span>
-                            <span id="mobile-selected-language" class="truncate">English</span>
+                            <span id="mobile-selected-language" class="truncate">Korean</span>
                             <span class="material-icons-outlined text-sm ml-auto transition-transform" id="mobile-lang-arrow">expand_more</span>
                         </button>
-                        <button class="theme-toggle-switch group relative w-12 h-7 rounded-full bg-gray-200 dark:bg-indigo-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/30" onclick="toggleThemeMode(event)" aria-label="테마 전환">
+                        <button class="theme-toggle-switch group relative w-12 h-7 rounded-full bg-gray-200 dark:bg-indigo-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary/30" onclick="toggleThemeMode(event)" aria-label="다크 모드로 전환">
                             <span class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center transition-transform duration-300 dark:translate-x-5">
-                                <span class="material-icons-outlined text-amber-500 dark:hidden" style="font-size:14px;font-family:'Material Icons Outlined'!important">light_mode</span>
-                                <span class="material-icons-outlined text-indigo-500 hidden dark:inline" style="font-size:14px;font-family:'Material Icons Outlined'!important">dark_mode</span>
+                                <span class="material-icons-outlined icon-light text-amber-500 dark:hidden" style="font-size:14px;font-family:'Material Icons Outlined'!important">light_mode</span>
+                                <span class="material-icons-outlined icon-dark text-indigo-500 hidden dark:inline" style="font-size:14px;font-family:'Material Icons Outlined'!important">dark_mode</span>
                             </span>
                         </button>
                     </div>
@@ -533,7 +556,7 @@
                                 <div class="flex justify-center mt-6">
                                     <button class="slot-lever-btn bg-gradient-to-r from-secondary to-pink-600 text-white font-bold py-3 px-12 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all flex items-center gap-2 text-lg tracking-wide" id="slot-lever-btn">
                                         <span class="material-icons-outlined">play_arrow</span>
-                                        <span class="slot-lever-text" id="slot-lever-text">SPIN</span>
+                                        <span class="slot-lever-text" id="slot-lever-text">시작</span>
                                     </button>
                                 </div>
                                 <div class="absolute -left-1.5 top-1/2 w-3 h-3 rounded-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.6)] animate-pulse"></div>
@@ -609,27 +632,6 @@
             <section class="panel" id="panel-bulletin" aria-labelledby="bulletin-title">
                 <div class="panel-card relative overflow-hidden bg-surface-light dark:bg-surface-dark rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8" id="bulletin-container" data-include="pages/bulletin.html">
                     <div aria-hidden="true" class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary to-secondary"></div>
-                </div>
-            </section>
-
-            <section class="panel" id="panel-contact" aria-labelledby="contact-title">
-                <div class="panel-card contact-section relative overflow-hidden bg-surface-light dark:bg-surface-dark rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 p-6 sm:p-8">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
-                    <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-3" id="contact-title">제휴 문의</h2>
-                    <p class="contact-desc text-gray-500 dark:text-gray-400">제휴 또는 광고 문의가 있으신가요? 아래에서 연락해 주세요.</p>
-                    <form action="https://formspree.io/f/xojlpazr" method="POST" class="contact-form mt-4 space-y-4" aria-label="제휴 문의 양식">
-                        <label class="block">
-                            <span class="label-text text-sm font-medium text-gray-600 dark:text-gray-300">이메일</span>
-                            <input type="email" name="email" placeholder="your@email.com" required autocomplete="email" aria-required="true" class="mt-1 w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-primary">
-                        </label>
-                        <label class="block">
-                            <span class="label-text text-sm font-medium text-gray-600 dark:text-gray-300">메시지</span>
-                            <textarea name="message" placeholder="문의 내용을 입력해주세요..." rows="5" required aria-required="true" class="mt-1 w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3 text-sm text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-primary"></textarea>
-                        </label>
-                        <button type="submit" class="submit-btn rounded-full bg-gradient-to-r from-primary to-secondary px-6 py-3 text-white font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 focus:outline-none focus:ring-4 focus:ring-primary/20 transition">
-                            <span>메시지 보내기</span>
-                        </button>
-                    </form>
                 </div>
             </section>
 
@@ -1486,34 +1488,13 @@
             </section>
 
             <!-- Footer -->
-            <footer class="mt-12 pt-8 pb-6 border-t border-gray-200 dark:border-gray-700">
-                <div class="flex flex-col gap-6">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div class="flex items-center gap-2">
-                            <span class="material-icons-outlined text-primary text-xl">restaurant</span>
-                            <span class="font-display font-bold text-gray-800 dark:text-white">Menu Recommendation</span>
-                        </div>
-                        <nav class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
-                            <a class="text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="pages/about.html" id="about-link">소개</a>
-                            <a class="text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="pages/guide.html" id="guide-link">음식 가이드</a>
-                            <a class="text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="pages/privacy.html" id="privacy-link">개인정보처리방침</a>
-                            <a class="text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="pages/terms.html" id="terms-link">이용약관</a>
-                        </nav>
-                    </div>
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
-                        <div>&copy; 2026 Menu Recommendation. All rights reserved.</div>
-                        <div class="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors">
-                            <span class="material-icons-outlined text-sm">language</span>
-                            <span id="footer-lang">한국어</span>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-            </div><!-- /space-y-12 -->
+            <div id="site-footer" data-footer-current="index"></div>
+</div><!-- /space-y-12 -->
 
-    <script defer src="js/countryLanguageService.js"></script>
-    <script defer src="js/translations.js"></script>
-    <script defer src="js/app.js"></script>
+    <script defer src="js/countryLanguageService.js?v=20260214b"></script>
+    <script defer src="js/translations.js?v=20260214b"></script>
+    <script defer src="js/footer-loader.js?v=20260214b"></script>
+    <script defer src="js/app.js?v=20260214b"></script>
     <script>
         // Mobile language panel
         function toggleMobileLangPanel() {

@@ -194,11 +194,11 @@ body {
     font-weight: 600;
 }
 
-body:not(.light-mode) #theme-toggle-btn .icon-light {
+body:not(.light-mode) .theme-toggle-switch .icon-light {
     display: none;
 }
 
-body.light-mode #theme-toggle-btn .icon-dark {
+body.light-mode .theme-toggle-switch .icon-dark {
     display: none;
 }
 

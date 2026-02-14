@@ -1,120 +1,168 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>개인정보처리방침 - MenuRec</title>
+<meta name="description" content="메뉴 추천 서비스의 개인정보처리방침입니다. 수집하는 정보, 사용 목적, 보호 방법 등을 안내합니다."/>
+<meta name="robots" content="noindex, follow"/>
+<link rel="canonical" href="https://product-builder-lecture-8pr.pages.dev/pages/privacy.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="메뉴 추천 - Menu Recommendation"/>
+<meta property="og:title" content="개인정보처리방침 - 메뉴 추천"/>
+<meta property="og:description" content="메뉴 추천 서비스의 개인정보처리방침입니다."/>
+<meta property="og:url" content="https://product-builder-lecture-8pr.pages.dev/pages/privacy.html"/>
+<meta property="og:locale" content="ko_KR"/>
+<link rel="icon" type="image/svg+xml" href="/images/favicon.svg"/>
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<script src="/js/footer-tailwind-safelist.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              purple: '#8b5cf6',
+              pink: '#ec4899',
+              light: '#f8fafc',
+              dark: '#1f2937',
+              cardDark: '#374151'
+            }
+          },
+          borderRadius: {
+            'xl': '12px',
+            '2xl': '24px',
+          }
+        }
+      }
+    }
+</script>
+<style>
+  .accent-gradient-text {
+    background: linear-gradient(to right, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
 
-    <!-- Primary SEO Meta Tags -->
-    <title>개인정보처리방침 - 메뉴 추천 | Privacy Policy - Menu Recommendation</title>
-    <meta name="description" content="메뉴 추천 서비스의 개인정보처리방침입니다. 수집하는 정보, 사용 목적, 보호 방법 등을 안내합니다.">
-    <meta name="robots" content="noindex, follow">
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://product-builder-lecture-8pr.pages.dev/pages/privacy.html">
-
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="메뉴 추천 - Menu Recommendation">
-    <meta property="og:title" content="개인정보처리방침 - 메뉴 추천">
-    <meta property="og:description" content="메뉴 추천 서비스의 개인정보처리방침입니다.">
-    <meta property="og:url" content="https://product-builder-lecture-8pr.pages.dev/pages/privacy.html">
-    <meta property="og:locale" content="ko_KR">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
-    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-
-    <!-- Preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/privacy.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <!-- JSON-LD Structured Data: BreadcrumbList -->
-    <script type="application/ld+json" src="/js/ld/privacy.json"></script>
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KR2HW49NF0"></script>
-    <script src="/js/analytics/gtag.js"></script>
-
-    <!-- Microsoft Clarity -->
-    <script src="/js/analytics/clarity.js"></script>
+<script type="application/ld+json" src="/js/ld/privacy.json"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KR2HW49NF0"></script>
+<script src="/js/analytics/gtag.js"></script>
+<script src="/js/analytics/clarity.js"></script>
+<script>
+  (function() {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved ? saved === 'dark' : prefersDark;
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.body) document.body.classList.toggle('light-mode', !isDark);
+    });
+  })();
+</script>
 </head>
-<body>
-    <div class="policy-container">
-        <article class="policy-content" id="policy-content">
-            <h1 id="privacy-title">개인정보처리방침</h1>
-            <p id="privacy-intro">메뉴 추천 서비스(이하 "본 서비스")는 이용자의 개인정보를 중요시하며, 개인정보 보호법을 준수합니다.</p>
+<body class="bg-brand-light dark:bg-brand-dark font-sans text-slate-800 dark:text-slate-100 antialiased min-h-screen flex flex-col transition-colors duration-300">
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-brand-cardDark/85 backdrop-blur-md border-b border-slate-100 dark:border-slate-700">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<a class="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-brand-purple transition-colors font-medium group" href="/index.html">
+<span class="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+<span>메인으로 돌아가기</span>
+</a>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-gradient-to-br from-brand-purple to-brand-pink rounded-lg flex items-center justify-center text-white shadow-md shadow-purple-200">
+<span class="material-symbols-outlined text-sm">restaurant_menu</span>
+</div>
+<span class="text-xl font-bold tracking-tight accent-gradient-text">MenuRec</span>
+</div>
+</div>
+</header>
 
-            <h2 id="s1-title">1. 수집하는 개인정보</h2>
-            <p id="s1-desc">본 서비스는 다음과 같은 개인정보를 수집할 수 있습니다:</p>
-            <ul>
-                <li id="s1-item1"><strong>제휴 문의 시:</strong> 이메일 주소, 문의 내용</li>
-                <li id="s1-item2"><strong>자동 수집 정보:</strong> 접속 기록, 쿠키, 접속 IP 정보, 브라우저 종류</li>
-            </ul>
+<main class="flex-grow py-12 px-4 sm:px-6">
+<article class="max-w-[800px] mx-auto bg-white dark:bg-brand-cardDark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 md:p-12" id="policy-content">
+<header class="mb-10 pb-8 border-b border-slate-100 dark:border-slate-700">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-900/30 text-brand-purple text-xs font-semibold mb-4">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-purple"></span>
+Legal
+</div>
+<h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4" id="privacy-title">개인정보처리방침</h1>
+<p class="text-slate-500 dark:text-slate-300"><span id="last-updated-label">최종 수정일</span>: 2026-02-09</p>
+</header>
 
-            <h2 id="s2-title">2. 개인정보의 수집 목적</h2>
-            <p id="s2-desc">수집된 개인정보는 다음 목적으로 사용됩니다:</p>
-            <ul>
-                <li id="s2-item1">제휴 및 광고 문의에 대한 답변</li>
-                <li id="s2-item2">서비스 개선 및 통계 분석</li>
-                <li id="s2-item3">맞춤형 서비스 제공</li>
-            </ul>
+<div class="max-w-none">
+<p class="text-slate-600 dark:text-slate-300 leading-8 mb-6" id="privacy-intro">메뉴 추천 서비스(이하 "본 서비스")는 이용자의 개인정보를 중요시하며, 개인정보 보호법을 준수합니다.</p>
 
-            <h2 id="s3-title">3. 개인정보의 보유 및 이용 기간</h2>
-            <p id="s3-desc">개인정보는 수집 목적이 달성된 후 즉시 파기합니다. 단, 관련 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관합니다.</p>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4" id="s1-title">1. 수집하는 개인정보</h2>
+<p class="text-slate-600 dark:text-slate-300 leading-8 mb-4" id="s1-desc">본 서비스는 다음과 같은 개인정보를 수집할 수 있습니다:</p>
+<ul class="list-disc pl-5 space-y-2 text-slate-600 dark:text-slate-300 mb-6">
+<li id="s1-item1"><strong>제휴 문의 시:</strong> 이메일 주소, 문의 내용</li>
+<li id="s1-item2"><strong>자동 수집 정보:</strong> 접속 기록, 쿠키, 접속 IP 정보, 브라우저 종류</li>
+</ul>
 
-            <h2 id="s4-title">4. 개인정보의 제3자 제공</h2>
-            <p id="s4-desc">본 서비스는 이용자의 동의 없이 개인정보를 외부에 제공하지 않습니다. 다만, 다음의 경우는 예외로 합니다:</p>
-            <ul>
-                <li id="s4-item1">법령에 의해 요구되는 경우</li>
-                <li id="s4-item2">이용자가 사전에 동의한 경우</li>
-            </ul>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4" id="s2-title">2. 개인정보의 수집 목적</h2>
+<p class="text-slate-600 dark:text-slate-300 leading-8 mb-4" id="s2-desc">수집된 개인정보는 다음 목적으로 사용됩니다:</p>
+<ul class="list-disc pl-5 space-y-2 text-slate-600 dark:text-slate-300 mb-6">
+<li id="s2-item1">제휴 및 광고 문의에 대한 답변</li>
+<li id="s2-item2">서비스 개선 및 통계 분석</li>
+<li id="s2-item3">맞춤형 서비스 제공</li>
+</ul>
 
-            <h2 id="s5-title">5. 쿠키(Cookie) 사용</h2>
-            <p id="s5-desc">본 서비스는 이용자에게 개인화된 서비스를 제공하기 위해 쿠키를 사용합니다. 이용자는 브라우저 설정을 통해 쿠키 허용 여부를 선택할 수 있습니다.</p>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4" id="s3-title">3. 개인정보의 보유 및 이용 기간</h2>
+<p class="text-slate-600 dark:text-slate-300 leading-8 mb-6" id="s3-desc">개인정보는 수집 목적이 달성된 후 즉시 파기합니다. 단, 관련 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관합니다.</p>
 
-            <h2 id="s6-title">6. 광고 관련 정보</h2>
-            <p id="s6-desc">본 서비스는 Google AdSense를 통해 광고를 게재합니다. Google은 쿠키를 사용하여 이용자의 관심사에 기반한 광고를 표시할 수 있습니다. Google의 광고 정책에 대한 자세한 내용은 <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener" style="color: var(--primary-color);">Google 광고 정책</a>을 참조하세요.</p>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4" id="s4-title">4. 개인정보의 제3자 제공</h2>
+<p class="text-slate-600 dark:text-slate-300 leading-8 mb-4" id="s4-desc">본 서비스는 이용자의 동의 없이 개인정보를 외부에 제공하지 않습니다. 다만, 다음의 경우는 예외로 합니다:</p>
+<ul class="list-disc pl-5 space-y-2 text-slate-600 dark:text-slate-300 mb-6">
+<li id="s4-item1">법령에 의해 요구되는 경우</li>
+<li id="s4-item2">이용자가 사전에 동의한 경우</li>
+</ul>
 
-            <h2 id="s7-title">7. 이용자의 권리</h2>
-            <p id="s7-desc">이용자는 언제든지 자신의 개인정보에 대해 다음 권리를 행사할 수 있습니다:</p>
-            <ul>
-                <li id="s7-item1">개인정보 열람 요청</li>
-                <li id="s7-item2">개인정보 정정 요청</li>
-                <li id="s7-item3">개인정보 삭제 요청</li>
-                <li id="s7-item4">개인정보 처리 정지 요청</li>
-            </ul>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4" id="s5-title">5. 쿠키(Cookie) 사용</h2>
+<p class="text-slate-600 dark:text-slate-300 leading-8 mb-6" id="s5-desc">본 서비스는 이용자에게 개인화된 서비스를 제공하기 위해 쿠키를 사용합니다. 이용자는 브라우저 설정을 통해 쿠키 허용 여부를 선택할 수 있습니다.</p>
 
-            <h2 id="s8-title">8. 개인정보 보호책임자</h2>
-            <p id="s8-desc">개인정보 관련 문의사항은 메인 페이지의 제휴 문의 양식을 통해 연락해 주시기 바랍니다.</p>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4" id="s6-title">6. 광고 관련 정보</h2>
+<p class="text-slate-600 dark:text-slate-300 leading-8 mb-6" id="s6-desc">본 서비스는 Google AdSense를 통해 광고를 게재합니다. Google은 쿠키를 사용하여 이용자의 관심사에 기반한 광고를 표시할 수 있습니다. Google의 광고 정책에 대한 자세한 내용은 <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener" class="text-brand-purple hover:underline">Google 광고 정책</a>을 참조하세요.</p>
 
-            <h2 id="s9-title">9. 개인정보처리방침의 변경</h2>
-            <p id="s9-desc">본 개인정보처리방침은 법령 또는 서비스 변경에 따라 수정될 수 있습니다. 변경 시 웹사이트를 통해 공지합니다.</p>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4" id="s7-title">7. 이용자의 권리</h2>
+<p class="text-slate-600 dark:text-slate-300 leading-8 mb-4" id="s7-desc">이용자는 언제든지 자신의 개인정보에 대해 다음 권리를 행사할 수 있습니다:</p>
+<ul class="list-disc pl-5 space-y-2 text-slate-600 dark:text-slate-300 mb-6">
+<li id="s7-item1">개인정보 열람 요청</li>
+<li id="s7-item2">개인정보 정정 요청</li>
+<li id="s7-item3">개인정보 삭제 요청</li>
+<li id="s7-item4">개인정보 처리 정지 요청</li>
+</ul>
 
-            <p class="last-updated"><span id="last-updated-label">최종 수정일</span>: 2026-02-09</p>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4" id="s8-title">8. 개인정보 보호책임자</h2>
+<p class="text-slate-600 dark:text-slate-300 leading-8 mb-6" id="s8-desc">개인정보 관련 문의사항은 제휴 문의 페이지를 통해 연락해 주시기 바랍니다.</p>
 
-            <a href="/index.html" class="back-link" id="back-link" rel="noopener">&#x2190; 메인으로 돌아가기</a>
-        </article>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4" id="s9-title">9. 개인정보처리방침의 변경</h2>
+<p class="text-slate-600 dark:text-slate-300 leading-8" id="s9-desc">본 개인정보처리방침은 법령 또는 서비스 변경에 따라 수정될 수 있습니다. 변경 시 웹사이트를 통해 공지합니다.</p>
+</div>
 
-        <footer style="margin-top: 40px; text-align: center;">
-            <nav style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; padding: 20px 0;">
-                <a href="/index.html" style="color: var(--text-secondary); text-decoration: none;">홈</a>
-                <span style="color: var(--text-secondary);">|</span>
-                <a href="/pages/about.html" style="color: var(--text-secondary); text-decoration: none;">소개</a>
-                <span style="color: var(--text-secondary);">|</span>
-                <a href="/pages/guide.html" style="color: var(--text-secondary); text-decoration: none;">음식 가이드</a>
-                <span style="color: var(--text-secondary);">|</span>
-                <a href="/pages/terms.html" style="color: var(--text-secondary); text-decoration: none;">이용약관</a>
-            </nav>
-            <p style="color: var(--text-secondary); font-size: 0.9rem;">&copy; 2026 Menu Recommendation. All rights reserved.</p>
-        </footer>
-    </div>
-    <script src="/js/countryLanguageService.js"></script>
-    <script src="/js/translations.js"></script>
-    <script src="/js/privacy.js"></script>
+<div class="mt-12 pt-8 border-t border-slate-100 dark:border-slate-700 flex justify-center">
+<a class="inline-flex items-center gap-2 text-slate-500 dark:text-slate-300 hover:text-brand-purple transition-colors font-medium text-sm px-4 py-2 rounded-lg hover:bg-purple-50 dark:hover:bg-slate-700" href="/index.html" id="back-link" rel="noopener">
+<span class="material-symbols-outlined text-lg">arrow_back</span>
+<span>메인으로 돌아가기</span>
+</a>
+</div>
+</article>
+</main>
+
+<div id="site-footer" data-footer-current="privacy"></div>
+<script src="/js/countryLanguageService.js"></script>
+<script src="/js/translations.js"></script>
+<script src="/js/privacy.js"></script>
+<script src="/js/footer-loader.js"></script>
 </body>
 </html>

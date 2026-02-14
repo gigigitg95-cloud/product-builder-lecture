@@ -273,7 +273,86 @@ firebase deploy --only hosting
 
 ## 업데이트 기록
 
-### 2026-02-13 (리팩토링 완료)
+### 2026-02-14 (안정화/일관성 패치)
+
+**요약**
+- 공통 Footer 로딩 구조를 메인/서브 페이지에 통일 적용하고, 다크모드 색상 불일치 문제를 해소했습니다.
+- 사이드바 아이콘/텍스트가 초기 로딩 시 잠깐 깨지거나 사라지는 문제(FOUC/초기화 순서/텍스트 덮어쓰기)를 수정했습니다.
+- 언어/테마/슬롯 버튼의 초기 상태 깜빡임(영어→한국어, SPIN→시작, 토글 아이콘/노브 불일치)을 최소화했습니다.
+
+**핵심 이슈와 원인**
+
+| 구분 | 증상 | 근본 원인 |
+|------|------|-----------|
+| Footer 렌더링 | `index.html`에서 Footer 스타일 일부 깨짐 | 공통 Footer(`pages/footer.html`)가 사용하는 `brand-*` 색상/`Material Symbols`/그라디언트 클래스가 메인 페이지 설정과 부분 불일치 |
+| 사이드바 메뉴 아이콘 | `오늘의 추천 메뉴`, `커뮤니티 게시판` 아이콘이 잠깐 보였다가 사라짐 | 번역 적용 시 버튼 전체 `textContent` 갱신으로 아이콘 노드(`<span>`)까지 삭제 |
+| 언어 표시 깜빡임 | 언어 표시가 `English`로 잠깐 보였다가 `Korean`으로 전환 | 초기 언어 결정이 비동기(`initLanguageSelector`) 이후 적용되어 첫 페인트와 상태 반영 시점 불일치 |
+| 테마 토글 깜빡임 | 라이트/다크 토글 노브 위치/아이콘이 잠깐 어긋남 | 초기 렌더 시 `aria-pressed`/아이콘 표시 규칙 동기화 부족 |
+| 슬롯 버튼 텍스트 깜빡임 | `SPIN`이 잠깐 보였다가 `시작`으로 변경 | 초기 HTML 기본값과 번역 적용 시점 차이 |
+
+**적용한 변경 상세**
+
+1. Footer 공통화 및 메인 페이지 정합성 보정
+- `index.html`에 공통 Footer 전용 리소스 정합성 보강
+  - `Material Symbols Outlined` 폰트 로드 추가
+  - `brand.dark`, `brand.cardDark` 등 Footer 의존 색상 토큰 정비
+  - `.accent-gradient-text` 스타일 추가
+- 메인 하단 Footer를 공통 마운트 방식으로 통일
+  - `#site-footer` + `js/footer-loader.js` 구조 기준 유지
+
+2. 사이드바 번역 로직 안전화 (아이콘 보존)
+- `js/app.js`의 번역 적용 경로에서 버튼 전체 텍스트 치환을 제거
+- `setSidebarNavLabel(id, label, iconName)` 유틸을 도입해:
+  - `.sidebar-text`만 갱신
+  - 아이콘 노드가 없으면 자동 복구
+  - 아이콘 텍스트가 비어 있으면 아이콘 이름 재주입
+- 적용 대상: `nav-recommendation`, `nav-recommend`, `nav-bulletin`, `nav-contact`
+
+3. 초기화 순서 개선 (초기 깜빡임 최소화)
+- `js/app.js` 초기 진입 시 동기 부트 언어값 도입
+  - 우선순위: `localStorage.selectedLanguage` → 브라우저 locale 기반(`ko*`면 Korean) → 기본값 English
+- 초기 부팅 시퀀스 직렬화
+  - `buildSlotMenus()` 선실행
+  - `await initLanguageSelector()` 완료 후 후속 초기화 진행
+  - 번역/라벨 적용 타이밍을 첫 렌더 상태와 최대한 일치
+
+4. 테마 토글 상태 동기화
+- `index.html`에 `aria-pressed` 기반 아이콘/노브 표시 CSS 보강
+  - 다크 상태에서 아이콘/노브가 즉시 일치하도록 규칙 추가
+- 테마 적용 시 `.theme-toggle-switch` 전체에 `aria-pressed`, `aria-label` 일괄 동기화
+
+5. 캐시 영향 완화 (구버전 스크립트 잔존 대응)
+- `index.html`의 주요 스크립트에 버전 쿼리스트링 부여
+  - `countryLanguageService.js`, `translations.js`, `footer-loader.js`, `app.js`
+  - 브라우저 캐시로 구 로직이 재실행되는 케이스를 완화
+
+6. 다크모드 색상 일관성 통일 (Footer 기준)
+- `index.html`, `pages/about.html`, `pages/contact.html`의 브랜드 다크 팔레트를
+  - `dark: #1f2937`
+  - `cardDark: #374151`
+  로 통일
+- 결과적으로 공통 Footer(`pages/footer.html`)의 다크 색상 톤이 다른 `pages/*.html`과 시각적으로 일치
+
+**파일 단위 변경 포인트**
+- `index.html`
+  - Footer 관련 폰트/토큰/스타일 정합성 추가
+  - 언어/테마/슬롯 버튼 초기 표시값 보정
+  - 스크립트 캐시 버전 파라미터 추가
+- `js/app.js`
+  - 사이드바 라벨 안전 갱신 유틸 도입
+  - 번역 적용 시 아이콘 보존 로직 적용
+  - 언어 부트값/초기화 순서 직렬화
+  - 테마 토글 접근성 상태 동기화 강화
+- `pages/about.html`, `pages/contact.html`
+  - 브랜드 다크 팔레트(`brand.dark`, `brand.cardDark`) 통일
+
+**검증/확인 기준**
+- 사이드바 `오늘의 추천 메뉴`, `커뮤니티 게시판`, `제휴 문의` 아이콘 유지 여부
+- 초기 로딩 시 언어 라벨/슬롯 버튼/테마 토글 깜빡임 감소 여부
+- 공통 Footer 다크모드 색상 톤이 메인/서브 페이지에서 동일한지 확인
+
+
+### 2026-02-13 (리팩토링 진행)
 
 **원칙**
 - 콘텐츠/기능 100% 유지, 스타일 단계적 전환

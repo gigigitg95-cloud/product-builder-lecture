@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>쿠키 정책 - MenuRec</title>
+<meta name="description" content="MenuRec 쿠키 정책입니다. 쿠키 사용 목적, 유형, 관리 방법 및 사용자의 선택권을 안내합니다."/>
+<meta name="robots" content="noindex, follow"/>
+<link rel="canonical" href="https://product-builder-lecture-8pr.pages.dev/pages/cookies.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="메뉴 추천 - Menu Recommendation"/>
+<meta property="og:title" content="쿠키 정책 - MenuRec"/>
+<meta property="og:description" content="MenuRec의 쿠키 사용 방식과 관리 방법을 안내합니다."/>
+<meta property="og:url" content="https://product-builder-lecture-8pr.pages.dev/pages/cookies.html"/>
+<meta property="og:locale" content="ko_KR"/>
+<link rel="icon" type="image/svg+xml" href="/images/favicon.svg"/>
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<script src="/js/footer-tailwind-safelist.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'Plus Jakarta Sans', 'sans-serif']
+        },
+        colors: {
+          brand: {
+            purple: '#8b5cf6',
+            pink: '#ec4899',
+            light: '#f8fafc',
+            dark: '#1f2937',
+            cardDark: '#374151'
+          }
+        },
+        borderRadius: {
+          xl: '12px',
+          '2xl': '24px'
+        }
+      }
+    }
+  };
+</script>
+<style>
+  .accent-gradient-text {
+    background: linear-gradient(to right, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KR2HW49NF0"></script>
+<script src="/js/analytics/gtag.js"></script>
+<script src="/js/analytics/clarity.js"></script>
+<script>
+  (function() {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved ? saved === 'dark' : prefersDark;
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.body) document.body.classList.toggle('light-mode', !isDark);
+    });
+  })();
+</script>
+</head>
+<body class="bg-brand-light dark:bg-brand-dark font-sans text-slate-800 dark:text-slate-100 antialiased min-h-screen flex flex-col transition-colors duration-300">
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-brand-cardDark/85 backdrop-blur-md border-b border-slate-100 dark:border-slate-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <a class="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-brand-purple transition-colors font-medium group" href="/index.html">
+      <span class="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+      <span>메인으로 돌아가기</span>
+    </a>
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 bg-gradient-to-br from-brand-purple to-brand-pink rounded-lg flex items-center justify-center text-white shadow-md shadow-purple-200">
+        <span class="material-symbols-outlined text-sm">restaurant_menu</span>
+      </div>
+      <span class="text-xl font-bold tracking-tight accent-gradient-text">MenuRec</span>
+    </div>
+  </div>
+</header>
+
+<main class="flex-grow py-12 px-4 sm:px-6">
+  <article class="max-w-[800px] mx-auto bg-white dark:bg-brand-cardDark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 md:p-12">
+    <header class="mb-10 pb-8 border-b border-slate-100 dark:border-slate-700">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-900/30 text-brand-purple text-xs font-semibold mb-4">
+        <span class="w-1.5 h-1.5 rounded-full bg-brand-purple"></span>
+        Legal
+      </div>
+      <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4">쿠키 정책</h1>
+      <p class="text-slate-500 dark:text-slate-300">최종 수정일: 2026-02-14</p>
+    </header>
+
+    <div class="max-w-none text-slate-600 dark:text-slate-300">
+      <p class="leading-8 mb-6">
+        MenuRec(이하 "서비스")는 웹사이트 이용 편의성 향상, 서비스 성능 분석, 맞춤형 콘텐츠 제공을 위해 쿠키를 사용합니다.
+        본 쿠키 정책은 쿠키의 정의, 사용 목적, 관리 방법을 안내합니다.
+      </p>
+
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4">1. 쿠키란?</h2>
+      <p class="leading-8 mb-6">
+        쿠키는 사용자가 웹사이트를 방문할 때 브라우저에 저장되는 작은 텍스트 파일입니다.
+        이를 통해 사이트는 사용자의 설정과 방문 정보를 기억하여 더 나은 경험을 제공할 수 있습니다.
+      </p>
+
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4">2. 서비스에서 사용하는 쿠키 유형</h2>
+      <ul class="list-disc pl-5 space-y-2 mb-6">
+        <li><strong>필수 쿠키:</strong> 사이트 기본 기능(테마, 언어, 보안 등) 유지에 필요한 쿠키</li>
+        <li><strong>기능 쿠키:</strong> 사용자 설정(예: 선택 언어, 닉네임) 저장을 위한 쿠키</li>
+        <li><strong>분석 쿠키:</strong> 이용 패턴 파악 및 성능 개선을 위한 통계 쿠키</li>
+        <li><strong>광고 쿠키:</strong> Google AdSense 등에서 맞춤형 광고 제공을 위해 사용될 수 있는 쿠키</li>
+      </ul>
+
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4">3. 쿠키 사용 목적</h2>
+      <ul class="list-disc pl-5 space-y-2 mb-6">
+        <li>서비스 상태 유지 및 사용자 환경 개선</li>
+        <li>방문자 트래픽 및 서비스 사용성 분석</li>
+        <li>개인화된 콘텐츠 또는 광고 제공</li>
+      </ul>
+
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4">4. 쿠키 관리 방법</h2>
+      <p class="leading-8 mb-4">
+        사용자는 브라우저 설정을 통해 쿠키 저장을 허용/차단하거나 이미 저장된 쿠키를 삭제할 수 있습니다.
+      </p>
+      <ul class="list-disc pl-5 space-y-2 mb-6">
+        <li>Chrome: 설정 &gt; 개인정보 및 보안 &gt; 쿠키 및 기타 사이트 데이터</li>
+        <li>Safari: 설정 &gt; Safari &gt; 개인정보 보호 및 보안</li>
+        <li>Edge: 설정 &gt; 쿠키 및 사이트 권한</li>
+      </ul>
+
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4">5. 제3자 서비스</h2>
+      <p class="leading-8 mb-6">
+        서비스는 Google AdSense, Google Analytics 등 제3자 서비스를 사용할 수 있습니다.
+        이들 서비스는 자체 쿠키를 통해 정보를 수집할 수 있으며, 관련 정책은 각 제공사의 정책을 따릅니다.
+      </p>
+
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white mt-8 mb-4">6. 정책 변경</h2>
+      <p class="leading-8">
+        본 쿠키 정책은 법령 또는 서비스 변경에 따라 개정될 수 있으며, 변경 시 본 페이지에 최신 버전을 게시합니다.
+      </p>
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-slate-100 dark:border-slate-700 flex justify-center">
+      <a class="inline-flex items-center gap-2 text-slate-500 dark:text-slate-300 hover:text-brand-purple transition-colors font-medium text-sm px-4 py-2 rounded-lg hover:bg-purple-50 dark:hover:bg-slate-700" href="/index.html" rel="noopener">
+        <span class="material-symbols-outlined text-lg">arrow_back</span>
+        <span>메인으로 돌아가기</span>
+      </a>
+    </div>
+  </article>
+</main>
+<div id="site-footer" data-footer-current="cookies"></div>
+<script src="/js/footer-loader.js"></script>
+</body>
+</html>

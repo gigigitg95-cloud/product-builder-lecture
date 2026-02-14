@@ -288,8 +288,14 @@ const languageList = document.getElementById('language-list');
 const selectedLanguageEl = document.getElementById('selected-language');
 
 const DEFAULT_LANGUAGE = 'English';
-// Restore language from localStorage or default to English
-let currentLanguage = DEFAULT_LANGUAGE;
+// Use a synchronous boot language to minimize first-paint flicker.
+const bootSavedLanguage = localStorage.getItem('selectedLanguage');
+const bootLocale = (navigator.language || '').toLowerCase();
+let currentLanguage = (
+    bootSavedLanguage && translations[bootSavedLanguage]
+        ? bootSavedLanguage
+        : (bootLocale.startsWith('ko') ? 'Korean' : DEFAULT_LANGUAGE)
+);
 let allCountries = [];
 
 // Country code to flag emoji mapping
@@ -498,6 +504,29 @@ function getMenuTranslation(menuKey) {
     return lang[menuKey] || menuTranslations['English'][menuKey];
 }
 
+function setSidebarNavLabel(id, label, iconName) {
+    const item = document.getElementById(id);
+    if (!item || !label) return;
+
+    let icon = item.querySelector('.material-icons-outlined');
+    if (!icon && iconName) {
+        icon = document.createElement('span');
+        icon.className = 'material-icons-outlined text-[20px]';
+        icon.textContent = iconName;
+        item.prepend(icon);
+    } else if (icon && iconName && !icon.textContent.trim()) {
+        icon.textContent = iconName;
+    }
+
+    let text = item.querySelector('.sidebar-text');
+    if (!text) {
+        text = document.createElement('span');
+        text.className = 'sidebar-text whitespace-nowrap text-sm font-medium';
+        item.appendChild(text);
+    }
+    text.textContent = label;
+}
+
 // Apply translations to all UI elements
 function applyTranslations() {
     const t = translations[currentLanguage] || translations['English'];
@@ -517,12 +546,11 @@ function applyTranslations() {
     // Update recommendation section
     const recommendationTitle = document.getElementById('recommendation-title');
     if (recommendationTitle) recommendationTitle.textContent = t.todayRecommendation;
-    const navRecommendation = document.getElementById('nav-recommendation');
-    if (navRecommendation && t.navRecommendation) navRecommendation.textContent = t.navRecommendation;
-    const navBulletin = document.getElementById('nav-bulletin');
-    if (navBulletin && t.navBulletin) navBulletin.textContent = t.navBulletin;
-    const navContact = document.getElementById('nav-contact');
-    if (navContact && t.navContact) navContact.textContent = t.navContact;
+    const slotMachineLabel = t.slotMachine || (currentLanguage === 'Korean' ? '슬롯머신' : 'Slot Machine');
+    setSidebarNavLabel('nav-recommendation', slotMachineLabel, 'casino');
+    setSidebarNavLabel('nav-recommend', t.navRecommendation || t.todayRecommendation, 'recommend');
+    setSidebarNavLabel('nav-bulletin', t.navBulletin, 'forum');
+    setSidebarNavLabel('nav-contact', t.navContact, 'mail');
     const contactTitle = document.getElementById('contact-title');
     if (contactTitle) contactTitle.textContent = t.partnershipTitle;
 
@@ -567,7 +595,7 @@ function applyTranslations() {
     if (submitBtn) submitBtn.textContent = t.sendMessage;
 
     // Update footer
-    const footer = document.querySelector('footer p');
+    const footer = document.getElementById('footer-copy');
     if (footer) footer.textContent = t.footer;
 
     // Update footer links
@@ -807,12 +835,9 @@ function applyThemeState(isDark, options = {}) {
     // Legacy styles still use body.light-mode as "light theme" indicator.
     document.body.classList.toggle('light-mode', !isDark);
 
-    const desktopThemeBtn = document.getElementById('theme-toggle-btn');
-    if (desktopThemeBtn) {
-        desktopThemeBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-    }
-    document.querySelectorAll('#mobile-sidebar .theme-toggle-switch').forEach((btn) => {
+    document.querySelectorAll('.theme-toggle-switch').forEach((btn) => {
         btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        btn.setAttribute('aria-label', isDark ? '라이트 모드로 전환' : '다크 모드로 전환');
     });
 
     if (persist) {
@@ -983,14 +1008,27 @@ function formatTimeAgo(timestamp) {
 
 // Render a single post
 function renderPost(post) {
+    const avatars = ['🍔', '🍜', '🥘', '🍕', '🥗', '🍣', '🌮', '🍩'];
+    const nickname = String(post.nickname || '').trim();
+    const hashBase = nickname || 'user';
+    const hash = Array.from(hashBase).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+    const avatar = avatars[hash % avatars.length];
+
     const postEl = document.createElement('div');
-    postEl.className = 'bulletin-post';
+    postEl.className = 'bulletin-post bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-700 transition-colors';
     postEl.innerHTML = `
-        <div class="bulletin-post-header">
-            <span class="bulletin-post-nickname">${escapeHtml(post.nickname)}</span>
-            <span class="bulletin-post-time">${formatTimeAgo(post.timestamp)}</span>
+        <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-900/35 text-purple-600 dark:text-purple-300 flex items-center justify-center font-bold text-lg border border-purple-100 dark:border-purple-700/40">
+                    ${avatar}
+                </div>
+                <div>
+                    <div class="bulletin-post-nickname font-bold text-gray-900 dark:text-gray-100">${escapeHtml(post.nickname)}</div>
+                    <div class="bulletin-post-time text-xs text-gray-500 dark:text-gray-400">${formatTimeAgo(post.timestamp)}</div>
+                </div>
+            </div>
         </div>
-        <div class="bulletin-post-message">${escapeHtml(post.message)}</div>
+        <div class="bulletin-post-message text-gray-700 dark:text-gray-200 leading-relaxed pl-[52px]">${escapeHtml(post.message)}</div>
     `;
     return postEl;
 }
@@ -1019,7 +1057,7 @@ async function loadPosts() {
         bulletinPosts.innerHTML = '';
 
         if (snapshot.empty) {
-            bulletinPosts.innerHTML = `<div class="bulletin-empty">${getBulletinTranslation('empty')}</div>`;
+            bulletinPosts.innerHTML = `<div class="bulletin-empty text-center text-sm text-gray-500 dark:text-gray-400 py-8 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">${getBulletinTranslation('empty')}</div>`;
             return;
         }
 
@@ -1039,7 +1077,7 @@ function loadPostsFromLocalStorage() {
     bulletinPosts.innerHTML = '';
 
     if (posts.length === 0) {
-        bulletinPosts.innerHTML = `<div class="bulletin-empty">${getBulletinTranslation('empty')}</div>`;
+        bulletinPosts.innerHTML = `<div class="bulletin-empty text-center text-sm text-gray-500 dark:text-gray-400 py-8 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">${getBulletinTranslation('empty')}</div>`;
         return;
     }
 
@@ -2035,24 +2073,16 @@ async function loadBulletinInclude() {
     }
 }
 
-// Initialize slot machine data first (must run before initLanguageSelector
-// because applyTranslations calls renderSlotReels which needs currentSlotMenus)
-if (slotReel1) {
-    buildSlotMenus();
-}
+// Initialize in sequence to avoid first-paint language/theme text flicker.
+(async () => {
+    // Must run before initLanguageSelector because applyTranslations calls renderSlotReels.
+    if (slotReel1) {
+        buildSlotMenus();
+    }
 
-// Initialize language selector (calls applyTranslations → renderSlotReels)
-initLanguageSelector();
+    // applyTranslations runs inside initLanguageSelector after language resolution.
+    await initLanguageSelector();
 
-// Update slot/situation/seasonal translations
-if (slotReel1) {
-    updateSlotTranslations();
-    updateSituationTranslations();
-    updateSeasonalTranslations();
-}
-
-// Initialize share buttons
-initShareButtons();
-
-// Initialize bulletin board (load HTML include first)
-loadBulletinInclude();
+    initShareButtons();
+    await loadBulletinInclude();
+})();
