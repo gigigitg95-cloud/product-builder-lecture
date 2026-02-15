@@ -6,3 +6,4 @@ cd "$REPO_ROOT"
 
 node scripts/update-readme.js
 git add README.md
+node scripts/validate-readme-for-commit.js

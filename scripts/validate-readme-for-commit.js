@@ -1,0 +1,119 @@
+#!/usr/bin/env node
+"use strict";
+
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
+
+function run(cmd) {
+  return execSync(cmd, { encoding: "utf8" }).trim();
+}
+
+function fail(message) {
+  console.error(`README commit check failed: ${message}`);
+  process.exit(1);
+}
+
+function ensureSection(content, title) {
+  const pattern = new RegExp(`^##\\s+${title}\\s*$`, "m");
+  if (!pattern.test(content)) {
+    fail(`missing section: \"## ${title}\"`);
+  }
+}
+
+function ensureRecentUpdateEntry(content) {
+  const updatesIdx = content.indexOf("## 업데이트 기록");
+  if (updatesIdx === -1) {
+    fail("missing section: \"## 업데이트 기록\"");
+  }
+
+  const tail = content.slice(updatesIdx);
+  const headingMatches = [...tail.matchAll(/^###\s+(\d{4}-\d{2}-\d{2})(?:\s*\(([^\n]+)\))?\s*$/gm)];
+
+  if (headingMatches.length === 0) {
+    fail("no dated update entry found under \"## 업데이트 기록\"");
+  }
+
+  const latest = headingMatches[0];
+  const date = latest[1];
+  const title = (latest[2] || "").trim();
+
+  const today = new Date();
+  const yyyy = String(today.getFullYear());
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const expected = `${yyyy}-${mm}-${dd}`;
+
+  if (date !== expected) {
+    fail(`latest update date must be today (${expected}), found ${date}`);
+  }
+
+  if (!title) {
+    fail("latest update entry must include a short summary in parentheses");
+  }
+}
+
+function ensureFeatureListLooksUpdated(content) {
+  const featuresIdx = content.indexOf("## 주요 기능");
+  if (featuresIdx === -1) {
+    fail("missing section: \"## 주요 기능\"");
+  }
+
+  const after = content.slice(featuresIdx);
+  const nextSection = after.search(/\n##\s+/);
+  const body = nextSection === -1 ? after : after.slice(0, nextSection);
+
+  const numberedItems = body.match(/^###\s+\d+\.\s+/gm) || [];
+  if (numberedItems.length < 3) {
+    fail("\"## 주요 기능\" should contain at least 3 numbered feature items");
+  }
+}
+
+function ensureProjectStructureBlock(content) {
+  const hasSection = /^##\s+프로젝트 구조\s*$/m.test(content);
+  if (!hasSection) {
+    fail("missing section: \"## 프로젝트 구조\"");
+  }
+
+  const blockPattern = /##\s+프로젝트 구조\s*\n+```[\s\S]*?```/m;
+  if (!blockPattern.test(content)) {
+    fail("\"## 프로젝트 구조\" must include a fenced code block");
+  }
+}
+
+function ensureReadmeStagedForCommit() {
+  const staged = run("git diff --cached --name-only").split("\n").filter(Boolean);
+  if (!staged.includes("README.md")) {
+    fail("README.md is not staged. pre-commit should stage README updates.");
+  }
+
+  const unstagedReadme = run("git status --porcelain README.md");
+  if (unstagedReadme.startsWith(" M") || unstagedReadme.startsWith("MM")) {
+    fail("README.md still has unstaged edits. run: git add README.md");
+  }
+}
+
+function main() {
+  const mode = process.argv.includes("--mode=push") ? "push" : "commit";
+  const repoRoot = run("git rev-parse --show-toplevel");
+  const readmePath = path.join(repoRoot, "README.md");
+
+  if (!fs.existsSync(readmePath)) {
+    fail("README.md not found");
+  }
+
+  const content = fs.readFileSync(readmePath, "utf8");
+
+  ensureSection(content, "주요 기능");
+  ensureProjectStructureBlock(content);
+  ensureSection(content, "업데이트 기록");
+  ensureRecentUpdateEntry(content);
+  ensureFeatureListLooksUpdated(content);
+  if (mode === "commit") {
+    ensureReadmeStagedForCommit();
+  }
+
+  console.log(`README ${mode} check passed.`);
+}
+
+main();

@@ -4,6 +4,8 @@ set -euo pipefail
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
+node scripts/validate-readme-for-commit.js --mode=push
+
 if ! git diff --quiet -- README.md; then
   echo "README.md has unstaged changes."
   echo "Run: git add README.md && git commit (or amend) before push."
