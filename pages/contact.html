@@ -127,6 +127,21 @@
             <span class="material-symbols-outlined text-brand-purple">edit_note</span>
             제휴 문의 작성
           </h2>
+          <div class="mb-6 rounded-2xl border border-amber-300 bg-amber-50/80 dark:bg-amber-900/20 dark:border-amber-700 p-4">
+            <p class="text-sm text-amber-900 dark:text-amber-200 leading-relaxed">
+              본 사이트는 결제 도입 시 Polar Merchant of Record 허용 범위(디지털 상품/소프트웨어) 내에서만 운영합니다.
+              물리적 상품, 오프라인·인력 제공 서비스, 불법 또는 고위험 카테고리(예: 성인·도박·무기·불법 약물 등) 관련 제휴/거래 요청은 접수되지 않습니다.
+              자세한 기준은
+              <a class="underline font-semibold" href="https://polar.sh/docs/merchant-of-record/acceptable-use" rel="noopener noreferrer" target="_blank">Polar Acceptable Use Policy</a>
+              를 확인해 주세요.
+            </p>
+          </div>
+          <div class="mb-6">
+            <a class="w-full inline-flex items-center justify-center gap-2 py-3 px-5 bg-gradient-to-r from-brand-purple to-brand-pink text-white font-bold rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl hover:shadow-purple-300 hover:-translate-y-0.5 transition-all duration-200" href="/pages/payment.html">
+              결제 화면으로 이동
+              <span class="material-symbols-outlined text-lg">arrow_forward</span>
+            </a>
+          </div>
           <form class="space-y-6" action="https://formspree.io/f/xojlpazr" method="POST" aria-label="제휴 문의 양식">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
@@ -162,6 +177,12 @@
               <input class="w-5 h-5 text-brand-purple border-slate-300 rounded focus:ring-brand-purple" id="privacy" required type="checkbox"/>
               <label class="text-sm text-slate-600 dark:text-slate-300 cursor-pointer select-none" for="privacy">
                 <a class="text-brand-purple hover:underline" href="/pages/privacy.html">개인정보 수집 및 이용</a>에 동의합니다.
+              </label>
+            </div>
+            <div class="flex items-start gap-3 py-2">
+              <input class="w-5 h-5 mt-0.5 text-brand-purple border-slate-300 rounded focus:ring-brand-purple" id="policy-compliance" name="policy_compliance" required type="checkbox" value="confirmed"/>
+              <label class="text-sm text-slate-600 dark:text-slate-300 cursor-pointer select-none leading-relaxed" for="policy-compliance">
+                본 문의가 물리적 상품/오프라인 또는 인력 제공 서비스/불법 또는 고위험 카테고리에 해당하지 않음을 확인합니다.
               </label>
             </div>
             <button class="w-full py-4 px-6 bg-gradient-to-r from-brand-purple to-brand-pink text-white font-bold rounded-xl shadow-lg shadow-purple-200 hover:shadow-xl hover:shadow-purple-300 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 text-lg" type="submit">

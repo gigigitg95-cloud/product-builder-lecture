@@ -1,0 +1,17 @@
+name = "ninanoo-polar-checkout"
+main = "src/index.ts"
+compatibility_date = "2026-02-15"
+workers_dev = true
+
+[vars]
+POLAR_MODE = "sandbox"
+DEFAULT_PRODUCT_ID = "45ee4c82-2396-44bd-8249-a577755cbf9e"
+ALLOWED_ORIGINS = "https://ninanoo.com,https://www.ninanoo.com,http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000,http://127.0.0.1:3000"
+ALLOWED_HOSTS = "api.ninanoo.com,localhost,127.0.0.1"
+AUTO_REFUND_ENABLED = "true"
+AUTO_REFUND_PRODUCT_IDS = "45ee4c82-2396-44bd-8249-a577755cbf9e"
+AUTO_REFUND_EMAIL_DOMAIN_DENYLIST = ""
+
+[[routes]]
+pattern = "api.ninanoo.com/*"
+zone_name = "ninanoo.com"
