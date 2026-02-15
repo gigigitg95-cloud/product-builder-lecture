@@ -531,6 +531,20 @@ function setSidebarNavLabel(id, label, iconName) {
 function applyTranslations() {
     const t = translations[currentLanguage] || translations['English'];
 
+    // Generic i18n pass for all nodes tagged with data-i18n.
+    const i18nNodes = document.querySelectorAll('[data-i18n]');
+    i18nNodes.forEach((node) => {
+        const key = node.dataset.i18n;
+        if (!key) return;
+        const value = getTranslation(key);
+        if (!value) return;
+        if (value.includes('<') && value.includes('>')) {
+            node.innerHTML = value;
+        } else {
+            node.textContent = value;
+        }
+    });
+
     // Update page title
     document.title = t.title;
 
@@ -663,17 +677,18 @@ function applyTranslations() {
     const popularTitle = document.getElementById('popular-title');
     if (popularTitle) popularTitle.textContent = getTranslation('popularMenuTitle');
 
-    const popularDesc = document.querySelector('.popular-menu-section .section-desc');
+    const popularSection = popularTitle ? popularTitle.closest('section') : null;
+    const popularDesc = popularSection?.querySelector('p[data-i18n="popularMenuDesc"]');
     if (popularDesc) popularDesc.textContent = getTranslation('popularMenuDesc');
 
-    const popularItems = document.querySelectorAll('.popular-menu-item');
-    popularItems.forEach((item) => {
-        const menuHeading = item.querySelector('h3[data-menu-key]');
+    const popularMenuInfos = popularSection?.querySelectorAll('.popular-menu-info') || [];
+    popularMenuInfos.forEach((info) => {
+        const menuHeading = info.querySelector('h3[data-menu-key]');
         if (menuHeading) {
             menuHeading.textContent = getMenuTranslation(menuHeading.dataset.menuKey);
         }
 
-        const desc = item.querySelector('p[data-i18n]');
+        const desc = info.querySelector('p[data-i18n]');
         if (desc) {
             desc.textContent = getTranslation(desc.dataset.i18n);
         }
@@ -683,22 +698,94 @@ function applyTranslations() {
     const deliveryTitle = document.getElementById('delivery-title');
     if (deliveryTitle) deliveryTitle.textContent = getTranslation('deliveryGuideTitle');
 
-    const deliveryDesc = document.querySelector('.delivery-section .section-desc');
+    const deliverySection = deliveryTitle ? deliveryTitle.closest('section') : null;
+    const deliveryDesc = deliverySection?.querySelector('p[data-i18n="deliveryGuideDesc"]');
     if (deliveryDesc) deliveryDesc.textContent = getTranslation('deliveryGuideDesc');
 
-    const deliveryCards = document.querySelectorAll('.delivery-card');
-    deliveryCards.forEach((card) => {
-        const name = card.querySelector('h3[data-i18n]');
-        if (name) name.textContent = getTranslation(name.dataset.i18n);
+    const deliveryNameNodes = deliverySection?.querySelectorAll('h3[data-i18n^="deliveryCat"][data-i18n$="Name"]') || [];
+    deliveryNameNodes.forEach((nameNode) => {
+        if (nameNode.dataset.i18n) {
+            nameNode.textContent = getTranslation(nameNode.dataset.i18n);
+        }
 
-        const desc = card.querySelector('p[data-i18n]');
-        if (desc) desc.textContent = getTranslation(desc.dataset.i18n);
+        const card = nameNode.closest('.bg-gray-50');
+        const desc = card?.querySelector('p[data-i18n^="deliveryCat"][data-i18n$="Desc"]');
+        if (desc?.dataset.i18n) {
+            desc.textContent = getTranslation(desc.dataset.i18n);
+        }
 
-        const tags = card.querySelectorAll('.delivery-menu-tag[data-menu-key]');
+        const tags = card?.querySelectorAll('.delivery-menu-tag[data-menu-key]') || [];
         tags.forEach((tag) => {
             tag.textContent = getMenuTranslation(tag.dataset.menuKey);
         });
     });
+
+    // Update Meal Time Guide: Lunch vs Dinner
+    const mealTimeTitle = document.getElementById('meal-time-title');
+    const mealDefaults = {
+        mealTimeTitle: '점심 메뉴 vs 저녁 메뉴 선택 가이드',
+        mealTimeDesc: '같은 음식이라도 점심과 저녁에 먹을 때 느낌이 다릅니다. 시간대에 맞는 메뉴를 선택해보세요.',
+        mealLunchTitle: '점심 메뉴 추천',
+        mealLunchDesc: '점심에는 오후 업무 효율을 위해 너무 무겁지 않으면서도 에너지를 보충할 수 있는 메뉴가 좋습니다. 소화가 잘 되고 빠르게 먹을 수 있는 메뉴를 선택하세요.',
+        mealLunchItem1: '<strong>백반/한정식:</strong> 균형 잡힌 영양소를 한 번에 섭취할 수 있는 가성비 메뉴',
+        mealLunchItem2: '<strong>국밥/국수:</strong> 빠르게 먹을 수 있고 속이 편한 국물 요리',
+        mealLunchItem3: '<strong>비빔밥/덮밥:</strong> 채소와 단백질을 함께 섭취할 수 있는 건강 메뉴',
+        mealLunchItem4: '<strong>샌드위치/샐러드:</strong> 가볍게 먹고 싶을 때 적합한 간편식',
+        mealLunchItem5: '<strong>돈카츠/우동:</strong> 적당한 양으로 든든한 점심 해결',
+        mealDinnerTitle: '저녁 메뉴 추천',
+        mealDinnerDesc: '저녁에는 하루의 피로를 풀 수 있는 든든하고 맛있는 메뉴가 좋습니다. 가족이나 친구와 함께 여유롭게 즐길 수 있는 메뉴를 선택하세요.',
+        mealDinnerItem1: '<strong>삼겹살/갈비:</strong> 가족 또는 친구와 함께 구워 먹는 고기 요리',
+        mealDinnerItem2: '<strong>찌개/전골:</strong> 추운 날 몸을 따뜻하게 해주는 국물 요리',
+        mealDinnerItem3: '<strong>치킨/피자:</strong> 편안하게 TV 보면서 즐기는 배달 메뉴',
+        mealDinnerItem4: '<strong>파스타/스테이크:</strong> 분위기 있는 데이트에 적합한 양식',
+        mealDinnerItem5: '<strong>회/초밥:</strong> 신선한 해산물로 특별한 저녁을 즐기는 메뉴',
+        mealTip1: '점심 메뉴를 선택할 때는 <strong>식사 시간</strong>을 고려하는 것이 중요합니다. 보통 직장인의 점심시간은 1시간 내외이므로, 주문 후 빠르게 나오는 메뉴가 좋습니다. 반면 저녁에는 시간 여유가 있으므로 조리 시간이 긴 메뉴도 충분히 즐길 수 있습니다.',
+        mealTip2: '<strong>다이어트 중이라면</strong> 점심은 가볍게, 저녁은 더 가볍게 먹는 것이 좋습니다. 점심에 탄수화물과 단백질을 충분히 섭취하고, 저녁에는 채소 위주의 가벼운 식사를 하면 건강한 식단 관리가 가능합니다.'
+    };
+    const getMealText = (key) => getTranslation(key) || mealDefaults[key] || '';
+    if (mealTimeTitle) {
+        mealTimeTitle.textContent = getMealText('mealTimeTitle');
+    }
+    const mealTimeSection = mealTimeTitle ? mealTimeTitle.closest('section') : null;
+    if (mealTimeSection) {
+        const sectionDesc = mealTimeSection.querySelector('.p-6 > p.text-sm');
+        if (sectionDesc) sectionDesc.textContent = getMealText('mealTimeDesc');
+
+        const cardsWrap = mealTimeSection.querySelector('.grid');
+        const cards = cardsWrap ? Array.from(cardsWrap.children) : [];
+
+        const lunchCard = cards[0];
+        if (lunchCard) {
+            const lunchTitle = lunchCard.querySelector('h3');
+            if (lunchTitle) lunchTitle.textContent = getMealText('mealLunchTitle');
+            const lunchDesc = lunchCard.querySelector('p.mb-3');
+            if (lunchDesc) lunchDesc.textContent = getMealText('mealLunchDesc');
+            const lunchItems = lunchCard.querySelectorAll('ul li span:last-child');
+            const lunchKeys = ['mealLunchItem1', 'mealLunchItem2', 'mealLunchItem3', 'mealLunchItem4', 'mealLunchItem5'];
+            lunchItems.forEach((item, idx) => {
+                const key = lunchKeys[idx];
+                if (key) item.innerHTML = getMealText(key);
+            });
+        }
+
+        const dinnerCard = cards[1];
+        if (dinnerCard) {
+            const dinnerTitle = dinnerCard.querySelector('h3');
+            if (dinnerTitle) dinnerTitle.textContent = getMealText('mealDinnerTitle');
+            const dinnerDesc = dinnerCard.querySelector('p.mb-3');
+            if (dinnerDesc) dinnerDesc.textContent = getMealText('mealDinnerDesc');
+            const dinnerItems = dinnerCard.querySelectorAll('ul li span:last-child');
+            const dinnerKeys = ['mealDinnerItem1', 'mealDinnerItem2', 'mealDinnerItem3', 'mealDinnerItem4', 'mealDinnerItem5'];
+            dinnerItems.forEach((item, idx) => {
+                const key = dinnerKeys[idx];
+                if (key) item.innerHTML = getMealText(key);
+            });
+        }
+
+        const tips = mealTimeSection.querySelectorAll('.mt-5 p');
+        if (tips[0]) tips[0].innerHTML = getMealText('mealTip1');
+        if (tips[1]) tips[1].innerHTML = getMealText('mealTip2');
+    }
 }
 
 // Select language
@@ -924,11 +1011,16 @@ function getBulletinTranslation(key) {
         'English': {
             title: 'Community Board',
             desc: 'What did you eat today? Share your food stories with others!',
+            formTitle: 'Write a Post',
+            nicknameLabel: 'Nickname',
             nicknamePlaceholder: 'Nickname',
+            messageLabel: 'Message',
             messagePlaceholder: 'Enter your message...',
             submit: 'Post',
             loading: 'Loading posts...',
             empty: 'No posts yet. Be the first to share!',
+            recentTitle: 'Recent Posts',
+            realtime: 'Real-time updates',
             justNow: 'Just now',
             minutesAgo: 'minutes ago',
             hoursAgo: 'hours ago',
@@ -937,11 +1029,16 @@ function getBulletinTranslation(key) {
         'Korean': {
             title: '커뮤니티 게시판',
             desc: '오늘 뭐 먹었나요? 다른 사용자들과 음식 이야기를 나눠보세요!',
+            formTitle: '게시글 작성하기',
+            nicknameLabel: '닉네임',
             nicknamePlaceholder: '닉네임',
+            messageLabel: '메시지',
             messagePlaceholder: '메시지를 입력하세요...',
             submit: '게시',
             loading: '게시물을 불러오는 중...',
             empty: '아직 게시물이 없습니다. 첫 번째로 공유해보세요!',
+            recentTitle: '최근 게시글',
+            realtime: '실시간 업데이트 중',
             justNow: '방금 전',
             minutesAgo: '분 전',
             hoursAgo: '시간 전',
@@ -950,11 +1047,16 @@ function getBulletinTranslation(key) {
         'Japanese': {
             title: 'コミュニティ掲示板',
             desc: '今日は何を食べましたか？他のユーザーと食べ物の話を共有しましょう！',
+            formTitle: '投稿を書く',
+            nicknameLabel: 'ニックネーム',
             nicknamePlaceholder: 'ニックネーム',
+            messageLabel: 'メッセージ',
             messagePlaceholder: 'メッセージを入力...',
             submit: '投稿',
             loading: '投稿を読み込み中...',
             empty: 'まだ投稿がありません。最初に共有してください！',
+            recentTitle: '最近の投稿',
+            realtime: 'リアルタイム更新中',
             justNow: 'たった今',
             minutesAgo: '分前',
             hoursAgo: '時間前',
@@ -963,11 +1065,16 @@ function getBulletinTranslation(key) {
         'Mandarin Chinese': {
             title: '社区留言板',
             desc: '今天吃了什么？与其他用户分享您的美食故事！',
+            formTitle: '撰写帖子',
+            nicknameLabel: '昵称',
             nicknamePlaceholder: '昵称',
+            messageLabel: '消息',
             messagePlaceholder: '输入您的消息...',
             submit: '发布',
             loading: '加载帖子中...',
             empty: '还没有帖子。成为第一个分享的人！',
+            recentTitle: '最近帖子',
+            realtime: '实时更新中',
             justNow: '刚刚',
             minutesAgo: '分钟前',
             hoursAgo: '小时前',
@@ -976,11 +1083,16 @@ function getBulletinTranslation(key) {
         'Spanish': {
             title: 'Tablón Comunitario',
             desc: '¿Qué comiste hoy? ¡Comparte tus historias de comida con otros!',
+            formTitle: 'Escribir una publicación',
+            nicknameLabel: 'Apodo',
             nicknamePlaceholder: 'Apodo',
+            messageLabel: 'Mensaje',
             messagePlaceholder: 'Escribe tu mensaje...',
             submit: 'Publicar',
             loading: 'Cargando publicaciones...',
             empty: 'Aún no hay publicaciones. ¡Sé el primero en compartir!',
+            recentTitle: 'Publicaciones recientes',
+            realtime: 'Actualizaciones en tiempo real',
             justNow: 'Justo ahora',
             minutesAgo: 'minutos atrás',
             hoursAgo: 'horas atrás',
@@ -1167,6 +1279,17 @@ function updateBulletinTranslations() {
     if (bulletinMessage) bulletinMessage.placeholder = getBulletinTranslation('messagePlaceholder');
     if (bulletinSubmit) bulletinSubmit.querySelector('span').textContent = getBulletinTranslation('submit');
     if (bulletinLoading) bulletinLoading.textContent = getBulletinTranslation('loading');
+
+    const formTitle = document.getElementById('bulletin-form-title');
+    if (formTitle) formTitle.textContent = getBulletinTranslation('formTitle');
+    const nicknameLabel = document.getElementById('bulletin-nickname-label');
+    if (nicknameLabel) nicknameLabel.textContent = getBulletinTranslation('nicknameLabel');
+    const messageLabel = document.getElementById('bulletin-message-label');
+    if (messageLabel) messageLabel.textContent = getBulletinTranslation('messageLabel');
+    const recentTitle = document.getElementById('bulletin-recent-title');
+    if (recentTitle) recentTitle.textContent = getBulletinTranslation('recentTitle');
+    const realtime = document.getElementById('bulletin-realtime');
+    if (realtime) realtime.textContent = getBulletinTranslation('realtime');
 
     // Refresh posts to update time format
     const emptyEl = bulletinPosts?.querySelector('.bulletin-empty');
@@ -1648,7 +1771,9 @@ function spinSlotMachine() {
             reel.appendChild(item);
         });
 
-        const itemHeight = 60;
+        // Use actual rendered item height so mobile breakpoints don't desync reel positions.
+        const sampleItem = reel.querySelector('.slot-item');
+        const itemHeight = sampleItem ? sampleItem.getBoundingClientRect().height : 60;
         const targetOffset = (totalItems) * itemHeight;
 
         reel.style.transition = 'none';
@@ -1717,6 +1842,15 @@ function updateRouletteTranslations() {
     updateSlotTranslations();
     updateSituationTranslations();
     updateSeasonalTranslations();
+    updateHomeCookingTranslations();
+    updateBreakfastTranslations();
+    updateCalorieTranslations();
+    updateMenuInfoTranslations();
+    updateFaqTranslations();
+    updateCategoriesGuideTranslations();
+    updateFooterTranslations();
+    updateSidebarTranslations();
+    updateGameTabTranslations();
     updateShareTranslations();
 }
 
@@ -1918,50 +2052,50 @@ const situationData = {
     'English': {
         title: 'Situation-Based Recommendations',
         desc: 'What situation are you in? We\'ll recommend the perfect menu!',
-        solo: { title: 'Solo Dining', menus: ['Ramen', 'Kimbap', 'Rice Bowl', 'Noodles'] },
-        family: { title: 'Family Dinner', menus: ['Pork Belly', 'Braised Ribs', 'Stew', 'Bulgogi'] },
-        friends: { title: 'Friends Gathering', menus: ['Chicken', 'Pizza', 'Pork Feet', 'Tteokbokki'] },
-        office: { title: 'Office Party', menus: ['BBQ Grill', 'Seafood Stew', 'Shabu-shabu', 'Ribs'] },
-        date: { title: 'Date Night', menus: ['Pasta', 'Steak', 'Sushi', 'Risotto'] },
-        quick: { title: 'Quick Meal', menus: ['Sandwich', 'Kimbap', 'Cup Noodle', 'Toast'] },
-        diet: { title: 'Diet', menus: ['Salad', 'Chicken Breast', 'Poke', 'Konjac'] },
-        drinking: { title: 'Bar Snacks', menus: ['Chicken', 'Tripe', 'Sashimi', 'Pancake'] }
+        solo: { title: 'Solo Dining', menus: ['Ramen', 'Kimbap', 'Rice Bowl', 'Noodles', 'Udon', 'Bibimbap', 'Curry Rice', 'Onigiri'] },
+        family: { title: 'Family Dinner', menus: ['Pork Belly', 'Braised Ribs', 'Stew', 'Bulgogi', 'Chicken Stew', 'Soybean Stew', 'Shabu-shabu', 'Bossam'] },
+        friends: { title: 'Friends Gathering', menus: ['Chicken', 'Pizza', 'Pork Feet', 'Tteokbokki', 'Malatang', 'Sundae', 'Chicken Feet', 'Pasta'] },
+        office: { title: 'Office Party', menus: ['BBQ Grill', 'Seafood Stew', 'Shabu-shabu', 'Ribs', 'Sashimi', 'Braised Monkfish', 'Stir-fried Octopus', 'Skewers'] },
+        date: { title: 'Date Night', menus: ['Pasta', 'Steak', 'Sushi', 'Risotto', 'Paella', 'Lamb Chops', 'Course Meal', 'Wine Pairing'] },
+        quick: { title: 'Quick Meal', menus: ['Sandwich', 'Kimbap', 'Cup Noodle', 'Toast', 'Bagel', 'Cereal', 'Dumplings', 'Salad Wrap'] },
+        diet: { title: 'Diet', menus: ['Salad', 'Chicken Breast', 'Poke', 'Konjac', 'Tofu Bowl', 'Salmon Salad', 'Greek Yogurt', 'Egg Whites'] },
+        drinking: { title: 'Bar Snacks', menus: ['Chicken', 'Tripe', 'Sashimi', 'Pancake', 'Braised Seafood', 'Noodles', 'Fish Cake Soup', 'Jokbal'] }
     },
     'Korean': {
         title: '상황별 메뉴 추천',
         desc: '어떤 상황인가요? 딱 맞는 메뉴를 추천해드려요!',
-        solo: { title: '혼밥', menus: ['라멘', '김밥', '덮밥', '국수'] },
-        family: { title: '가족 식사', menus: ['삼겹살', '갈비찜', '찌개', '불고기'] },
-        friends: { title: '친구 모임', menus: ['치킨', '피자', '족발', '떡볶이'] },
-        office: { title: '회식', menus: ['고기구이', '해물탕', '샤브샤브', '갈비'] },
-        date: { title: '데이트', menus: ['파스타', '스테이크', '초밥', '리조또'] },
-        quick: { title: '간편식', menus: ['샌드위치', '김밥', '컵라면', '토스트'] },
-        diet: { title: '다이어트', menus: ['샐러드', '닭가슴살', '포케', '곤약'] },
-        drinking: { title: '술안주', menus: ['치킨', '곱창', '회', '전'] }
+        solo: { title: '혼밥', menus: ['라멘', '김밥', '덮밥', '국수', '우동', '비빔밥', '카레라이스', '주먹밥'] },
+        family: { title: '가족 식사', menus: ['삼겹살', '갈비찜', '찌개', '불고기', '찜닭', '된장찌개', '샤브샤브', '보쌈'] },
+        friends: { title: '친구 모임', menus: ['치킨', '피자', '족발', '떡볶이', '마라탕', '순대', '닭발', '파스타'] },
+        office: { title: '회식', menus: ['고기구이', '해물탕', '샤브샤브', '갈비', '회', '아구찜', '낙지볶음', '꼬치구이'] },
+        date: { title: '데이트', menus: ['파스타', '스테이크', '초밥', '리조또', '빠에야', '양갈비', '코스요리', '와인페어링'] },
+        quick: { title: '간편식', menus: ['샌드위치', '김밥', '컵라면', '토스트', '베이글', '시리얼', '만두', '샐러드랩'] },
+        diet: { title: '다이어트', menus: ['샐러드', '닭가슴살', '포케', '곤약', '두부볼', '연어샐러드', '그릭요거트', '에그화이트'] },
+        drinking: { title: '술안주', menus: ['치킨', '곱창', '회', '전', '해물찜', '국물떡볶이', '오뎅탕', '족발'] }
     },
     'Japanese': {
         title: 'シーン別おすすめ',
         desc: 'どんなシチュエーションですか？ぴったりのメニューをおすすめします！',
-        solo: { title: 'ひとりご飯', menus: ['ラーメン', 'キンパ', '丼物', 'そば'] },
-        family: { title: '家族の食事', menus: ['サムギョプサル', '煮込み', 'チゲ', 'プルコギ'] },
-        friends: { title: '友達の集まり', menus: ['チキン', 'ピザ', '豚足', 'トッポッキ'] },
-        office: { title: '会食', menus: ['焼肉', '海鮮鍋', 'しゃぶしゃぶ', 'カルビ'] },
-        date: { title: 'デート', menus: ['パスタ', 'ステーキ', '寿司', 'リゾット'] },
-        quick: { title: '軽食', menus: ['サンドイッチ', 'キンパ', 'カップ麺', 'トースト'] },
-        diet: { title: 'ダイエット', menus: ['サラダ', 'チキンブレスト', 'ポケ', 'こんにゃく'] },
-        drinking: { title: 'おつまみ', menus: ['チキン', 'ホルモン', '刺身', 'チヂミ'] }
+        solo: { title: 'ひとりご飯', menus: ['ラーメン', 'キンパ', '丼物', 'そば', 'うどん', 'ビビンバ', 'カレーライス', 'おにぎり'] },
+        family: { title: '家族の食事', menus: ['サムギョプサル', '煮込み', 'チゲ', 'プルコギ', 'タッカルビ', '味噌チゲ', 'しゃぶしゃぶ', 'ポッサム'] },
+        friends: { title: '友達の集まり', menus: ['チキン', 'ピザ', '豚足', 'トッポッキ', 'マーラータン', 'スンデ', '鶏足', 'パスタ'] },
+        office: { title: '会食', menus: ['焼肉', '海鮮鍋', 'しゃぶしゃぶ', 'カルビ', '刺身', 'あんこう蒸し', 'タコ炒め', '串焼き'] },
+        date: { title: 'デート', menus: ['パスタ', 'ステーキ', '寿司', 'リゾット', 'パエリア', 'ラムチョップ', 'コース料理', 'ワインペアリング'] },
+        quick: { title: '軽食', menus: ['サンドイッチ', 'キンパ', 'カップ麺', 'トースト', 'ベーグル', 'シリアル', '餃子', 'サラダラップ'] },
+        diet: { title: 'ダイエット', menus: ['サラダ', 'チキンブレスト', 'ポケ', 'こんにゃく', '豆腐ボウル', 'サーモンサラダ', 'ギリシャヨーグルト', '卵白'] },
+        drinking: { title: 'おつまみ', menus: ['チキン', 'ホルモン', '刺身', 'チヂミ', '海鮮蒸し', 'スープトッポッキ', 'おでん鍋', '豚足'] }
     },
     'Mandarin Chinese': {
         title: '场景推荐',
         desc: '您在什么场景下用餐？推荐最合适的菜单！',
-        solo: { title: '独食', menus: ['拉面', '紫菜包饭', '盖饭', '面条'] },
-        family: { title: '家庭聚餐', menus: ['五花肉', '炖排骨', '汤锅', '烤肉'] },
-        friends: { title: '朋友聚会', menus: ['炸鸡', '披萨', '猪蹄', '辣炒年糕'] },
-        office: { title: '公司聚餐', menus: ['烤肉', '海鲜锅', '涮锅', '排骨'] },
-        date: { title: '约会', menus: ['意面', '牛排', '寿司', '烩饭'] },
-        quick: { title: '简餐', menus: ['三明治', '紫菜包饭', '杯面', '吐司'] },
-        diet: { title: '减肥餐', menus: ['沙拉', '鸡胸肉', '波奇', '魔芋'] },
-        drinking: { title: '下酒菜', menus: ['炸鸡', '大肠', '生鱼片', '煎饼'] }
+        solo: { title: '独食', menus: ['拉面', '紫菜包饭', '盖饭', '面条', '乌冬面', '拌饭', '咖喱饭', '饭团'] },
+        family: { title: '家庭聚餐', menus: ['五花肉', '炖排骨', '汤锅', '烤肉', '炖鸡', '大酱汤', '涮锅', '菜包肉'] },
+        friends: { title: '朋友聚会', menus: ['炸鸡', '披萨', '猪蹄', '辣炒年糕', '麻辣烫', '米肠', '辣鸡爪', '意面'] },
+        office: { title: '公司聚餐', menus: ['烤肉', '海鲜锅', '涮锅', '排骨', '刺身', '安康鱼蒸', '炒章鱼', '串烧'] },
+        date: { title: '约会', menus: ['意面', '牛排', '寿司', '烩饭', '海鲜饭', '羊排', '套餐料理', '红酒搭配'] },
+        quick: { title: '简餐', menus: ['三明治', '紫菜包饭', '杯面', '吐司', '贝果', '麦片', '饺子', '沙拉卷'] },
+        diet: { title: '减肥餐', menus: ['沙拉', '鸡胸肉', '波奇', '魔芋', '豆腐碗', '三文鱼沙拉', '希腊酸奶', '蛋白'] },
+        drinking: { title: '下酒菜', menus: ['炸鸡', '大肠', '生鱼片', '煎饼', '海鲜蒸', '汤年糕', '鱼饼汤', '猪蹄'] }
     }
 };
 
@@ -2044,16 +2178,712 @@ function updateSeasonalTranslations() {
         const seasonKey = seasons[index];
         if (!seasonKey || !lang[seasonKey]) return;
 
-        const titleSpan = card.querySelector('.seasonal-card-title');
-        if (titleSpan) titleSpan.textContent = lang[seasonKey].title;
+        const titleNode = card.querySelector('h3');
+        if (titleNode) titleNode.textContent = lang[seasonKey].title;
 
-        const listItems = card.querySelectorAll('.seasonal-menu-list li');
+        const listItems = card.querySelectorAll('li');
         listItems.forEach((li, liIndex) => {
             if (lang[seasonKey].menus[liIndex]) {
-                li.textContent = lang[seasonKey].menus[liIndex];
+                const marker = li.querySelector('span');
+                if (marker) {
+                    // Preserve the bullet marker and only replace menu text.
+                    li.innerHTML = `${marker.outerHTML}${lang[seasonKey].menus[liIndex]}`;
+                } else {
+                    li.textContent = lang[seasonKey].menus[liIndex];
+                }
             }
         });
     });
+}
+
+// ============ HOME COOKING RECOMMENDATIONS ============
+
+const homeCookingData = {
+    'English': {
+        title: 'Home Cooking Recommendations',
+        desc: 'Cook at home instead of eating out or ordering delivery. Here are easy home-cooked meals even beginners can make.',
+        items: [
+            { title: 'Egg Fried Rice', desc: 'A super simple dish you can whip up with leftover rice and eggs. Add leftover veggies for extra nutrition! Season with soy sauce or oyster sauce for restaurant-quality flavor. About 10 minutes to cook.' },
+            { title: 'Doenjang Jjigae', desc: 'A classic Korean soup made with basic ingredients like tofu, potatoes, zucchini, and onions. Add 2 tablespoons of doenjang and half a tablespoon of gochujang for rich flavor. A hearty meal with a bowl of rice.' },
+            { title: 'Aglio e Olio', desc: 'A simple pasta you can make with just garlic, olive oil, and peperoncino. Prepare the sauce while boiling the noodles and it\'s done in 15 minutes. The key is adding a bit of pasta water to emulsify.' },
+            { title: 'Tuna Mayo Rice Bowl', desc: 'A super easy dish ready in 5 minutes with canned tuna, mayo, and a bit of soy sauce. Top rice with tuna mayo, sprinkle seaweed flakes and sesame seeds, and done! Surprisingly addictive.' },
+            { title: 'Ramen + Egg + Rice', desc: 'Korea\'s #1 late-night snack or quick meal. Add an egg to ramen and mix in rice for a meal more satisfying than any fancy dish. Add green onions and kimchi for extra flavor.' },
+            { title: 'Bulgogi', desc: 'A signature Korean dish made by marinating beef in soy sauce, sugar, pear juice, and garlic, then stir-frying. Add onions, mushrooms, and carrots for a balanced meal. Kids love the sweet flavor.' }
+        ]
+    },
+    'Korean': {
+        title: '집밥 요리 추천',
+        desc: '외식이나 배달 대신 집에서 직접 요리해보세요. 초보자도 쉽게 만들 수 있는 집밥 메뉴를 소개합니다.',
+        items: [
+            { title: '계란볶음밥', desc: '찬밥과 계란만 있으면 뚝딱 만들 수 있는 초간단 메뉴. 냉장고에 남은 채소를 넣으면 영양도 UP! 간장이나 굴소스로 간을 하면 식당 못지않은 맛을 낼 수 있습니다. 조리 시간 약 10분.' },
+            { title: '된장찌개', desc: '두부, 감자, 호박, 양파 등 기본 재료로 만드는 한국의 대표 국물 요리. 된장 2큰술과 고추장 반 큰술을 넣으면 깊은 맛이 납니다. 밥 한 공기와 함께 먹으면 든든한 한 끼 완성입니다.' },
+            { title: '알리오올리오', desc: '마늘, 올리브 오일, 페퍼론치노만 있으면 만들 수 있는 심플한 파스타. 면을 삶는 동안 소스를 준비하면 15분 안에 완성됩니다. 면수를 약간 넣어 유화시키는 것이 맛의 핵심 포인트입니다.' },
+            { title: '참치마요 덮밥', desc: '참치캔과 마요네즈, 간장 약간만 있으면 5분 만에 완성되는 초간단 메뉴. 밥 위에 참치마요를 올리고 김가루, 깨를 뿌리면 끝! 의외로 맛있어서 자꾸 만들게 되는 중독성 있는 메뉴입니다.' },
+            { title: '라면 + 계란 + 밥', desc: '한국인의 야식 or 간편식 1위. 라면에 계란을 넣고 밥을 말아 먹으면 그 어떤 고급 요리보다 만족스러운 한 끼가 됩니다. 파, 김치를 곁들이면 더욱 풍미가 살아납니다.' },
+            { title: '불고기', desc: '소고기를 간장, 설탕, 배즙, 마늘로 양념해 재워두었다가 볶으면 완성되는 한식 대표 메뉴. 양파, 버섯, 당근을 함께 볶으면 채소까지 골고루 섭취할 수 있습니다. 아이들도 좋아하는 달콤한 맛입니다.' }
+        ]
+    },
+    'Japanese': {
+        title: 'おうちごはんおすすめ',
+        desc: '外食やデリバリーの代わりに自炊してみましょう。初心者でも簡単に作れるメニューを紹介します。',
+        items: [
+            { title: '卵チャーハン', desc: '残りご飯と卵があればパパッと作れる超簡単メニュー。冷蔵庫の残り野菜を入れれば栄養もアップ！醤油やオイスターソースで味付けすればお店顔負けの味に。調理時間約10分。' },
+            { title: 'テンジャンチゲ', desc: '豆腐、じゃがいも、ズッキーニ、玉ねぎなど基本材料で作る韓国の代表的なスープ料理。テンジャン大さじ2とコチュジャン大さじ半分で深い味わいに。ご飯と一緒にどうぞ。' },
+            { title: 'アーリオ・オーリオ', desc: 'にんにく、オリーブオイル、ペペロンチーノだけで作れるシンプルパスタ。麺を茹でている間にソースを準備すれば15分で完成。茹で汁を少し加えて乳化させるのがポイント。' },
+            { title: 'ツナマヨ丼', desc: 'ツナ缶とマヨネーズ、醤油少々で5分で完成の超簡単メニュー。ご飯の上にツナマヨを乗せて海苔とごまを振るだけ！意外とクセになるおいしさです。' },
+            { title: 'ラーメン＋卵＋ご飯', desc: '韓国人の夜食・軽食第1位。ラーメンに卵を入れてご飯を混ぜれば、どんな高級料理より満足な一食に。ねぎやキムチを添えるとさらに風味アップ。' },
+            { title: 'プルコギ', desc: '牛肉を醤油、砂糖、梨汁、にんにくで味付けして漬け込み、炒めるだけの韓国代表メニュー。玉ねぎ、きのこ、にんじんと一緒に炒めれば野菜もバランスよく摂れます。' }
+        ]
+    },
+    'Mandarin Chinese': {
+        title: '家常菜推荐',
+        desc: '不用外食或叫外卖，在家自己做饭吧。介绍初学者也能轻松制作的家常菜。',
+        items: [
+            { title: '蛋炒饭', desc: '只要有剩饭和鸡蛋就能快速做出的超简单菜品。放入冰箱里剩余的蔬菜营养更丰富！用酱油或蚝油调味，味道不输餐厅。烹饪时间约10分钟。' },
+            { title: '大酱汤', desc: '用豆腐、土豆、南瓜、洋葱等基本食材制作的韩国代表汤品。加入2大勺大酱和半大勺辣酱，味道醇厚。配一碗米饭就是丰盛的一餐。' },
+            { title: '蒜香意面', desc: '只需大蒜、橄榄油和辣椒就能做的简单意面。煮面的同时准备酱料，15分钟内完成。加入少许面汤乳化是美味的关键。' },
+            { title: '金枪鱼蛋黄酱盖饭', desc: '金枪鱼罐头、蛋黄酱和少许酱油，5分钟就能完成的超简单菜品。在米饭上放金枪鱼蛋黄酱，撒上海苔和芝麻就完成了！令人上瘾的美味。' },
+            { title: '泡面+鸡蛋+米饭', desc: '韩国人的夜宵/简餐第一名。在泡面里加鸡蛋，拌入米饭，比任何高级料理都让人满足。加入葱和泡菜风味更佳。' },
+            { title: '烤肉', desc: '将牛肉用酱油、糖、梨汁、大蒜腌制后炒制的韩式代表菜。加入洋葱、蘑菇、胡萝卜一起炒，蔬菜营养均衡摄入。孩子们也喜欢的甜味。' }
+        ]
+    }
+};
+
+function updateHomeCookingTranslations() {
+    const lang = homeCookingData[currentLanguage] || homeCookingData['English'];
+    const titleEl = document.getElementById('home-cooking-title');
+    const descEl = document.getElementById('home-cooking-desc');
+
+    if (titleEl) titleEl.textContent = lang.title;
+    if (descEl) descEl.textContent = lang.desc;
+
+    const cards = document.querySelectorAll('.home-cooking-card');
+    cards.forEach((card, index) => {
+        if (!lang.items[index]) return;
+        const h3 = card.querySelector('h3');
+        if (h3) h3.textContent = lang.items[index].title;
+        const p = card.querySelector('p');
+        if (p) p.textContent = lang.items[index].desc;
+    });
+}
+
+// ============ BREAKFAST RECOMMENDATIONS ============
+
+const breakfastData = {
+    'English': {
+        title: 'Breakfast Menu Recommendations',
+        desc: 'Eat healthy even on busy mornings! Here are simple yet nutritious breakfast menus.',
+        cards: [
+            {
+                title: 'Korean Breakfast',
+                desc: 'A traditional Korean breakfast consists of rice, soup, and side dishes. It\'s easy to prepare and nutritionally balanced.',
+                menus: ['Seaweed Soup + Rice + Fried Egg', 'Bean Sprout Soup Rice (easy on stomach, good for hangovers)', 'Kimchi Fried Rice + Fried Egg', 'Porridge (abalone, pumpkin, vegetable, etc.)', 'Toast + Egg Roll + Milk']
+            },
+            {
+                title: 'Western Breakfast',
+                desc: 'Western breakfast is based on bread and coffee with various combinations. Great for quick and easy mornings.',
+                menus: ['Toast + Scrambled Eggs + Bacon', 'Cereal + Milk + Fruit', 'Oatmeal + Nuts + Honey', 'Pancakes + Maple Syrup', 'Greek Yogurt + Granola + Blueberries']
+            },
+            {
+                title: 'Quick Breakfast',
+                desc: 'Menus that take 1-5 minutes for time-pressed mornings. Short prep time but enough for an energy boost.',
+                menus: ['Banana + Milk (quickest nutrition)', 'Bread + Jam + Coffee', 'Energy Bar + Juice', '2 Boiled Eggs + Fruit', 'Reheat yesterday\'s leftovers']
+            }
+        ],
+        tipTitle: 'Importance of Breakfast:',
+        tipText: 'Skipping breakfast leads to poor concentration in the morning and overeating at lunch. Even a simple breakfast habit can make or break your daily condition. Experts recommend a balanced breakfast with carbs, protein, and fruit.'
+    },
+    'Korean': {
+        title: '아침 메뉴 추천',
+        desc: '바쁜 아침에도 건강하게! 간편하면서도 영양 가득한 아침 메뉴를 소개합니다.',
+        cards: [
+            {
+                title: '한식 아침',
+                desc: '전통적인 한식 아침은 밥, 국, 반찬으로 구성됩니다. 간단하게 준비하면서도 영양 균형이 좋은 것이 장점입니다.',
+                menus: ['미역국 + 흰 쌀밥 + 계란 프라이', '콩나물국밥 (속이 편하고 해장에도 좋음)', '김치볶음밥 + 계란 후라이', '죽 (전복죽, 호박죽, 야채죽 등)', '토스트 + 계란말이 + 우유']
+            },
+            {
+                title: '양식 아침',
+                desc: '서양식 아침은 빵과 커피를 기본으로 다양한 조합이 가능합니다. 바쁜 아침에 간편하게 즐길 수 있는 것이 장점입니다.',
+                menus: ['토스트 + 스크램블 에그 + 베이컨', '시리얼 + 우유 + 과일', '오트밀 + 견과류 + 꿀', '팬케이크 + 메이플 시럽', '그릭 요거트 + 그래놀라 + 블루베리']
+            },
+            {
+                title: '초간편 아침',
+                desc: '시간이 없는 아침을 위한 1분~5분 완성 메뉴입니다. 준비 시간은 짧지만 에너지 보충에는 충분합니다.',
+                menus: ['바나나 + 우유 (가장 빠른 영양 보충)', '식빵 + 잼 + 커피', '에너지바 + 주스', '삶은 달걀 2개 + 과일', '전날 남은 음식 데워 먹기']
+            }
+        ],
+        tipTitle: '아침 식사의 중요성:',
+        tipText: '아침을 거르면 오전 집중력이 떨어지고 점심에 과식하게 되는 악순환이 반복됩니다. 간단하더라도 아침을 챙겨 먹는 습관이 하루의 컨디션을 좌우합니다. 전문가들은 탄수화물, 단백질, 과일을 균형 있게 포함한 아침 식사를 권장합니다.'
+    },
+    'Japanese': {
+        title: '朝食メニューおすすめ',
+        desc: '忙しい朝でも健康的に！簡単で栄養たっぷりの朝食メニューを紹介します。',
+        cards: [
+            {
+                title: '和食の朝ごはん',
+                desc: '伝統的な和食の朝ごはんはご飯、味噌汁、おかずで構成されます。簡単に準備でき、栄養バランスが良いのが魅力です。',
+                menus: ['わかめスープ + ご飯 + 目玉焼き', 'もやしクッパ（胃に優しく二日酔いにも効く）', 'キムチチャーハン + 目玉焼き', 'お粥（アワビ粥、カボチャ粥、野菜粥など）', 'トースト + 卵焼き + 牛乳']
+            },
+            {
+                title: '洋食の朝ごはん',
+                desc: '洋食の朝ごはんはパンとコーヒーをベースに様々な組み合わせが可能です。忙しい朝に手軽に楽しめるのが魅力です。',
+                menus: ['トースト + スクランブルエッグ + ベーコン', 'シリアル + 牛乳 + フルーツ', 'オートミール + ナッツ + はちみつ', 'パンケーキ + メープルシロップ', 'ギリシャヨーグルト + グラノーラ + ブルーベリー']
+            },
+            {
+                title: '超簡単朝ごはん',
+                desc: '時間がない朝のための1分～5分で完成するメニューです。準備時間は短いですがエネルギー補充には十分です。',
+                menus: ['バナナ + 牛乳（最速の栄養補給）', '食パン + ジャム + コーヒー', 'エナジーバー + ジュース', 'ゆで卵2個 + フルーツ', '前日の残り物を温めて食べる']
+            }
+        ],
+        tipTitle: '朝食の重要性：',
+        tipText: '朝食を抜くと午前中の集中力が低下し、昼食で食べ過ぎる悪循環が繰り返されます。簡単でも朝食を食べる習慣が一日のコンディションを左右します。専門家は炭水化物、タンパク質、果物をバランスよく含む朝食を推奨しています。'
+    },
+    'Mandarin Chinese': {
+        title: '早餐菜单推荐',
+        desc: '忙碌的早晨也要健康！介绍简单又营养丰富的早餐菜单。',
+        cards: [
+            {
+                title: '中式早餐',
+                desc: '传统中式早餐由米饭、汤和小菜组成。简单准备的同时营养均衡是其优点。',
+                menus: ['海带汤 + 白米饭 + 煎蛋', '豆芽汤饭（养胃，解酒也好）', '泡菜炒饭 + 煎蛋', '粥（鲍鱼粥、南瓜粥、蔬菜粥等）', '吐司 + 鸡蛋卷 + 牛奶']
+            },
+            {
+                title: '西式早餐',
+                desc: '西式早餐以面包和咖啡为基础，可以有多种搭配。适合忙碌早晨的便捷选择。',
+                menus: ['吐司 + 炒蛋 + 培根', '麦片 + 牛奶 + 水果', '燕麦 + 坚果 + 蜂蜜', '煎饼 + 枫糖浆', '希腊酸奶 + 格兰诺拉 + 蓝莓']
+            },
+            {
+                title: '超快速早餐',
+                desc: '为没有时间的早晨准备的1分钟~5分钟速成菜单。准备时间短但足以补充能量。',
+                menus: ['香蕉 + 牛奶（最快的营养补充）', '面包 + 果酱 + 咖啡', '能量棒 + 果汁', '2个水煮蛋 + 水果', '加热前一天的剩菜']
+            }
+        ],
+        tipTitle: '早餐的重要性：',
+        tipText: '不吃早餐会导致上午注意力下降，午餐暴饮暴食的恶性循环。即使简单也要养成吃早餐的习惯，这决定了一天的状态。专家建议早餐均衡搭配碳水化合物、蛋白质和水果。'
+    }
+};
+
+function updateBreakfastTranslations() {
+    const lang = breakfastData[currentLanguage] || breakfastData['English'];
+    const titleEl = document.getElementById('breakfast-title');
+    const descEl = document.getElementById('breakfast-desc');
+    const tipTitleEl = document.getElementById('breakfast-tip-title');
+    const tipTextEl = document.getElementById('breakfast-tip-text');
+
+    if (titleEl) titleEl.textContent = lang.title;
+    if (descEl) descEl.textContent = lang.desc;
+    if (tipTitleEl) tipTitleEl.textContent = lang.tipTitle;
+    if (tipTextEl) tipTextEl.textContent = lang.tipText;
+
+    const cards = document.querySelectorAll('.breakfast-card');
+    cards.forEach((card, index) => {
+        if (!lang.cards[index]) return;
+        const h3 = card.querySelector('h3');
+        if (h3) h3.textContent = lang.cards[index].title;
+        const p = card.querySelector('p');
+        if (p) p.textContent = lang.cards[index].desc;
+        const items = card.querySelectorAll('li');
+        items.forEach((li, liIndex) => {
+            if (lang.cards[index].menus[liIndex]) {
+                const marker = li.querySelector('span');
+                if (marker) {
+                    li.innerHTML = `${marker.outerHTML}${lang.cards[index].menus[liIndex]}`;
+                } else {
+                    li.textContent = lang.cards[index].menus[liIndex];
+                }
+            }
+        });
+    });
+}
+
+// ============ CALORIE GUIDE ============
+
+const calorieData = {
+    'English': {
+        title: 'Menu Calorie Guide',
+        desc: 'Knowing the approximate calories per menu helps with healthy diet management. (Per serving)',
+        headers: ['Menu', 'Calories (kcal)', 'Category', 'Notes'],
+        rows: [
+            { menu: 'Salad (with dressing)', cal: '200~350', cat: 'Low-cal', catClass: 'green', note: 'Recommended for dieting, add protein' },
+            { menu: 'Bibimbap', cal: '500~600', cat: 'Medium', catClass: 'amber', note: 'Rich in vegetables, balanced nutrition' },
+            { menu: 'Kimchi Stew + Rice', cal: '450~550', cat: 'Medium', catClass: 'amber', note: 'Watch sodium, rich in protein' },
+            { menu: 'Tonkatsu', cal: '700~900', cat: 'High-cal', catClass: 'red', note: 'Fried dish, very filling' },
+            { menu: 'Pork Belly (1 serving)', cal: '500~700', cat: 'Medium', catClass: 'amber', note: 'Eat with lettuce wraps for balance' },
+            { menu: 'Chicken (half)', cal: '600~800', cat: 'High-cal', catClass: 'red', note: 'Fried slightly higher than seasoned' },
+            { menu: 'Jajangmyeon', cal: '650~750', cat: 'Medium', catClass: 'amber', note: 'Carb-heavy, may lack vegetables' },
+            { menu: 'Ramen', cal: '500~700', cat: 'Medium', catClass: 'amber', note: 'High sodium, adjust by broth amount' },
+            { menu: 'Pasta (cream)', cal: '700~900', cat: 'High-cal', catClass: 'red', note: 'Oil pasta is lower in calories' },
+            { menu: 'Cold Noodles', cal: '400~500', cat: 'Low-cal', catClass: 'green', note: 'Cool summer dish, spicy version is higher' },
+            { menu: 'Chicken Breast Salad', cal: '250~400', cat: 'Low-cal', catClass: 'green', note: 'High protein, low fat, ideal for diet' },
+            { menu: 'Tteokbokki', cal: '400~550', cat: 'Medium', catClass: 'amber', note: 'High carbs, increases with fried additions' }
+        ],
+        tip1prefix: 'The calorie information above is approximate per serving. Actual calories may vary depending on cooking method, ingredient amounts, and sauces. ',
+        tip1bold: 'Recommended daily calories for healthy adults: ~2,500kcal for men, ~2,000kcal for women',
+        tip1suffix: ', varying by activity level.',
+        tip2: 'For dieting, aim for 500-600kcal per meal. Rather than just cutting calories, balancing nutrients like protein, fiber, and vitamins is more important.'
+    },
+    'Korean': {
+        title: '주요 메뉴 칼로리 가이드',
+        desc: '메뉴별 대략적인 칼로리를 알아두면 건강한 식단 관리에 도움이 됩니다. (1인분 기준)',
+        headers: ['메뉴', '칼로리 (kcal)', '분류', '특징'],
+        rows: [
+            { menu: '샐러드 (드레싱 포함)', cal: '200~350', cat: '저칼로리', catClass: 'green', note: '다이어트 시 추천, 단백질 추가 권장' },
+            { menu: '비빔밥', cal: '500~600', cat: '중간', catClass: 'amber', note: '채소 풍부, 균형 잡힌 영양' },
+            { menu: '김치찌개 + 밥', cal: '450~550', cat: '중간', catClass: 'amber', note: '나트륨 주의, 단백질 풍부' },
+            { menu: '돈카츠', cal: '700~900', cat: '고칼로리', catClass: 'red', note: '튀김 요리, 포만감 높음' },
+            { menu: '삼겹살 1인분', cal: '500~700', cat: '중간', catClass: 'amber', note: '쌈채소와 함께 먹으면 균형 UP' },
+            { menu: '치킨 반마리', cal: '600~800', cat: '고칼로리', catClass: 'red', note: '양념보다 후라이드가 약간 높음' },
+            { menu: '짜장면', cal: '650~750', cat: '중간', catClass: 'amber', note: '탄수화물 위주, 채소 부족할 수 있음' },
+            { menu: '라멘', cal: '500~700', cat: '중간', catClass: 'amber', note: '나트륨 높음, 국물 양으로 조절' },
+            { menu: '파스타 (크림)', cal: '700~900', cat: '고칼로리', catClass: 'red', note: '오일 파스타가 더 낮은 칼로리' },
+            { menu: '냉면', cal: '400~500', cat: '저칼로리', catClass: 'green', note: '여름 시원한 메뉴, 비빔냉면이 더 높음' },
+            { menu: '닭가슴살 샐러드', cal: '250~400', cat: '저칼로리', catClass: 'green', note: '고단백 저지방, 다이어트 최적' },
+            { menu: '떡볶이', cal: '400~550', cat: '중간', catClass: 'amber', note: '탄수화물 높음, 튀김 사리 추가 시 증가' }
+        ],
+        tip1prefix: '위 칼로리 정보는 일반적인 1인분 기준의 대략적인 수치입니다. 실제 칼로리는 조리 방법, 재료 양, 소스 등에 따라 달라질 수 있습니다. ',
+        tip1bold: '건강한 성인의 하루 권장 칼로리는 남성 약 2,500kcal, 여성 약 2,000kcal',
+        tip1suffix: '이며, 활동량에 따라 차이가 있습니다.',
+        tip2: '다이어트를 위해서는 한 끼에 500~600kcal 이내로 섭취하는 것이 좋으며, 단순히 칼로리만 줄이기보다는 단백질, 식이섬유, 비타민 등 영양소의 균형을 맞추는 것이 더 중요합니다.'
+    },
+    'Japanese': {
+        title: 'メニュー別カロリーガイド',
+        desc: 'メニューごとの大まかなカロリーを知っておくと、健康的な食事管理に役立ちます。（1人前基準）',
+        headers: ['メニュー', 'カロリー (kcal)', '分類', '特徴'],
+        rows: [
+            { menu: 'サラダ（ドレッシング込み）', cal: '200~350', cat: '低カロリー', catClass: 'green', note: 'ダイエットにおすすめ、タンパク質追加推奨' },
+            { menu: 'ビビンバ', cal: '500~600', cat: '中間', catClass: 'amber', note: '野菜豊富、バランスの取れた栄養' },
+            { menu: 'キムチチゲ + ご飯', cal: '450~550', cat: '中間', catClass: 'amber', note: '塩分注意、タンパク質豊富' },
+            { menu: 'トンカツ', cal: '700~900', cat: '高カロリー', catClass: 'red', note: '揚げ物、満腹感が高い' },
+            { menu: 'サムギョプサル1人前', cal: '500~700', cat: '中間', catClass: 'amber', note: 'サンチュと食べるとバランスUP' },
+            { menu: 'チキン半分', cal: '600~800', cat: '高カロリー', catClass: 'red', note: '味付けよりフライドがやや高い' },
+            { menu: 'ジャージャー麺', cal: '650~750', cat: '中間', catClass: 'amber', note: '炭水化物中心、野菜不足の可能性' },
+            { menu: 'ラーメン', cal: '500~700', cat: '中間', catClass: 'amber', note: '塩分高め、スープの量で調節' },
+            { menu: 'パスタ（クリーム）', cal: '700~900', cat: '高カロリー', catClass: 'red', note: 'オイルパスタの方が低カロリー' },
+            { menu: '冷麺', cal: '400~500', cat: '低カロリー', catClass: 'green', note: '夏の涼しいメニュー、ビビン冷麺の方が高い' },
+            { menu: 'チキンブレストサラダ', cal: '250~400', cat: '低カロリー', catClass: 'green', note: '高タンパク低脂肪、ダイエット最適' },
+            { menu: 'トッポッキ', cal: '400~550', cat: '中間', catClass: 'amber', note: '炭水化物高め、天ぷら追加で増加' }
+        ],
+        tip1prefix: '上記のカロリー情報は一般的な1人前基準の概算です。実際のカロリーは調理方法、材料の量、ソースなどにより異なります。',
+        tip1bold: '健康な成人の1日推奨カロリーは男性約2,500kcal、女性約2,000kcal',
+        tip1suffix: 'で、活動量により差があります。',
+        tip2: 'ダイエットのためには1食500～600kcal以内に抑えるのが良く、単にカロリーを減らすだけでなく、タンパク質、食物繊維、ビタミンなど栄養素のバランスを取ることがより重要です。'
+    },
+    'Mandarin Chinese': {
+        title: '菜单卡路里指南',
+        desc: '了解每道菜的大致卡路里有助于健康饮食管理。（每份基准）',
+        headers: ['菜单', '卡路里 (kcal)', '分类', '特点'],
+        rows: [
+            { menu: '沙拉（含酱汁）', cal: '200~350', cat: '低卡', catClass: 'green', note: '减肥推荐，建议加蛋白质' },
+            { menu: '拌饭', cal: '500~600', cat: '中等', catClass: 'amber', note: '蔬菜丰富，营养均衡' },
+            { menu: '泡菜锅 + 米饭', cal: '450~550', cat: '中等', catClass: 'amber', note: '注意钠含量，蛋白质丰富' },
+            { menu: '炸猪排', cal: '700~900', cat: '高卡', catClass: 'red', note: '油炸食品，饱腹感强' },
+            { menu: '五花肉1人份', cal: '500~700', cat: '中等', catClass: 'amber', note: '搭配生菜吃更均衡' },
+            { menu: '炸鸡半只', cal: '600~800', cat: '高卡', catClass: 'red', note: '原味比调味卡路里略高' },
+            { menu: '炸酱面', cal: '650~750', cat: '中等', catClass: 'amber', note: '碳水为主，可能缺乏蔬菜' },
+            { menu: '拉面', cal: '500~700', cat: '中等', catClass: 'amber', note: '钠含量高，可通过汤量调节' },
+            { menu: '意面（奶油）', cal: '700~900', cat: '高卡', catClass: 'red', note: '油基意面卡路里更低' },
+            { menu: '冷面', cal: '400~500', cat: '低卡', catClass: 'green', note: '夏季清爽菜品，拌冷面更高' },
+            { menu: '鸡胸肉沙拉', cal: '250~400', cat: '低卡', catClass: 'green', note: '高蛋白低脂肪，减肥最佳' },
+            { menu: '辣炒年糕', cal: '400~550', cat: '中等', catClass: 'amber', note: '碳水高，加油炸会增加' }
+        ],
+        tip1prefix: '以上卡路里信息是一般每份的大致数值。实际卡路里会因烹饪方法、食材量和酱料不同而有所差异。',
+        tip1bold: '健康成年人每日推荐卡路里：男性约2,500kcal，女性约2,000kcal',
+        tip1suffix: '，根据活动量有所不同。',
+        tip2: '减肥建议每餐控制在500~600kcal以内，与其单纯减少卡路里，不如均衡摄取蛋白质、膳食纤维、维生素等营养素更为重要。'
+    }
+};
+
+function updateCalorieTranslations() {
+    const lang = calorieData[currentLanguage] || calorieData['English'];
+    const titleEl = document.getElementById('calorie-title');
+    const descEl = document.getElementById('calorie-desc');
+
+    if (titleEl) titleEl.textContent = lang.title;
+    if (descEl) descEl.textContent = lang.desc;
+
+    // Update table headers
+    const ths = document.querySelectorAll('.calorie-th');
+    ths.forEach((th, i) => {
+        if (lang.headers[i]) th.textContent = lang.headers[i];
+    });
+
+    // Update table rows
+    const table = document.getElementById('calorie-table');
+    if (table) {
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach((row, i) => {
+            if (!lang.rows[i]) return;
+            const tds = row.querySelectorAll('td');
+            if (tds[0]) tds[0].textContent = lang.rows[i].menu;
+            if (tds[1]) tds[1].textContent = lang.rows[i].cal;
+            if (tds[2]) {
+                const colorMap = { green: 'green', amber: 'amber', red: 'red' };
+                const c = colorMap[lang.rows[i].catClass] || 'amber';
+                const darkC = c === 'red' ? 'red' : c;
+                tds[2].innerHTML = `<span class="text-xs px-2.5 py-1 bg-${c}-500/10 text-${c === 'red' ? 'red-500' : c + '-600'} dark:text-${darkC}-400 rounded-full font-medium">${lang.rows[i].cat}</span>`;
+            }
+            if (tds[3]) tds[3].textContent = lang.rows[i].note;
+        });
+    }
+
+    // Update tips
+    const tip1El = document.getElementById('calorie-tip1');
+    const tip1BoldEl = document.getElementById('calorie-tip1-bold');
+    const tip2El = document.getElementById('calorie-tip2');
+
+    if (tip1El && tip1BoldEl) {
+        tip1El.innerHTML = `${lang.tip1prefix}<strong id="calorie-tip1-bold">${lang.tip1bold}</strong>${lang.tip1suffix}`;
+    }
+    if (tip2El) tip2El.textContent = lang.tip2;
+}
+
+// ============ MENU INFO SECTION ============
+
+const menuInfoData = {
+    'English': {
+        title: 'What is Menu Recommendation?',
+        p1: '<strong>Menu Recommendation Service</strong> is a free web application created to solve the daily dilemma of "What should I eat today?" You can get a random recommendation from <strong>over 200 menus</strong> including Korean, Japanese, Chinese, and Western cuisine, with a fun slot machine-style interface.',
+        p2: 'This service supports <strong>18 languages</strong> and is used by users in over 70 countries worldwide. It offers <strong>situation-based menu recommendations</strong> for solo dining, family meals, friend gatherings, office parties, and dates, as well as <strong>seasonal/weather-based menu recommendations</strong> for hot days, cold days, rainy days, and hangovers.',
+        p3: 'You can use it directly in your web browser without signing up or installing an app, and it\'s available 24/7 for free. You can also share food stories with other users on the community board.'
+    },
+    'Korean': {
+        title: '메뉴 추천이란?',
+        p1: '<strong>메뉴 추천 서비스</strong>는 매일 반복되는 "오늘 뭐 먹지?"라는 고민을 해결하기 위해 만들어진 무료 웹 애플리케이션입니다. 한식, 일식, 중식, 양식을 포함한 <strong>200가지 이상의 메뉴</strong> 중 하나를 랜덤으로 추천받을 수 있으며, 슬롯머신 방식의 재미있는 인터페이스를 제공합니다.',
+        p2: '이 서비스는 <strong>18개 언어</strong>를 지원하여 전 세계 70개국 이상의 사용자가 이용하고 있습니다. 혼밥, 가족 식사, 친구 모임, 회식, 데이트 등 <strong>상황별 메뉴 추천</strong>과 더울 때, 추울 때, 비 올 때, 해장 등 <strong>계절/날씨별 메뉴 추천</strong> 기능도 제공합니다.',
+        p3: '회원가입이나 앱 설치 없이 웹 브라우저에서 바로 사용할 수 있으며, 24시간 무료로 이용 가능합니다. 커뮤니티 게시판에서 다른 사용자들과 음식 이야기를 나눌 수도 있습니다.'
+    },
+    'Japanese': {
+        title: 'メニュー推薦とは？',
+        p1: '<strong>メニュー推薦サービス</strong>は、毎日繰り返される「今日何食べよう？」という悩みを解決するために作られた無料ウェブアプリケーションです。韓食、和食、中華、洋食を含む<strong>200種類以上のメニュー</strong>からランダムにおすすめを受けることができ、スロットマシン方式の楽しいインターフェースを提供します。',
+        p2: 'このサービスは<strong>18言語</strong>に対応し、世界70カ国以上のユーザーが利用しています。一人ご飯、家族の食事、友達の集まり、会食、デートなどの<strong>シーン別メニューおすすめ</strong>と、暑い日、寒い日、雨の日、二日酔いなどの<strong>季節・天気別メニューおすすめ</strong>機能も提供しています。',
+        p3: '会員登録やアプリのインストールなしにウェブブラウザで直接利用でき、24時間無料で使えます。コミュニティ掲示板で他のユーザーと食べ物の話を共有することもできます。'
+    },
+    'Mandarin Chinese': {
+        title: '什么是菜单推荐？',
+        p1: '<strong>菜单推荐服务</strong>是一款为解决每天"今天吃什么？"的烦恼而创建的免费网络应用程序。可以从包括韩餐、日餐、中餐、西餐在内的<strong>200多种菜单</strong>中随机获得推荐，并提供有趣的老虎机式界面。',
+        p2: '该服务支持<strong>18种语言</strong>，全球70多个国家的用户正在使用。提供独食、家庭聚餐、朋友聚会、公司聚餐、约会等<strong>场景推荐</strong>，以及热天、冷天、雨天、解酒等<strong>季节/天气菜单推荐</strong>功能。',
+        p3: '无需注册或安装应用，直接在网页浏览器中使用，24小时免费。还可以在社区留言板与其他用户分享美食故事。'
+    }
+};
+
+function updateMenuInfoTranslations() {
+    const lang = menuInfoData[currentLanguage] || menuInfoData['English'];
+    const titleEl = document.getElementById('info-title');
+    const p1 = document.getElementById('info-p1');
+    const p2 = document.getElementById('info-p2');
+    const p3 = document.getElementById('info-p3');
+
+    if (titleEl) titleEl.textContent = lang.title;
+    if (p1) p1.innerHTML = lang.p1;
+    if (p2) p2.innerHTML = lang.p2;
+    if (p3) p3.innerHTML = lang.p3;
+}
+
+// ============ FAQ SECTION ============
+
+const faqData = {
+    'English': {
+        title: 'Frequently Asked Questions',
+        items: [
+            { q: 'What should I eat today? How do I get menu recommendations?', a: 'Click the "Get Menu Recommendation" button to get a random recommendation from over 200 menus including chicken, pizza, pork belly, steak, pasta, and more. You can also use the fun slot machine feature or filter by category to get recommendations for specific types of food.' },
+            { q: 'What menus can I get recommended?', a: 'You can get recommendations from over 200 menus including Korean (bibimbap, japchae, kimchi stew, tteokbokki, pork belly, bulgogi, etc.), Japanese (sushi, tonkatsu, udon, ramen, etc.), Western (steak, pasta, hamburger, pizza, etc.), Chinese (jajangmyeon, jjamppong, malatang, etc.), Southeast Asian (pad thai, pho, nasi goreng, etc.), Mexican (tacos, burritos, etc.), Indian (curry, tandoori, etc.), and Middle Eastern (kebab, falafel, etc.).' },
+            { q: 'Is the menu recommendation free?', a: 'Yes, the menu recommendation service is completely free and can be used directly in your web browser without signing up or installing an app. It\'s available 24/7 with no usage limits and supports 18 languages for worldwide use.' },
+            { q: 'What should I eat on a rainy day?', a: 'On rainy days, warm traditional foods like green onion pancake, kalguksu, sujebi, jeon, seafood pancake, and kimchi pancake are popular. Pairing with makgeolli or dongdongju adds to the rainy day ambiance. Check the "Seasonal/Weather Menu" section above for more weather-appropriate menus.' },
+            { q: 'What menu is recommended for solo dining?', a: 'For solo dining, menus that are easy to order per serving like ramen, kimbap, rice bowls, noodles, and sandwiches are great. Choose menus that are convenient to eat while providing various nutrients. Check the solo dining category in "Situation-Based Recommendations" above for more suggestions.' },
+            { q: 'Recommend a menu for dieting', a: 'For dieting, we recommend low-calorie, high-protein menus like salad, chicken breast, poke, and konjac. Reducing carbs and focusing on vegetables and protein makes for healthy meals. Check the diet category in "Situation-Based Recommendations" for more ideas.' },
+            { q: 'What languages does this service support?', a: 'We support 18 languages including Korean, English, Japanese, Chinese, Spanish, French, German, Portuguese, Italian, Russian, Arabic, Hindi, Thai, Vietnamese, Indonesian, Turkish, Polish, and Dutch. Select your preferred language from the language button at the top to change all menu names and the entire interface.' },
+            { q: 'Any tips for choosing a menu?', a: 'Consider delivery time and cooking time. On cold days, warm soup dishes are great; on hot days, cool salads or cold noodles are ideal. The right menu depends on who you\'re dining with, and for a balanced diet, choose menus with vegetables and protein. Use our "Situation-Based Recommendations" and "Seasonal/Weather Menu" features for easier decisions.' }
+        ]
+    },
+    'Korean': {
+        title: '자주 묻는 질문',
+        items: [
+            { q: '오늘 뭐 먹지? 메뉴 추천은 어떻게 받나요?', a: '메뉴 추천 서비스에서 \'메뉴 추천받기\' 버튼을 클릭하면 치킨, 피자, 삼겹살, 스테이크, 파스타 등 200가지 이상의 메뉴 중 하나를 랜덤으로 추천받을 수 있습니다. 슬롯머신 방식으로도 재미있게 메뉴를 선택할 수 있으며, 카테고리별로 필터링하여 원하는 종류의 음식만 추천받을 수도 있습니다.' },
+            { q: '어떤 메뉴를 추천받을 수 있나요?', a: '한식(비빔밥, 잡채, 김치찌개, 떡볶이, 삼겹살, 불고기 등), 일식(초밥, 돈카츠, 우동, 라멘 등), 양식(스테이크, 파스타, 햄버거, 피자 등), 중식(짜장면, 짬뽕, 마라탕 등), 동남아(팟타이, 쌀국수, 나시고렝 등), 멕시칸(타코, 부리또 등), 인도(커리, 탄두리 등), 중동(케밥, 팔라펠 등) 총 200가지 이상의 메뉴를 추천받을 수 있습니다.' },
+            { q: '메뉴 추천은 무료인가요?', a: '네, 메뉴 추천 서비스는 완전히 무료이며, 회원가입이나 앱 설치 없이 웹 브라우저에서 바로 이용 가능합니다. 24시간 언제든지 횟수 제한 없이 무료로 사용할 수 있으며, 18개 언어를 지원하여 전 세계 어디서든 사용할 수 있습니다.' },
+            { q: '비 오는 날 뭐 먹지?', a: '비 오는 날에는 파전, 칼국수, 수제비, 부침개, 해물전, 김치전 같은 따뜻한 전통 음식이 인기입니다. 막걸리나 동동주와 함께 먹으면 비 오는 날의 운치를 더할 수 있습니다. 위의 \'계절/날씨별 메뉴\' 섹션에서 날씨에 맞는 다양한 메뉴를 확인해보세요.' },
+            { q: '혼밥할 때 추천 메뉴는?', a: '혼자 먹을 때는 라멘, 김밥, 덮밥, 국수, 샌드위치 같은 1인분 단위로 주문하기 쉬운 메뉴가 좋습니다. 간편하게 먹을 수 있으면서도 다양한 영양소를 섭취할 수 있는 메뉴를 선택하세요. 위의 \'상황별 메뉴 추천\'에서 혼밥 카테고리를 참고하시면 더 많은 추천을 받을 수 있습니다.' },
+            { q: '다이어트 중 메뉴 추천해주세요', a: '다이어트 중이라면 샐러드, 닭가슴살, 포케, 곤약 같은 저칼로리 고단백 메뉴를 추천합니다. 탄수화물을 줄이고 채소와 단백질 중심으로 식단을 구성하면 건강한 식사가 가능합니다. \'상황별 메뉴 추천\'의 다이어트 카테고리에서 더 많은 아이디어를 확인하세요.' },
+            { q: '이 서비스는 어떤 언어를 지원하나요?', a: '한국어, 영어, 일본어, 중국어, 스페인어, 프랑스어, 독일어, 포르투갈어, 이탈리아어, 러시아어, 아랍어, 힌디어, 태국어, 베트남어, 인도네시아어, 터키어, 폴란드어, 네덜란드어 등 총 18개 언어를 지원합니다. 상단의 언어 선택 버튼에서 원하는 언어를 선택하면 메뉴명과 전체 인터페이스가 해당 언어로 변경됩니다.' },
+            { q: '메뉴 고를 때 팁이 있나요?', a: '배달 시간과 조리 시간을 고려하세요. 추운 날에는 따뜻한 국물 요리, 더운 날에는 시원한 샐러드나 냉면이 좋습니다. 함께 식사하는 사람에 따라 적합한 메뉴가 다르며, 균형 잡힌 식단을 위해 채소와 단백질이 포함된 메뉴를 선택하세요. 우리 서비스의 \'상황별 메뉴 추천\'과 \'계절/날씨별 메뉴\' 기능을 활용하면 더 쉽게 결정할 수 있습니다.' }
+        ]
+    },
+    'Japanese': {
+        title: 'よくある質問',
+        items: [
+            { q: '今日何食べよう？メニュー推薦はどうやって受けるの？', a: '「メニューを推薦してもらう」ボタンをクリックすると、チキン、ピザ、サムギョプサル、ステーキ、パスタなど200種類以上のメニューからランダムに推薦を受けられます。スロットマシン方式でも楽しくメニューを選べ、カテゴリ別にフィルタリングして好きな種類の食べ物だけ推薦を受けることもできます。' },
+            { q: 'どんなメニューを推薦してもらえますか？', a: '韓食（ビビンバ、チャプチェ、キムチチゲ、トッポッキ、サムギョプサル、プルコギなど）、和食（寿司、トンカツ、うどん、ラーメンなど）、洋食（ステーキ、パスタ、ハンバーガー、ピザなど）、中華（ジャージャー麺、チャンポン、マーラータンなど）、東南アジア（パッタイ、フォー、ナシゴレンなど）、メキシカン（タコス、ブリトーなど）、インド（カレー、タンドリーなど）、中東（ケバブ、ファラフェルなど）計200種類以上のメニューを推薦してもらえます。' },
+            { q: 'メニュー推薦は無料ですか？', a: 'はい、メニュー推薦サービスは完全無料で、会員登録やアプリのインストールなしにウェブブラウザで直接利用可能です。24時間いつでも回数制限なく無料で使え、18言語に対応して世界中どこでも使えます。' },
+            { q: '雨の日は何食べよう？', a: '雨の日にはチヂミ、カルグクス、スジェビ、煎餅、海鮮チヂミ、キムチチヂミなどの温かい伝統料理が人気です。マッコリやトンドンジュと一緒に食べると雨の日の趣が増します。上の「季節・天気別メニュー」セクションで天気に合った様々なメニューをチェックしてみてください。' },
+            { q: 'ひとりご飯のおすすめメニューは？', a: 'ひとりで食べる時はラーメン、キンパ、丼物、麺類、サンドイッチなど1人前単位で注文しやすいメニューがおすすめです。手軽に食べられながらも栄養バランスの良いメニューを選びましょう。上の「シーン別おすすめ」のひとりご飯カテゴリを参考にすれば、もっと多くの推薦を受けられます。' },
+            { q: 'ダイエット中のおすすめメニューは？', a: 'ダイエット中ならサラダ、チキンブレスト、ポケ、こんにゃくなどの低カロリー高タンパクメニューがおすすめです。炭水化物を減らし、野菜とタンパク質中心の食事にすれば健康的な食事ができます。「シーン別おすすめ」のダイエットカテゴリでもっとアイデアを確認してください。' },
+            { q: 'このサービスはどの言語に対応していますか？', a: '韓国語、英語、日本語、中国語、スペイン語、フランス語、ドイツ語、ポルトガル語、イタリア語、ロシア語、アラビア語、ヒンディー語、タイ語、ベトナム語、インドネシア語、トルコ語、ポーランド語、オランダ語の計18言語に対応しています。上部の言語選択ボタンから言語を選択すると、メニュー名とインターフェース全体が変更されます。' },
+            { q: 'メニュー選びのコツはありますか？', a: 'デリバリー時間と調理時間を考慮してください。寒い日は温かいスープ料理、暑い日は涼しいサラダや冷麺がおすすめです。一緒に食事する人によって適したメニューが異なり、バランスの良い食事のために野菜とタンパク質を含むメニューを選びましょう。「シーン別おすすめ」と「季節・天気別メニュー」機能を活用すれば、より簡単に決められます。' }
+        ]
+    },
+    'Mandarin Chinese': {
+        title: '常见问题',
+        items: [
+            { q: '今天吃什么？怎么获得菜单推荐？', a: '点击"获取菜单推荐"按钮，即可从炸鸡、披萨、五花肉、牛排、意面等200多种菜单中随机获得推荐。也可以用有趣的老虎机方式选择菜单，或按类别筛选获取特定类型的推荐。' },
+            { q: '可以推荐哪些菜单？', a: '可以从韩餐（拌饭、杂菜、泡菜锅、辣炒年糕、五花肉、烤肉等）、日餐（寿司、炸猪排、乌冬面、拉面等）、西餐（牛排、意面、汉堡、披萨等）、中餐（炸酱面、海鲜面、麻辣烫等）、东南亚（泰式炒面、河粉、炒饭等）、墨西哥（玉米饼、卷饼等）、印度（咖喱、坦都里等）、中东（烤肉串、法拉费等）共200多种菜单中获得推荐。' },
+            { q: '菜单推荐免费吗？', a: '是的，菜单推荐服务完全免费，无需注册或安装应用，直接在网页浏览器中使用。24小时随时无限次免费使用，支持18种语言，全球任何地方都可使用。' },
+            { q: '下雨天吃什么？', a: '下雨天，葱饼、刀削面、面疙瘩、煎饼、海鲜饼、泡菜饼等温暖的传统食品很受欢迎。搭配米酒一起享用，更增添雨天的情趣。请查看上方"季节/天气菜单"部分，了解更多适合天气的菜单。' },
+            { q: '一个人吃饭推荐什么？', a: '一个人吃饭时，拉面、紫菜包饭、盖饭、面条、三明治等按份点单方便的菜品是不错的选择。选择方便食用且营养丰富的菜单。请参考上方"场景推荐"中的独食类别获取更多建议。' },
+            { q: '减肥期间推荐什么菜单？', a: '减肥期间推荐沙拉、鸡胸肉、波奇、魔芋等低卡高蛋白菜单。减少碳水化合物，以蔬菜和蛋白质为主的饮食有助于健康饮食。在"场景推荐"的减肥类别中查看更多创意。' },
+            { q: '这个服务支持哪些语言？', a: '支持韩语、英语、日语、中文、西班牙语、法语、德语、葡萄牙语、意大利语、俄语、阿拉伯语、印地语、泰语、越南语、印尼语、土耳其语、波兰语、荷兰语共18种语言。在顶部的语言选择按钮中选择语言，菜单名称和整个界面将更改为该语言。' },
+            { q: '选菜单有什么技巧吗？', a: '请考虑配送时间和烹饪时间。冷天适合温暖的汤类，热天适合清凉的沙拉或冷面。根据一起用餐的人选择合适的菜单，为了均衡饮食，选择含有蔬菜和蛋白质的菜单。利用我们的"场景推荐"和"季节/天气菜单"功能可以更容易做出决定。' }
+        ]
+    }
+};
+
+function updateFaqTranslations() {
+    const lang = faqData[currentLanguage] || faqData['English'];
+    const titleEl = document.getElementById('faq-title');
+    if (titleEl) titleEl.textContent = lang.title;
+
+    const items = document.querySelectorAll('.faq-item');
+    items.forEach((item, index) => {
+        if (!lang.items[index]) return;
+        const qSpan = item.querySelector('summary span:first-child');
+        if (qSpan) qSpan.textContent = lang.items[index].q;
+        const aP = item.querySelector('div p');
+        if (aP) aP.textContent = lang.items[index].a;
+    });
+}
+
+// ============ MENU CATEGORIES GUIDE ============
+
+const categoriesGuideData = {
+    'English': {
+        title: 'Menu Category Guide',
+        desc: 'Explore diverse food cultures from around the world. Here are representative menus and features of each category.',
+        cards: [
+            { title: 'Korean Food', desc: 'Korean traditional cuisine features fermented foods and diverse side dishes. The deep flavors based on fermented seasonings like kimchi, doenjang, and gochujang are captivating. Representative dishes include bibimbap, bulgogi, braised ribs, and pork belly. It uses healthy ingredients and provides rich vegetable intake.' },
+            { title: 'Japanese Food', desc: 'Japanese cuisine is characterized by bringing out the natural flavors of fresh ingredients. Popular dishes include sushi, sashimi, ramen, udon, tonkatsu, and tempura. It values seasonality and is loved worldwide for its clean, light flavors. Ramen in particular has unique regional styles, adding to its diversity.' },
+            { title: 'Western Food', desc: 'Western cuisine offers diverse menus including steak, pasta, pizza, hamburgers, risotto, and salads. Rich flavors using olive oil, cheese, and butter are characteristic, ranging from casual dining to fine dining experiences.' },
+            { title: 'Chinese Food', desc: 'Chinese cuisine has very diverse regional characteristics. Sichuan, Cantonese, Shanghai, and Beijing styles each have unique flavors and cooking methods. Popular Chinese dishes include jajangmyeon, jjamppong, malatang, sweet and sour pork, and kung pao chicken. Strong wok heat and diverse spice usage are characteristic.' },
+            { title: 'Southeast Asian Food', desc: 'Southeast Asian cuisines from Thailand, Vietnam, Indonesia feature abundant use of spices and herbs. Representative dishes include pad thai, pho, nasi goreng, bun cha, and tom yum goong. The complex sweet-sour-spicy flavors are captivating. Ingredients like coconut milk, lime, and cilantro add unique flavors.' },
+            { title: 'Other World Cuisines', desc: 'Explore Mexican tacos and burritos, Indian curry and tandoori chicken, Middle Eastern kebabs and falafel, and more. Each country\'s unique cooking methods, rooted in history and culture, offer new taste experiences. Try new foods by selecting various categories in our menu recommendation service.' }
+        ]
+    },
+    'Korean': {
+        title: '메뉴 카테고리 가이드',
+        desc: '전 세계 다양한 음식 문화를 탐험해보세요. 각 카테고리별 대표 메뉴와 특징을 소개합니다.',
+        cards: [
+            { title: '한식 (Korean Food)', desc: '한국의 전통 음식은 발효 식품과 다양한 반찬이 특징입니다. 김치, 된장, 고추장 등 발효 양념을 기반으로 한 깊은 맛이 매력적이며, 비빔밥, 불고기, 갈비찜, 삼겹살 등이 대표 메뉴입니다. 건강에 좋은 식재료를 사용하며, 채소를 풍부하게 섭취할 수 있는 것이 장점입니다.' },
+            { title: '일식 (Japanese Food)', desc: '일본 음식은 신선한 재료의 맛을 살리는 것이 특징입니다. 초밥, 사시미, 라멘, 우동, 돈카츠, 덴푸라 등이 인기 메뉴입니다. 계절감을 중시하며, 깔끔하고 담백한 맛으로 전 세계적으로 사랑받고 있습니다. 특히 라멘은 지역마다 독특한 스타일이 있어 그 다양성이 매력적입니다.' },
+            { title: '양식 (Western Food)', desc: '서양 음식은 스테이크, 파스타, 피자, 햄버거, 리조또, 샐러드 등 다양한 메뉴가 있습니다. 올리브 오일, 치즈, 버터 등을 활용한 풍부한 맛이 특징이며, 가볍게 즐기는 캐주얼 다이닝부터 격식 있는 파인 다이닝까지 다양한 스타일로 즐길 수 있습니다.' },
+            { title: '중식 (Chinese Food)', desc: '중국 음식은 지역별로 매우 다양한 특색을 가지고 있습니다. 사천, 광동, 상하이, 북경 스타일 등 각각 독특한 맛과 조리법이 있으며, 짜장면, 짬뽕, 마라탕, 탕수육, 깐풍기 등이 한국에서 인기 있는 중식 메뉴입니다. 강한 불 맛과 다양한 향신료 사용이 특징입니다.' },
+            { title: '동남아 음식 (Southeast Asian)', desc: '태국, 베트남, 인도네시아 등 동남아시아 음식은 향신료와 허브를 풍부하게 사용하는 것이 특징입니다. 팟타이, 쌀국수(포), 나시고렝, 분짜, 똠양꿍 등이 대표 메뉴이며, 새콤달콤매콤한 복합적인 맛이 매력적입니다. 코코넛 밀크, 라임, 고수 등의 재료가 독특한 풍미를 더합니다.' },
+            { title: '기타 세계 음식', desc: '멕시칸 음식의 타코와 부리또, 인도의 커리와 탄두리 치킨, 중동의 케밥과 팔라펠 등 전 세계 다양한 음식 문화를 탐험해보세요. 각 나라의 역사와 문화가 담긴 고유한 요리법은 새로운 맛의 경험을 선사합니다. 메뉴 추천 서비스에서 다양한 카테고리를 선택하여 새로운 음식에 도전해보세요.' }
+        ]
+    },
+    'Japanese': {
+        title: 'メニューカテゴリガイド',
+        desc: '世界各国の多様な食文化を探検してみましょう。カテゴリ別の代表メニューと特徴を紹介します。',
+        cards: [
+            { title: '韓食 (Korean Food)', desc: '韓国の伝統料理は発酵食品と多様なおかずが特徴です。キムチ、テンジャン、コチュジャンなどの発酵調味料による深い味わいが魅力で、ビビンバ、プルコギ、カルビチム、サムギョプサルなどが代表メニューです。健康的な食材を使い、野菜を豊富に摂取できるのが長所です。' },
+            { title: '和食 (Japanese Food)', desc: '日本料理は新鮮な食材の味を活かすのが特徴です。寿司、刺身、ラーメン、うどん、トンカツ、天ぷらなどが人気メニューです。季節感を重視し、さっぱりとした味わいで世界中から愛されています。特にラーメンは地域ごとに独特のスタイルがあり、その多様性が魅力です。' },
+            { title: '洋食 (Western Food)', desc: '洋食はステーキ、パスタ、ピザ、ハンバーガー、リゾット、サラダなど多様なメニューがあります。オリーブオイル、チーズ、バターを活用した豊かな味わいが特徴で、カジュアルダイニングからファインダイニングまで様々なスタイルで楽しめます。' },
+            { title: '中華 (Chinese Food)', desc: '中国料理は地域ごとに非常に多様な特色を持っています。四川、広東、上海、北京スタイルなどそれぞれ独特の味と調理法があり、ジャージャー麺、チャンポン、マーラータン、酢豚、カンプンギなどが人気の中華メニューです。強い火力と多様な香辛料の使用が特徴です。' },
+            { title: '東南アジア料理 (Southeast Asian)', desc: 'タイ、ベトナム、インドネシアなど東南アジアの料理はスパイスとハーブを豊富に使うのが特徴です。パッタイ、フォー、ナシゴレン、ブンチャ、トムヤムクンなどが代表メニューで、甘酸っぱくて辛い複合的な味が魅力です。ココナッツミルク、ライム、パクチーなどが独特の風味を加えます。' },
+            { title: 'その他の世界料理', desc: 'メキシカンのタコスとブリトー、インドのカレーとタンドリーチキン、中東のケバブとファラフェルなど、世界各国の多様な食文化を探検してみましょう。各国の歴史と文化が詰まった独自の調理法は新しい味の体験を提供します。メニュー推薦サービスで様々なカテゴリを選んで新しい料理に挑戦してみてください。' }
+        ]
+    },
+    'Mandarin Chinese': {
+        title: '菜单类别指南',
+        desc: '探索世界各地多样的饮食文化。介绍各类别的代表菜单和特点。',
+        cards: [
+            { title: '韩餐 (Korean Food)', desc: '韩国传统饮食以发酵食品和丰富的小菜为特色。以泡菜、大酱、辣酱等发酵调料为基础的深厚风味令人着迷，拌饭、烤肉、炖排骨、五花肉等是代表菜品。使用健康食材，能丰富摄取蔬菜是其优点。' },
+            { title: '日餐 (Japanese Food)', desc: '日本料理的特点是发挥新鲜食材的原味。寿司、刺身、拉面、乌冬面、炸猪排、天妇罗等是人气菜品。注重季节感，以清爽淡雅的口味在全世界广受喜爱。尤其拉面各地有独特风格，多样性令人着迷。' },
+            { title: '西餐 (Western Food)', desc: '西餐有牛排、意面、披萨、汉堡、烩饭、沙拉等多样菜品。以橄榄油、奶酪、黄油打造的丰富口味为特色，从休闲餐饮到高档餐厅，可享受多种风格。' },
+            { title: '中餐 (Chinese Food)', desc: '中国菜各地区有非常多样的特色。四川、广东、上海、北京风格各有独特的口味和烹饪方法，炸酱面、海鲜面、麻辣烫、糖醋肉、宫保鸡丁等是热门中餐菜品。猛火烹饪和多样香料使用是其特点。' },
+            { title: '东南亚菜 (Southeast Asian)', desc: '泰国、越南、印尼等东南亚菜肴的特点是大量使用香料和草本。泰式炒面、河粉、炒饭、烤肉粉、冬荫功等是代表菜品，酸甜辣的复合口味令人着迷。椰奶、青柠、香菜等食材增添独特风味。' },
+            { title: '其他世界美食', desc: '探索墨西哥的玉米饼和卷饼、印度的咖喱和坦都里鸡、中东的烤肉串和法拉费等世界各地多样的饮食文化。蕴含各国历史和文化的独特烹饪方法带来全新的味觉体验。在菜单推荐服务中选择各种类别，挑战新的美食吧。' }
+        ]
+    }
+};
+
+function updateCategoriesGuideTranslations() {
+    const lang = categoriesGuideData[currentLanguage] || categoriesGuideData['English'];
+    const titleEl = document.getElementById('categories-guide-title');
+    const descEl = document.getElementById('categories-guide-desc');
+
+    if (titleEl) titleEl.textContent = lang.title;
+    if (descEl) descEl.textContent = lang.desc;
+
+    const cards = document.querySelectorAll('.category-guide-card');
+    cards.forEach((card, index) => {
+        if (!lang.cards[index]) return;
+        const h3 = card.querySelector('h3');
+        if (h3) h3.textContent = lang.cards[index].title;
+        const p = card.querySelector('p');
+        if (p) p.textContent = lang.cards[index].desc;
+    });
+}
+
+// ============ SIDEBAR TRANSLATIONS ============
+
+const sidebarData = {
+    'English': {
+        slot: 'Slot Machine', recommend: "Today's Pick", bulletin: 'Community Board',
+        discover: 'Discover', situation: 'By Situation', seasonal: 'Seasonal / Weather',
+        popular: 'Popular Top 10', delivery: 'Delivery Guide',
+        tools: 'Tools', calorie: 'Calorie Guide', faq: 'FAQ', contact: 'Partnership'
+    },
+    'Korean': {
+        slot: '슬롯머신', recommend: '오늘의 추천 메뉴', bulletin: '커뮤니티 게시판',
+        discover: 'Discover', situation: '상황별 추천', seasonal: '계절/날씨별 메뉴',
+        popular: '인기 메뉴 Top 10', delivery: '배달 메뉴 가이드',
+        tools: 'Tools', calorie: '칼로리 가이드', faq: '자주 묻는 질문', contact: '제휴 문의'
+    },
+    'Japanese': {
+        slot: 'スロットマシン', recommend: '今日のおすすめ', bulletin: 'コミュニティ掲示板',
+        discover: 'Discover', situation: 'シーン別おすすめ', seasonal: '季節・天気別メニュー',
+        popular: '人気メニューTop 10', delivery: 'デリバリーガイド',
+        tools: 'Tools', calorie: 'カロリーガイド', faq: 'よくある質問', contact: '提携お問い合わせ'
+    },
+    'Mandarin Chinese': {
+        slot: '老虎机', recommend: '今日推荐', bulletin: '社区留言板',
+        discover: 'Discover', situation: '场景推荐', seasonal: '季节/天气菜单',
+        popular: '热门菜单 Top 10', delivery: '外卖指南',
+        tools: 'Tools', calorie: '卡路里指南', faq: '常见问题', contact: '合作咨询'
+    }
+};
+
+function updateSidebarTranslations() {
+    const lang = sidebarData[currentLanguage] || sidebarData['English'];
+    const keys = ['slot', 'recommend', 'bulletin', 'discover', 'situation', 'seasonal', 'popular', 'delivery', 'tools', 'calorie', 'faq', 'contact'];
+    keys.forEach(key => {
+        const desktop = document.getElementById('sidebar-' + key);
+        if (desktop) desktop.textContent = lang[key];
+        const mobile = document.getElementById('mobile-sidebar-' + key);
+        if (mobile) mobile.textContent = lang[key];
+    });
+}
+
+// ============ GAME TAB TRANSLATIONS ============
+
+const gameTabData = {
+    'English': { slot: 'Slot Machine', recommend: "Today's Pick" },
+    'Korean': { slot: '슬롯머신', recommend: '오늘의 추천 메뉴' },
+    'Japanese': { slot: 'スロットマシン', recommend: '今日のおすすめメニュー' },
+    'Mandarin Chinese': { slot: '老虎机', recommend: '今日推荐菜单' }
+};
+
+function updateGameTabTranslations() {
+    const lang = gameTabData[currentLanguage] || gameTabData['English'];
+    const slotBtn = document.getElementById('tab-btn-slot');
+    if (slotBtn) slotBtn.textContent = lang.slot;
+    const recBtn = document.getElementById('tab-btn-recommend');
+    if (recBtn) recBtn.textContent = lang.recommend;
+}
+
+// ============ FOOTER TRANSLATIONS ============
+
+const footerData = {
+    'English': {
+        tagline: 'Making your daily meal decisions<br/>more fun and delicious.',
+        serviceTitle: 'Service',
+        homeLink: 'Home',
+        aboutLink: 'About Us',
+        guideLink: 'User Guide',
+        slotLink: 'Slot Machine',
+        supportTitle: 'Support',
+        helpLink: 'Help Center',
+        contactLink: 'Partnership',
+        faqLink: 'FAQ',
+        legalTitle: 'Legal',
+        privacyLink: 'Privacy Policy',
+        termsLink: 'Terms of Service',
+        cookiesLink: 'Cookie Policy'
+    },
+    'Korean': {
+        tagline: '매일 반복되는 결정의 순간을<br/>더 즐겁고 맛있게 만들어 드립니다.',
+        serviceTitle: '서비스',
+        homeLink: '홈으로',
+        aboutLink: '브랜드 소개',
+        guideLink: '이용 가이드',
+        slotLink: '슬롯 머신',
+        supportTitle: '고객 지원',
+        helpLink: '도움말 센터',
+        contactLink: '제휴 문의',
+        faqLink: 'FAQ',
+        legalTitle: '법적 고지',
+        privacyLink: '개인정보처리방침',
+        termsLink: '이용약관',
+        cookiesLink: '쿠키 정책'
+    },
+    'Japanese': {
+        tagline: '毎日繰り返される食事の決断を<br/>もっと楽しく美味しくします。',
+        serviceTitle: 'サービス',
+        homeLink: 'ホーム',
+        aboutLink: 'ブランド紹介',
+        guideLink: 'ご利用ガイド',
+        slotLink: 'スロットマシン',
+        supportTitle: 'サポート',
+        helpLink: 'ヘルプセンター',
+        contactLink: '提携お問い合わせ',
+        faqLink: 'FAQ',
+        legalTitle: '法的情報',
+        privacyLink: 'プライバシーポリシー',
+        termsLink: '利用規約',
+        cookiesLink: 'クッキーポリシー'
+    },
+    'Mandarin Chinese': {
+        tagline: '让每天重复的用餐决定<br/>变得更有趣、更美味。',
+        serviceTitle: '服务',
+        homeLink: '首页',
+        aboutLink: '品牌介绍',
+        guideLink: '使用指南',
+        slotLink: '老虎机',
+        supportTitle: '客户支持',
+        helpLink: '帮助中心',
+        contactLink: '合作咨询',
+        faqLink: 'FAQ',
+        legalTitle: '法律声明',
+        privacyLink: '隐私政策',
+        termsLink: '服务条款',
+        cookiesLink: 'Cookie政策'
+    }
+};
+
+function updateFooterTranslations() {
+    const lang = footerData[currentLanguage] || footerData['English'];
+
+    const tagline = document.getElementById('footer-tagline');
+    if (tagline) tagline.innerHTML = lang.tagline;
+
+    const serviceTitle = document.getElementById('footer-service-title');
+    if (serviceTitle) serviceTitle.textContent = lang.serviceTitle;
+
+    const homeLink = document.getElementById('footer-home-link');
+    if (homeLink) homeLink.textContent = lang.homeLink;
+
+    const guideLink = document.getElementById('guide-link');
+    if (guideLink) guideLink.textContent = lang.guideLink;
+
+    const slotLink = document.getElementById('footer-slot-link');
+    if (slotLink) slotLink.textContent = lang.slotLink;
+
+    const supportTitle = document.getElementById('footer-support-title');
+    if (supportTitle) supportTitle.textContent = lang.supportTitle;
+
+    const helpLink = document.getElementById('footer-help-link');
+    if (helpLink) helpLink.textContent = lang.helpLink;
+
+    const contactLink = document.getElementById('footer-contact-link');
+    if (contactLink) contactLink.textContent = lang.contactLink;
+
+    const faqLink = document.getElementById('footer-faq-link');
+    if (faqLink) faqLink.textContent = lang.faqLink;
+
+    const legalTitle = document.getElementById('footer-legal-title');
+    if (legalTitle) legalTitle.textContent = lang.legalTitle;
+
+    const cookiesLink = document.getElementById('footer-cookies-link');
+    if (cookiesLink) cookiesLink.textContent = lang.cookiesLink;
 }
 
 async function loadBulletinInclude() {

@@ -56,11 +56,35 @@ function listChildren(absDir) {
   return entries.slice(0, MAX_CHILDREN);
 }
 
-function renderNode(absPath, relPath, prefix, isLast, depth) {
+/**
+ * Parse existing "## 프로젝트 구조" code block to extract filename -> description map.
+ * Lines like: "├── index.html               # 메인 페이지" => { "index.html": "메인 페이지" }
+ * Lines like: "├── pages/" => { "pages/": "" } (directory, no description)
+ */
+function parseExistingDescriptions(readme) {
+  const sectionMatch = readme.match(/## 프로젝트 구조\s*\n+```[^\n]*\n([\s\S]*?)```/);
+  if (!sectionMatch) return {};
+
+  const descriptions = {};
+  const lines = sectionMatch[1].split("\n");
+  for (const line of lines) {
+    // Extract filename and optional # description
+    const match = line.match(/[├└│─\s]+([^\s#/]+\/?)\s+#\s*(.+)/);
+    if (match) {
+      const filename = match[1].replace(/\/$/, "");
+      descriptions[filename] = match[2].trim();
+    }
+  }
+  return descriptions;
+}
+
+function renderNode(absPath, relPath, prefix, isLast, depth, descriptions) {
   const lines = [];
   const base = path.basename(relPath);
   const connector = isLast ? "└── " : "├── ";
-  lines.push(prefix + connector + base);
+  const desc = descriptions[base];
+  const suffix = desc ? `${" ".repeat(Math.max(1, 25 - base.length))}# ${desc}` : "";
+  lines.push(prefix + connector + base + suffix);
 
   const stat = fs.statSync(absPath);
   if (!stat.isDirectory() || depth >= MAX_DEPTH) {
@@ -73,13 +97,13 @@ function renderNode(absPath, relPath, prefix, isLast, depth) {
     const childAbs = path.join(absPath, entry.name);
     const childRel = path.join(relPath, entry.name);
     const childLast = idx === children.length - 1;
-    lines.push(...renderNode(childAbs, childRel, nextPrefix, childLast, depth + 1));
+    lines.push(...renderNode(childAbs, childRel, nextPrefix, childLast, depth + 1, descriptions));
   });
 
   return lines;
 }
 
-function buildTree(repoRoot) {
+function buildTree(repoRoot, descriptions) {
   const available = ROOT_ITEMS.filter((item) => fs.existsSync(path.join(repoRoot, item)));
   if (available.length === 0) {
     return "(표시할 파일 없음)";
@@ -89,7 +113,7 @@ function buildTree(repoRoot) {
   available.forEach((item, idx) => {
     const abs = path.join(repoRoot, item);
     const isLast = idx === available.length - 1;
-    lines.push(...renderNode(abs, item, "", isLast, 0));
+    lines.push(...renderNode(abs, item, "", isLast, 0, descriptions));
   });
   return lines.join("\n");
 }
@@ -100,18 +124,12 @@ function getStagedChanges() {
   return output.split("\n");
 }
 
-function makeAutoBlock(repoRoot) {
-  const tree = buildTree(repoRoot);
+function makeAutoBlock() {
   const changes = getStagedChanges().join("\n");
 
   return [
     START_MARKER,
     "### 자동 동기화",
-    "",
-    "#### 파일 구조(요약)",
-    "```text",
-    tree,
-    "```",
     "",
     "#### 변경 파일(커밋 스테이징 기준)",
     "```text",
@@ -122,33 +140,50 @@ function makeAutoBlock(repoRoot) {
   ].join("\n");
 }
 
-function updateReadme(readmePath, autoBlock) {
-  const original = fs.readFileSync(readmePath, "utf8");
+function updateProjectStructure(readme, repoRoot) {
+  const descriptions = parseExistingDescriptions(readme);
+  const tree = buildTree(repoRoot, descriptions);
+
+  // Replace the code block inside "## 프로젝트 구조"
+  const regex = /(## 프로젝트 구조\s*\n+)```[^\n]*\n[\s\S]*?```/;
+  if (regex.test(readme)) {
+    return readme.replace(regex, `$1\`\`\`\n${tree}\n\`\`\``);
+  }
+  return readme;
+}
+
+function updateAutoBlock(readme, autoBlock) {
   const blockRegex = new RegExp(
     `${START_MARKER}[\\s\\S]*?${END_MARKER}`,
     "m"
   );
 
-  if (blockRegex.test(original)) {
-    return original.replace(blockRegex, autoBlock);
+  if (blockRegex.test(readme)) {
+    return readme.replace(blockRegex, autoBlock);
   }
 
   const anchor = "\n## 로컬 실행";
-  const insertAt = original.indexOf(anchor);
+  const insertAt = readme.indexOf(anchor);
   if (insertAt === -1) {
-    return `${original}\n\n${autoBlock}\n`;
+    return `${readme}\n\n${autoBlock}\n`;
   }
 
-  return `${original.slice(0, insertAt)}\n\n${autoBlock}\n${original.slice(insertAt)}`;
+  return `${readme.slice(0, insertAt)}\n\n${autoBlock}\n${readme.slice(insertAt)}`;
 }
 
 function main() {
   const repoRoot = getRepoRoot();
   const readmePath = path.join(repoRoot, "README.md");
-  const autoBlock = makeAutoBlock(repoRoot);
-  const updated = updateReadme(readmePath, autoBlock);
+  const original = fs.readFileSync(readmePath, "utf8");
 
-  if (updated !== fs.readFileSync(readmePath, "utf8")) {
+  // 1. Update existing "## 프로젝트 구조" code block with current file tree + descriptions
+  let updated = updateProjectStructure(original, repoRoot);
+
+  // 2. Update auto-sync block (staged changes only, no duplicate file structure)
+  const autoBlock = makeAutoBlock();
+  updated = updateAutoBlock(updated, autoBlock);
+
+  if (updated !== original) {
     fs.writeFileSync(readmePath, updated, "utf8");
   }
 }

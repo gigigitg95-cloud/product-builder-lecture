@@ -32,6 +32,13 @@
           link.setAttribute('aria-current', 'page');
         }
       });
+      // Apply footer translations after load
+      if (typeof updateFooterTranslations === 'function') {
+        updateFooterTranslations();
+      }
+      if (typeof applyTranslations === 'function') {
+        applyTranslations();
+      }
     })
     .catch((error) => {
       console.error(error);

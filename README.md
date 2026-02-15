@@ -205,169 +205,66 @@
 
 ## 프로젝트 구조
 
-``` 
+```
 ├── index.html               # 메인 페이지
 ├── 404.html                 # 404 에러 페이지
-├── pages/
-│   ├── about.html           # 서비스 소개
-│   ├── guide.html           # 음식 가이드
-│   ├── privacy.html         # 개인정보처리방침
-│   ├── terms.html           # 이용약관
-│   ├── contact.html         # 제휴 문의 페이지
-│   ├── payment.html         # Polar 결제 화면
-│   ├── cookies.html         # 쿠키 정책
-│   ├── faq.html             # 자주 묻는 질문
-│   ├── help.html            # 도움말 센터
-│   ├── footer.html          # 공통 Footer 템플릿
-│   └── bulletin.html        # 커뮤니티 게시판 include
-├── images/
-│   ├── favicon.svg          # 파비콘
-│   ├── favicon.ico          # 파비콘 (레거시)
-│   └── og-image-keywords-alt.svg  # OG 이미지
-├── robots.txt               # 검색엔진 크롤링 설정
-├── sitemap.xml              # 사이트맵
-├── ads.txt                  # 광고 크롤러 허용 설정
-├── _headers                 # 호스팅 응답 헤더 설정
-├── _redirects               # 추가 리다이렉트 규칙
-├── firebase.json            # Firebase Hosting 설정
-├── firestore.rules          # Firestore 보안 규칙
-├── package.json             # 스크립트/메타 정의
-├── css/
-│   ├── style.css            # 공통 스타일 (메인/공통 컴포넌트)
-│   ├── guide.css            # 가이드 페이지 스타일
-│   ├── privacy.css          # 개인정보처리방침 스타일
-│   ├── terms.css            # 이용약관 스타일
-│   └── 404.css              # 404 페이지 스타일
-├── js/
-│   ├── app.js               # 메인 앱 로직 (추천/슬롯/공유/게시판/테마)
-│   ├── translations.js      # 18개 언어 번역 데이터
-│   ├── countryLanguageService.js  # 국가-언어 매핑 서비스
-│   ├── footer-loader.js     # 공통 Footer 로더
-│   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
-│   ├── polar-worker-checkout.js # 결제 버튼 -> Workers checkout API 연동
-│   ├── privacy.js           # 개인정보처리방침 스크립트
-│   ├── terms.js             # 이용약관 스크립트
-│   ├── 404.js               # 404 페이지 스크립트
-│   ├── analytics/
-│   │   ├── gtag.js          # Google Analytics 초기화
-│   │   └── clarity.js       # Microsoft Clarity 초기화
-│   └── ld/
-│       ├── index.json       # 메인 페이지 구조화 데이터
-│       ├── about.json       # 소개 페이지 구조화 데이터
-│       ├── guide.json       # 가이드 페이지 구조화 데이터
-│       ├── privacy.json     # 개인정보처리방침 구조화 데이터
-│       └── terms.json       # 이용약관 구조화 데이터
-├── scripts/
-│   ├── inject-jsonld.js     # 빌드 시 JSON-LD inline 주입 (npm run build)
-│   └── check-dom-contract.js # DOM 계약 검증 스크립트
-├── docs/
-│   ├── dom-contract.json    # DOM 계약 정의 파일
-│   └── cloudflare-workers-polar-setup.md # Workers/Polar 결제 설정 가이드
-└── workers/
-    └── polar-checkout-worker/
-        ├── src/index.ts     # checkout/status/webhook(+자동환불) Worker 엔드포인트
-        ├── wrangler.toml    # Worker 라우트/변수 설정
-        ├── package.json     # Worker 의존성/스크립트
-        ├── package-lock.json # Worker 잠금 파일
-        ├── tsconfig.json    # Worker 타입스크립트 설정
-        └── .gitignore       # Worker 로컬 산출물 제외
-```
-
----
-
-
-<!-- README:AUTO-START -->
-### 자동 동기화
-
-#### 파일 구조(요약)
-```text
-├── index.html
-├── 404.html
 ├── pages
-│   ├── about.html
-│   ├── bulletin.html
-│   ├── contact.html
-│   ├── cookies.html
-│   ├── faq.html
-│   ├── footer.html
-│   ├── guide.html
-│   ├── help.html
-│   ├── payment.html
-│   ├── privacy.html
-│   └── terms.html
+│   ├── about.html               # 서비스 소개
+│   ├── bulletin.html            # 커뮤니티 게시판 include
+│   ├── contact.html             # 제휴 문의 페이지
+│   ├── cookies.html             # 쿠키 정책
+│   ├── faq.html                 # 자주 묻는 질문
+│   ├── footer.html              # 공통 Footer 템플릿
+│   ├── guide.html               # 음식 가이드
+│   ├── help.html                # 도움말 센터
+│   ├── payment.html             # Polar 결제 화면
+│   ├── privacy.html             # 개인정보처리방침
+│   └── terms.html               # 이용약관
 ├── css
-│   ├── 404.css
-│   ├── guide.css
-│   ├── privacy.css
-│   ├── style.css
-│   └── terms.css
+│   ├── 404.css                  # 404 페이지 스타일
+│   ├── guide.css                # 가이드 페이지 스타일
+│   ├── privacy.css              # 개인정보처리방침 스타일
+│   ├── style.css                # 공통 스타일 (메인/공통 컴포넌트)
+│   └── terms.css                # 이용약관 스타일
 ├── js
 │   ├── analytics
-│   │   ├── clarity.js
-│   │   └── gtag.js
+│   │   ├── clarity.js               # Microsoft Clarity 초기화
+│   │   └── gtag.js                  # Google Analytics 초기화
 │   ├── ld
-│   │   ├── about.json
-│   │   ├── guide.json
-│   │   ├── index.json
-│   │   ├── privacy.json
-│   │   └── terms.json
-│   ├── 404.js
-│   ├── app.js
-│   ├── countryLanguageService.js
-│   ├── footer-loader.js
-│   ├── footer-tailwind-safelist.js
-│   ├── polar-worker-checkout.js
-│   ├── privacy.js
-│   ├── terms.js
-│   └── translations.js
+│   │   ├── about.json               # 소개 페이지 구조화 데이터
+│   │   ├── guide.json               # 가이드 페이지 구조화 데이터
+│   │   ├── index.json               # 메인 페이지 구조화 데이터
+│   │   ├── privacy.json             # 개인정보처리방침 구조화 데이터
+│   │   └── terms.json               # 이용약관 구조화 데이터
+│   ├── 404.js                   # 404 페이지 스크립트
+│   ├── app.js                   # 메인 앱 로직 (추천/슬롯/공유/게시판/테마)
+│   ├── countryLanguageService.js # 국가-언어 매핑 서비스
+│   ├── footer-loader.js         # 공통 Footer 로더
+│   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
+│   ├── polar-worker-checkout.js # 결제 버튼 -> Workers checkout API 연동
+│   ├── privacy.js               # 개인정보처리방침 스크립트
+│   ├── terms.js                 # 이용약관 스크립트
+│   └── translations.js          # 18개 언어 번역 데이터
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
 │       │   └── index.ts
-│       ├── .gitignore
-│       ├── package-lock.json
-│       ├── package.json
-│       ├── tsconfig.json
-│       └── wrangler.toml
+│       ├── .gitignore               # Worker 로컬 산출물 제외
+│       ├── package-lock.json        # Worker 잠금 파일
+│       ├── package.json             # Worker 의존성/스크립트
+│       ├── tsconfig.json            # Worker 타입스크립트 설정
+│       └── wrangler.toml            # Worker 라우트/변수 설정
 ├── docs
-│   ├── cloudflare-workers-polar-setup.md
-│   └── dom-contract.json
+│   ├── cloudflare-workers-polar-setup.md # Workers/Polar 결제 설정 가이드
+│   └── dom-contract.json        # DOM 계약 정의 파일
 ├── scripts
-│   ├── check-dom-contract.js
-│   ├── inject-jsonld.js
+│   ├── check-dom-contract.js    # DOM 계약 검증 스크립트
+│   ├── inject-jsonld.js         # 빌드 시 JSON-LD inline 주입 (npm run build)
 │   └── update-readme.js
-├── firebase.json
-├── package.json
+├── firebase.json            # Firebase Hosting 설정
+├── package.json             # Worker 의존성/스크립트
 └── README.md
 ```
-
-#### 변경 파일(커밋 스테이징 기준)
-```text
-M	.githooks/pre-push
-```
-
-<!-- README:AUTO-END -->
-
-## 로컬 실행
-
-```bash
-# 정적 파일이므로 아무 HTTP 서버로 실행 가능
-npx serve .
-# 또는
-python3 -m http.server 8000
-```
-
-## 배포
-
-```bash
-firebase deploy --only hosting
-```
-
----
-
-## 라이선스
-
-&copy; 2026 Menu Recommendation. All rights reserved.
 
 ---
 
@@ -510,3 +407,22 @@ firebase deploy --only hosting
 - `code.html` 제외 HTML을 `pages/`로 이동하고 기존 경로를 301 리다이렉트로 연결
 - `canonical`, `og:url`, `sitemap.xml`을 `/pages/` 경로 기준으로 정리
 - JSON-LD 관리 방식을 `js/ld/*.json` + `npm run build`(`scripts/inject-jsonld.js`)로 통일
+
+
+<!-- README:AUTO-START -->
+### 자동 동기화
+
+#### 변경 파일(커밋 스테이징 기준)
+```text
+M	README.md
+M	css/style.css
+M	index.html
+M	js/app.js
+M	js/footer-loader.js
+M	js/translations.js
+M	pages/bulletin.html
+M	pages/footer.html
+M	scripts/update-readme.js
+```
+
+<!-- README:AUTO-END -->

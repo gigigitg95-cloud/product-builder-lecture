@@ -300,51 +300,51 @@
             <nav class="flex-1 overflow-y-auto px-3 space-y-1 py-2" aria-label="사이드바 메뉴">
                 <button class="sidebar-nav-item active flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group w-full text-left transition-colors" id="nav-recommendation" title="슬롯머신" onclick="switchGameTab('slot'); document.getElementById('game-container').scrollIntoView({behavior:'smooth'});">
                     <span class="material-icons-outlined text-[20px]">casino</span>
-                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">슬롯머신</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-slot">슬롯머신</span>
                 </button>
                 <button class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group w-full text-left transition-colors" id="nav-recommend" title="오늘의 추천 메뉴" onclick="switchGameTab('recommend'); document.getElementById('game-container').scrollIntoView({behavior:'smooth'});">
                     <span class="material-icons-outlined text-[20px]">recommend</span>
-                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">오늘의 추천 메뉴</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-recommend">오늘의 추천 메뉴</span>
                 </button>
                 <button class="sidebar-nav-item side-nav-btn flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group w-full text-left transition-colors" data-panel="bulletin" id="nav-bulletin" title="커뮤니티 게시판">
                     <span class="material-icons-outlined text-[20px]">forum</span>
-                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">커뮤니티 게시판</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-bulletin">커뮤니티 게시판</span>
                 </button>
 
                 <div class="pt-3 pb-1 sidebar-section-title">
-                    <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest whitespace-nowrap">Discover</p>
+                    <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest whitespace-nowrap" id="sidebar-discover">Discover</p>
                 </div>
                 <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group transition-colors" href="#situation-title">
                     <span class="material-icons-outlined text-[20px]">restaurant</span>
-                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">상황별 추천</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-situation">상황별 추천</span>
                 </a>
                 <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group transition-colors" href="#seasonal-title">
                     <span class="material-icons-outlined text-[20px]">wb_sunny</span>
-                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">계절/날씨별 메뉴</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-seasonal">계절/날씨별 메뉴</span>
                 </a>
                 <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group transition-colors" href="#popular-title">
                     <span class="material-icons-outlined text-[20px]">leaderboard</span>
-                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">인기 메뉴 Top 10</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-popular">인기 메뉴 Top 10</span>
                 </a>
                 <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group transition-colors" href="#delivery-title">
                     <span class="material-icons-outlined text-[20px]">delivery_dining</span>
-                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">배달 메뉴 가이드</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-delivery">배달 메뉴 가이드</span>
                 </a>
 
                 <div class="pt-3 pb-1 sidebar-section-title">
-                    <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest whitespace-nowrap">Tools</p>
+                    <p class="px-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest whitespace-nowrap" id="sidebar-tools">Tools</p>
                 </div>
                 <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group transition-colors" href="#calorie-title">
                     <span class="material-icons-outlined text-[20px]">calculate</span>
-                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">칼로리 가이드</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-calorie">칼로리 가이드</span>
                 </a>
                 <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group transition-colors" href="#faq-title">
                     <span class="material-icons-outlined text-[20px]">help_outline</span>
-                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">자주 묻는 질문</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-faq">자주 묻는 질문</span>
                 </a>
                 <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group w-full text-left transition-colors" href="/pages/contact.html" id="nav-contact" title="제휴 문의">
                     <span class="material-icons-outlined text-[20px]">mail</span>
-                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">제휴 문의</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-contact">제휴 문의</span>
                 </a>
             </nav>
 
@@ -403,49 +403,49 @@
                 <nav class="p-4 space-y-1">
                     <button class="mobile-nav-btn flex items-center space-x-3 w-full px-4 py-3 bg-primary/10 text-primary rounded-xl font-medium text-left" onclick="switchGameTab('slot'); document.getElementById('mobile-sidebar').style.display='none'; document.getElementById('game-container').scrollIntoView({behavior:'smooth'});">
                         <span class="material-icons-outlined">casino</span>
-                        <span>슬롯머신</span>
+                        <span id="mobile-sidebar-slot">슬롯머신</span>
                     </button>
                     <button class="mobile-nav-btn flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-left" onclick="switchGameTab('recommend'); document.getElementById('mobile-sidebar').style.display='none'; document.getElementById('game-container').scrollIntoView({behavior:'smooth'});">
                         <span class="material-icons-outlined">recommend</span>
-                        <span>오늘의 추천 메뉴</span>
+                        <span id="mobile-sidebar-recommend">오늘의 추천 메뉴</span>
                     </button>
                     <button class="mobile-nav-btn side-nav-btn flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-left" data-panel="bulletin" onclick="setActivePanel('bulletin'); localStorage.setItem('lastPanel','bulletin'); document.getElementById('mobile-sidebar').style.display='none';">
                         <span class="material-icons-outlined">forum</span>
-                        <span>커뮤니티 게시판</span>
+                        <span id="mobile-sidebar-bulletin">커뮤니티 게시판</span>
                     </button>
                     <div class="pt-3 pb-1">
-                        <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Discover</p>
+                        <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider" id="mobile-sidebar-discover">Discover</p>
                     </div>
                     <a class="flex items-center space-x-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" href="#situation-title" onclick="document.getElementById('mobile-sidebar').style.display='none'">
                         <span class="material-icons-outlined">restaurant</span>
-                        <span>상황별 추천</span>
+                        <span id="mobile-sidebar-situation">상황별 추천</span>
                     </a>
                     <a class="flex items-center space-x-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" href="#seasonal-title" onclick="document.getElementById('mobile-sidebar').style.display='none'">
                         <span class="material-icons-outlined">wb_sunny</span>
-                        <span>계절/날씨별 메뉴</span>
+                        <span id="mobile-sidebar-seasonal">계절/날씨별 메뉴</span>
                     </a>
                     <a class="flex items-center space-x-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" href="#popular-title" onclick="document.getElementById('mobile-sidebar').style.display='none'">
                         <span class="material-icons-outlined">leaderboard</span>
-                        <span>인기 메뉴 Top 10</span>
+                        <span id="mobile-sidebar-popular">인기 메뉴 Top 10</span>
                     </a>
                     <a class="flex items-center space-x-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" href="#delivery-title" onclick="document.getElementById('mobile-sidebar').style.display='none'">
                         <span class="material-icons-outlined">delivery_dining</span>
-                        <span>배달 메뉴 가이드</span>
+                        <span id="mobile-sidebar-delivery">배달 메뉴 가이드</span>
                     </a>
                     <div class="pt-3 pb-1">
-                        <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Tools</p>
+                        <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider" id="mobile-sidebar-tools">Tools</p>
                     </div>
                     <a class="flex items-center space-x-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" href="#calorie-title" onclick="document.getElementById('mobile-sidebar').style.display='none'">
                         <span class="material-icons-outlined">calculate</span>
-                        <span>칼로리 가이드</span>
+                        <span id="mobile-sidebar-calorie">칼로리 가이드</span>
                     </a>
                     <a class="flex items-center space-x-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors" href="#faq-title" onclick="document.getElementById('mobile-sidebar').style.display='none'">
                         <span class="material-icons-outlined">help_outline</span>
-                        <span>자주 묻는 질문</span>
+                        <span id="mobile-sidebar-faq">자주 묻는 질문</span>
                     </a>
                     <a class="mobile-nav-btn flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-left" href="/pages/contact.html" onclick="document.getElementById('mobile-sidebar').style.display='none';">
                         <span class="material-icons-outlined">mail</span>
-                        <span>제휴 문의</span>
+                        <span id="mobile-sidebar-contact">제휴 문의</span>
                     </a>
                 </nav>
                 </div><!-- /scrollable area -->
@@ -492,7 +492,7 @@
                     <h2 itemprop="name" class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                         <span id="header-title" class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">메뉴 추천</span>
                     </h2>
-                    <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto" itemprop="description">오늘 뭐 먹지? 맛있는 메뉴를 추천해드립니다</p>
+                    <p class="subtitle text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto" itemprop="description">오늘 뭐 먹지? 맛있는 메뉴를 추천해드립니다</p>
                     <time datetime="2026-02-06" itemprop="dateModified" style="display:none;">2026-02-06</time>
                 </section>
 
@@ -502,8 +502,8 @@
                 <!-- Tab Buttons -->
                 <div class="flex justify-center mb-8">
                     <div class="bg-surface-light dark:bg-surface-dark p-1.5 rounded-full border border-gray-200 dark:border-gray-700 inline-flex shadow-sm">
-                        <button class="game-tab-btn px-6 py-2 rounded-full text-sm font-medium transition-all shadow-md bg-gradient-to-r from-primary to-secondary text-white" data-tab="slot" onclick="switchGameTab('slot')">슬롯머신</button>
-                        <button class="game-tab-btn px-6 py-2 rounded-full text-sm font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200" data-tab="recommend" onclick="switchGameTab('recommend')">오늘의 추천 메뉴</button>
+                        <button id="tab-btn-slot" class="game-tab-btn px-6 py-2 rounded-full text-sm font-medium transition-all shadow-md bg-gradient-to-r from-primary to-secondary text-white" data-tab="slot" onclick="switchGameTab('slot')">슬롯머신</button>
+                        <button id="tab-btn-recommend" class="game-tab-btn px-6 py-2 rounded-full text-sm font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200" data-tab="recommend" onclick="switchGameTab('recommend')">오늘의 추천 메뉴</button>
                     </div>
                 </div>
 
@@ -567,8 +567,8 @@
                 <!-- Result Display -->
                 <div class="slot-result mt-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-lg" id="slot-result">
                     <div class="slot-result-card flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-inner" id="slot-result-card">
-                        <img class="slot-result-image h-16 w-16 rounded-lg object-cover" id="slot-result-image" src="" alt="" loading="lazy" decoding="async">
-                        <div class="slot-result-info flex items-center gap-2 text-lg font-semibold text-slate-800">
+                        <img class="slot-result-image h-80 w-80 sm:h-96 sm:w-96 rounded-lg object-cover" id="slot-result-image" src="" alt="" loading="lazy" decoding="async">
+                        <div class="slot-result-info flex items-center gap-2 text-sm font-semibold text-slate-800">
                             <span class="slot-result-emoji" id="slot-result-emoji"></span>
                             <span class="slot-result-name" id="slot-result-name"></span>
                         </div>
@@ -648,82 +648,114 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="situation-grid">
                     <div class="situation-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer border border-gray-100 dark:border-gray-700" data-situation="solo">
                         <span class="text-3xl mb-3 block">🧑</span>
-                        <h3 class="font-semibold text-gray-800 dark:text-white text-sm mb-2">혼밥</h3>
+                        <h3 class="situation-card-title font-semibold text-gray-800 dark:text-white text-sm mb-2">혼밥</h3>
                         <div class="flex flex-wrap gap-1">
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">라멘</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">김밥</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">덮밥</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">국수</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">우동</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">비빔밥</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">카레라이스</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">주먹밥</span>
                         </div>
                     </div>
                     <div class="situation-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer border border-gray-100 dark:border-gray-700" data-situation="family">
                         <span class="text-3xl mb-3 block">👨‍👩‍👧‍👦</span>
-                        <h3 class="font-semibold text-gray-800 dark:text-white text-sm mb-2">가족 식사</h3>
+                        <h3 class="situation-card-title font-semibold text-gray-800 dark:text-white text-sm mb-2">가족 식사</h3>
                         <div class="flex flex-wrap gap-1">
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">삼겹살</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">갈비찜</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">찌개</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">불고기</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">찜닭</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">된장찌개</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">샤브샤브</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">보쌈</span>
                         </div>
                     </div>
                     <div class="situation-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer border border-gray-100 dark:border-gray-700" data-situation="friends">
                         <span class="text-3xl mb-3 block">👫</span>
-                        <h3 class="font-semibold text-gray-800 dark:text-white text-sm mb-2">친구 모임</h3>
+                        <h3 class="situation-card-title font-semibold text-gray-800 dark:text-white text-sm mb-2">친구 모임</h3>
                         <div class="flex flex-wrap gap-1">
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">치킨</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">피자</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">족발</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">떡볶이</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">마라탕</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">순대</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">닭발</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">파스타</span>
                         </div>
                     </div>
                     <div class="situation-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer border border-gray-100 dark:border-gray-700" data-situation="office">
                         <span class="text-3xl mb-3 block">🏢</span>
-                        <h3 class="font-semibold text-gray-800 dark:text-white text-sm mb-2">회식</h3>
+                        <h3 class="situation-card-title font-semibold text-gray-800 dark:text-white text-sm mb-2">회식</h3>
                         <div class="flex flex-wrap gap-1">
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">고기구이</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">해물탕</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">샤브샤브</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">갈비</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">회</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">아구찜</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">낙지볶음</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">꼬치구이</span>
                         </div>
                     </div>
                     <div class="situation-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer border border-gray-100 dark:border-gray-700" data-situation="date">
                         <span class="text-3xl mb-3 block">💑</span>
-                        <h3 class="font-semibold text-gray-800 dark:text-white text-sm mb-2">데이트</h3>
+                        <h3 class="situation-card-title font-semibold text-gray-800 dark:text-white text-sm mb-2">데이트</h3>
                         <div class="flex flex-wrap gap-1">
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-secondary/10 text-secondary rounded-full">파스타</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-secondary/10 text-secondary rounded-full">스테이크</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-secondary/10 text-secondary rounded-full">초밥</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-secondary/10 text-secondary rounded-full">리조또</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-secondary/10 text-secondary rounded-full">빠에야</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-secondary/10 text-secondary rounded-full">양갈비</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-secondary/10 text-secondary rounded-full">코스요리</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-secondary/10 text-secondary rounded-full">와인페어링</span>
                         </div>
                     </div>
                     <div class="situation-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer border border-gray-100 dark:border-gray-700" data-situation="quick">
                         <span class="text-3xl mb-3 block">⚡</span>
-                        <h3 class="font-semibold text-gray-800 dark:text-white text-sm mb-2">간편식</h3>
+                        <h3 class="situation-card-title font-semibold text-gray-800 dark:text-white text-sm mb-2">간편식</h3>
                         <div class="flex flex-wrap gap-1">
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">샌드위치</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">김밥</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">컵라면</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">토스트</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">베이글</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">시리얼</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">만두</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">샐러드랩</span>
                         </div>
                     </div>
                     <div class="situation-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer border border-gray-100 dark:border-gray-700" data-situation="diet">
                         <span class="text-3xl mb-3 block">🥗</span>
-                        <h3 class="font-semibold text-gray-800 dark:text-white text-sm mb-2">다이어트</h3>
+                        <h3 class="situation-card-title font-semibold text-gray-800 dark:text-white text-sm mb-2">다이어트</h3>
                         <div class="flex flex-wrap gap-1">
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-green-500/10 text-green-600 rounded-full">샐러드</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-green-500/10 text-green-600 rounded-full">닭가슴살</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-green-500/10 text-green-600 rounded-full">포케</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-green-500/10 text-green-600 rounded-full">곤약</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-green-500/10 text-green-600 rounded-full">두부볼</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-green-500/10 text-green-600 rounded-full">연어샐러드</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-green-500/10 text-green-600 rounded-full">그릭요거트</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-green-500/10 text-green-600 rounded-full">에그화이트</span>
                         </div>
                     </div>
                     <div class="situation-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer border border-gray-100 dark:border-gray-700" data-situation="drinking">
                         <span class="text-3xl mb-3 block">🍺</span>
-                        <h3 class="font-semibold text-gray-800 dark:text-white text-sm mb-2">술안주</h3>
+                        <h3 class="situation-card-title font-semibold text-gray-800 dark:text-white text-sm mb-2">술안주</h3>
                         <div class="flex flex-wrap gap-1">
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full">치킨</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full">곱창</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full">회</span>
                             <span class="situation-menu-tag text-xs px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full">전</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full">해물찜</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full">국물떡볶이</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full">오뎅탕</span>
+                            <span class="situation-menu-tag text-xs px-2 py-0.5 bg-amber-500/10 text-amber-600 rounded-full">족발</span>
                         </div>
                     </div>
                 </div>
@@ -1001,42 +1033,42 @@
                 <div class="p-6 sm:p-8">
                     <div class="flex items-center gap-3 mb-2">
                         <span class="material-icons-outlined text-orange-500 text-3xl">schedule</span>
-                        <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="meal-time-title">점심 메뉴 vs 저녁 메뉴 선택 가이드</h2>
+                        <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="meal-time-title" data-i18n="mealTimeTitle">점심 메뉴 vs 저녁 메뉴 선택 가이드</h2>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">같은 음식이라도 점심과 저녁에 먹을 때 느낌이 다릅니다. 시간대에 맞는 메뉴를 선택해보세요.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6" data-i18n="mealTimeDesc">같은 음식이라도 점심과 저녁에 먹을 때 느낌이 다릅니다. 시간대에 맞는 메뉴를 선택해보세요.</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl p-5 border border-amber-100 dark:border-amber-800/30">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-icons-outlined text-amber-500">light_mode</span>
-                                <h3 class="font-bold text-gray-800 dark:text-white">점심 메뉴 추천</h3>
+                                <h3 class="font-bold text-gray-800 dark:text-white" data-i18n="mealLunchTitle">점심 메뉴 추천</h3>
                             </div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">점심에는 오후 업무 효율을 위해 너무 무겁지 않으면서도 에너지를 보충할 수 있는 메뉴가 좋습니다. 소화가 잘 되고 빠르게 먹을 수 있는 메뉴를 선택하세요.</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3" data-i18n="mealLunchDesc">점심에는 오후 업무 효율을 위해 너무 무겁지 않으면서도 에너지를 보충할 수 있는 메뉴가 좋습니다. 소화가 잘 되고 빠르게 먹을 수 있는 메뉴를 선택하세요.</p>
                             <ul class="space-y-1.5 text-sm text-gray-600 dark:text-gray-300">
-                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span><span><strong>백반/한정식:</strong> 균형 잡힌 영양소를 한 번에 섭취할 수 있는 가성비 메뉴</span></li>
-                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span><span><strong>국밥/국수:</strong> 빠르게 먹을 수 있고 속이 편한 국물 요리</span></li>
-                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span><span><strong>비빔밥/덮밥:</strong> 채소와 단백질을 함께 섭취할 수 있는 건강 메뉴</span></li>
-                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span><span><strong>샌드위치/샐러드:</strong> 가볍게 먹고 싶을 때 적합한 간편식</span></li>
-                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span><span><strong>돈카츠/우동:</strong> 적당한 양으로 든든한 점심 해결</span></li>
+                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span><span data-i18n="mealLunchItem1"><strong>백반/한정식:</strong> 균형 잡힌 영양소를 한 번에 섭취할 수 있는 가성비 메뉴</span></li>
+                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span><span data-i18n="mealLunchItem2"><strong>국밥/국수:</strong> 빠르게 먹을 수 있고 속이 편한 국물 요리</span></li>
+                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span><span data-i18n="mealLunchItem3"><strong>비빔밥/덮밥:</strong> 채소와 단백질을 함께 섭취할 수 있는 건강 메뉴</span></li>
+                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span><span data-i18n="mealLunchItem4"><strong>샌드위치/샐러드:</strong> 가볍게 먹고 싶을 때 적합한 간편식</span></li>
+                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span><span data-i18n="mealLunchItem5"><strong>돈카츠/우동:</strong> 적당한 양으로 든든한 점심 해결</span></li>
                             </ul>
                         </div>
                         <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-5 border border-indigo-100 dark:border-indigo-800/30">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-icons-outlined text-indigo-500">dark_mode</span>
-                                <h3 class="font-bold text-gray-800 dark:text-white">저녁 메뉴 추천</h3>
+                                <h3 class="font-bold text-gray-800 dark:text-white" data-i18n="mealDinnerTitle">저녁 메뉴 추천</h3>
                             </div>
-                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">저녁에는 하루의 피로를 풀 수 있는 든든하고 맛있는 메뉴가 좋습니다. 가족이나 친구와 함께 여유롭게 즐길 수 있는 메뉴를 선택하세요.</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3" data-i18n="mealDinnerDesc">저녁에는 하루의 피로를 풀 수 있는 든든하고 맛있는 메뉴가 좋습니다. 가족이나 친구와 함께 여유롭게 즐길 수 있는 메뉴를 선택하세요.</p>
                             <ul class="space-y-1.5 text-sm text-gray-600 dark:text-gray-300">
-                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></span><span><strong>삼겹살/갈비:</strong> 가족 또는 친구와 함께 구워 먹는 고기 요리</span></li>
-                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></span><span><strong>찌개/전골:</strong> 추운 날 몸을 따뜻하게 해주는 국물 요리</span></li>
-                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></span><span><strong>치킨/피자:</strong> 편안하게 TV 보면서 즐기는 배달 메뉴</span></li>
-                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></span><span><strong>파스타/스테이크:</strong> 분위기 있는 데이트에 적합한 양식</span></li>
-                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></span><span><strong>회/초밥:</strong> 신선한 해산물로 특별한 저녁을 즐기는 메뉴</span></li>
+                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></span><span data-i18n="mealDinnerItem1"><strong>삼겹살/갈비:</strong> 가족 또는 친구와 함께 구워 먹는 고기 요리</span></li>
+                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></span><span data-i18n="mealDinnerItem2"><strong>찌개/전골:</strong> 추운 날 몸을 따뜻하게 해주는 국물 요리</span></li>
+                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></span><span data-i18n="mealDinnerItem3"><strong>치킨/피자:</strong> 편안하게 TV 보면서 즐기는 배달 메뉴</span></li>
+                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></span><span data-i18n="mealDinnerItem4"><strong>파스타/스테이크:</strong> 분위기 있는 데이트에 적합한 양식</span></li>
+                                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0"></span><span data-i18n="mealDinnerItem5"><strong>회/초밥:</strong> 신선한 해산물로 특별한 저녁을 즐기는 메뉴</span></li>
                             </ul>
                         </div>
                     </div>
                     <div class="mt-5 text-sm text-gray-600 dark:text-gray-300 space-y-2 bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
-                        <p>점심 메뉴를 선택할 때는 <strong>식사 시간</strong>을 고려하는 것이 중요합니다. 보통 직장인의 점심시간은 1시간 내외이므로, 주문 후 빠르게 나오는 메뉴가 좋습니다. 반면 저녁에는 시간 여유가 있으므로 조리 시간이 긴 메뉴도 충분히 즐길 수 있습니다.</p>
-                        <p><strong>다이어트 중이라면</strong> 점심은 가볍게, 저녁은 더 가볍게 먹는 것이 좋습니다. 점심에 탄수화물과 단백질을 충분히 섭취하고, 저녁에는 채소 위주의 가벼운 식사를 하면 건강한 식단 관리가 가능합니다.</p>
+                        <p data-i18n="mealTip1">점심 메뉴를 선택할 때는 <strong>식사 시간</strong>을 고려하는 것이 중요합니다. 보통 직장인의 점심시간은 1시간 내외이므로, 주문 후 빠르게 나오는 메뉴가 좋습니다. 반면 저녁에는 시간 여유가 있으므로 조리 시간이 긴 메뉴도 충분히 즐길 수 있습니다.</p>
+                        <p data-i18n="mealTip2"><strong>다이어트 중이라면</strong> 점심은 가볍게, 저녁은 더 가볍게 먹는 것이 좋습니다. 점심에 탄수화물과 단백질을 충분히 섭취하고, 저녁에는 채소 위주의 가벼운 식사를 하면 건강한 식단 관리가 가능합니다.</p>
                     </div>
                 </div>
             </section>
@@ -1049,44 +1081,44 @@
                         <span class="material-icons-outlined text-rose-500 text-3xl">soup_kitchen</span>
                         <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="home-cooking-title">집밥 요리 추천</h2>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">외식이나 배달 대신 집에서 직접 요리해보세요. 초보자도 쉽게 만들 수 있는 집밥 메뉴를 소개합니다.</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6" id="home-cooking-desc">외식이나 배달 대신 집에서 직접 요리해보세요. 초보자도 쉽게 만들 수 있는 집밥 메뉴를 소개합니다.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="home-cooking-grid">
+                        <div class="home-cooking-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-icons-outlined text-rose-400">skillet</span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">계란볶음밥</h3>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">찬밥과 계란만 있으면 뚝딱 만들 수 있는 초간단 메뉴. 냉장고에 남은 채소를 넣으면 영양도 UP! 간장이나 굴소스로 간을 하면 식당 못지않은 맛을 낼 수 있습니다. 조리 시간 약 10분.</p>
                         </div>
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <div class="home-cooking-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-icons-outlined text-rose-400">outdoor_grill</span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">된장찌개</h3>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">두부, 감자, 호박, 양파 등 기본 재료로 만드는 한국의 대표 국물 요리. 된장 2큰술과 고추장 반 큰술을 넣으면 깊은 맛이 납니다. 밥 한 공기와 함께 먹으면 든든한 한 끼 완성입니다.</p>
                         </div>
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <div class="home-cooking-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-icons-outlined text-rose-400">ramen_dining</span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">알리오올리오</h3>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">마늘, 올리브 오일, 페퍼론치노만 있으면 만들 수 있는 심플한 파스타. 면을 삶는 동안 소스를 준비하면 15분 안에 완성됩니다. 면수를 약간 넣어 유화시키는 것이 맛의 핵심 포인트입니다.</p>
                         </div>
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <div class="home-cooking-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-icons-outlined text-rose-400">rice_bowl</span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">참치마요 덮밥</h3>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">참치캔과 마요네즈, 간장 약간만 있으면 5분 만에 완성되는 초간단 메뉴. 밥 위에 참치마요를 올리고 김가루, 깨를 뿌리면 끝! 의외로 맛있어서 자꾸 만들게 되는 중독성 있는 메뉴입니다.</p>
                         </div>
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <div class="home-cooking-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-icons-outlined text-rose-400">egg</span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">라면 + 계란 + 밥</h3>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">한국인의 야식 or 간편식 1위. 라면에 계란을 넣고 밥을 말아 먹으면 그 어떤 고급 요리보다 만족스러운 한 끼가 됩니다. 파, 김치를 곁들이면 더욱 풍미가 살아납니다.</p>
                         </div>
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <div class="home-cooking-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-icons-outlined text-rose-400">kebab_dining</span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">불고기</h3>
@@ -1105,9 +1137,9 @@
                         <span class="material-icons-outlined text-cyan-500 text-3xl">free_breakfast</span>
                         <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="breakfast-title">아침 메뉴 추천</h2>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">바쁜 아침에도 건강하게! 간편하면서도 영양 가득한 아침 메뉴를 소개합니다.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6" id="breakfast-desc">바쁜 아침에도 건강하게! 간편하면서도 영양 가득한 아침 메뉴를 소개합니다.</p>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                        <div class="bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-2xl p-5 border border-orange-100 dark:border-orange-800/30">
+                        <div class="breakfast-card bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-2xl p-5 border border-orange-100 dark:border-orange-800/30">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-icons-outlined text-orange-500">rice_bowl</span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">한식 아침</h3>
@@ -1121,7 +1153,7 @@
                                 <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1.5 shrink-0"></span>토스트 + 계란말이 + 우유</li>
                             </ul>
                         </div>
-                        <div class="bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl p-5 border border-sky-100 dark:border-sky-800/30">
+                        <div class="breakfast-card bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-2xl p-5 border border-sky-100 dark:border-sky-800/30">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-icons-outlined text-sky-500">bakery_dining</span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">양식 아침</h3>
@@ -1135,7 +1167,7 @@
                                 <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-sky-400 mt-1.5 shrink-0"></span>그릭 요거트 + 그래놀라 + 블루베리</li>
                             </ul>
                         </div>
-                        <div class="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-2xl p-5 border border-emerald-100 dark:border-emerald-800/30">
+                        <div class="breakfast-card bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-2xl p-5 border border-emerald-100 dark:border-emerald-800/30">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="material-icons-outlined text-emerald-500">bolt</span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">초간편 아침</h3>
@@ -1151,7 +1183,7 @@
                         </div>
                     </div>
                     <div class="mt-5 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
-                        <p><strong>아침 식사의 중요성:</strong> 아침을 거르면 오전 집중력이 떨어지고 점심에 과식하게 되는 악순환이 반복됩니다. 간단하더라도 아침을 챙겨 먹는 습관이 하루의 컨디션을 좌우합니다. 전문가들은 탄수화물, 단백질, 과일을 균형 있게 포함한 아침 식사를 권장합니다.</p>
+                        <p id="breakfast-tip"><strong id="breakfast-tip-title">아침 식사의 중요성:</strong> <span id="breakfast-tip-text">아침을 거르면 오전 집중력이 떨어지고 점심에 과식하게 되는 악순환이 반복됩니다. 간단하더라도 아침을 챙겨 먹는 습관이 하루의 컨디션을 좌우합니다. 전문가들은 탄수화물, 단백질, 과일을 균형 있게 포함한 아침 식사를 권장합니다.</span></p>
                     </div>
                 </div>
             </section>
@@ -1164,15 +1196,15 @@
                         <span class="material-icons-outlined text-violet-500 text-3xl">local_fire_department</span>
                         <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="calorie-title">주요 메뉴 칼로리 가이드</h2>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">메뉴별 대략적인 칼로리를 알아두면 건강한 식단 관리에 도움이 됩니다. (1인분 기준)</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6" id="calorie-desc">메뉴별 대략적인 칼로리를 알아두면 건강한 식단 관리에 도움이 됩니다. (1인분 기준)</p>
                     <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
-                        <table class="w-full text-sm">
+                        <table class="w-full text-sm" id="calorie-table">
                             <thead>
                                 <tr class="bg-gray-50 dark:bg-gray-800">
-                                    <th class="text-left px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">메뉴</th>
-                                    <th class="text-left px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">칼로리 (kcal)</th>
-                                    <th class="text-left px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">분류</th>
-                                    <th class="text-left px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">특징</th>
+                                    <th class="calorie-th text-left px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">메뉴</th>
+                                    <th class="calorie-th text-left px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">칼로리 (kcal)</th>
+                                    <th class="calorie-th text-left px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">분류</th>
+                                    <th class="calorie-th text-left px-4 py-3 font-semibold text-gray-700 dark:text-gray-300">특징</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -1251,9 +1283,9 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="mt-5 text-sm text-gray-600 dark:text-gray-300 space-y-2 bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
-                        <p>위 칼로리 정보는 일반적인 1인분 기준의 대략적인 수치입니다. 실제 칼로리는 조리 방법, 재료 양, 소스 등에 따라 달라질 수 있습니다. <strong>건강한 성인의 하루 권장 칼로리는 남성 약 2,500kcal, 여성 약 2,000kcal</strong>이며, 활동량에 따라 차이가 있습니다.</p>
-                        <p>다이어트를 위해서는 한 끼에 500~600kcal 이내로 섭취하는 것이 좋으며, 단순히 칼로리만 줄이기보다는 단백질, 식이섬유, 비타민 등 영양소의 균형을 맞추는 것이 더 중요합니다.</p>
+                    <div class="mt-5 text-sm text-gray-600 dark:text-gray-300 space-y-2 bg-gray-50 dark:bg-gray-800 rounded-xl p-4" id="calorie-tips">
+                        <p id="calorie-tip1">위 칼로리 정보는 일반적인 1인분 기준의 대략적인 수치입니다. 실제 칼로리는 조리 방법, 재료 양, 소스 등에 따라 달라질 수 있습니다. <strong id="calorie-tip1-bold">건강한 성인의 하루 권장 칼로리는 남성 약 2,500kcal, 여성 약 2,000kcal</strong>이며, 활동량에 따라 차이가 있습니다.</p>
+                        <p id="calorie-tip2">다이어트를 위해서는 한 끼에 500~600kcal 이내로 섭취하는 것이 좋으며, 단순히 칼로리만 줄이기보다는 단백질, 식이섬유, 비타민 등 영양소의 균형을 맞추는 것이 더 중요합니다.</p>
                     </div>
                 </div>
             </section>
@@ -1267,22 +1299,22 @@
                         <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="food-tips-title">음식 선택 팁</h2>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <div class="tip-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <span class="material-icons-outlined text-teal-500 text-4xl mb-3" aria-hidden="true">schedule</span>
                             <h3 class="font-bold text-gray-800 dark:text-white mb-2">시간을 고려하세요</h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400">배달이 필요하다면 배달 시간을, 직접 요리한다면 조리 시간을 고려해서 메뉴를 선택하세요.</p>
                         </div>
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <div class="tip-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <span class="material-icons-outlined text-teal-500 text-4xl mb-3" aria-hidden="true">thermostat</span>
                             <h3 class="font-bold text-gray-800 dark:text-white mb-2">날씨에 맞게</h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400">추운 날에는 따뜻한 국물 요리, 더운 날에는 시원한 샐러드나 냉면이 좋습니다.</p>
                         </div>
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <div class="tip-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <span class="material-icons-outlined text-teal-500 text-4xl mb-3" aria-hidden="true">groups</span>
                             <h3 class="font-bold text-gray-800 dark:text-white mb-2">함께하는 사람</h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400">혼자 먹을 때와 가족이나 친구와 함께할 때 적합한 메뉴가 다릅니다.</p>
                         </div>
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <div class="tip-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 text-center hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <span class="material-icons-outlined text-teal-500 text-4xl mb-3" aria-hidden="true">fitness_center</span>
                             <h3 class="font-bold text-gray-800 dark:text-white mb-2">건강을 생각하세요</h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400">균형 잡힌 식단을 위해 채소와 단백질이 포함된 메뉴를 선택해 보세요.</p>
@@ -1299,10 +1331,10 @@
                         <span class="material-icons-outlined text-pink-500 text-3xl">info</span>
                         <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="info-title">메뉴 추천이란?</h2>
                     </div>
-                    <article class="space-y-3 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                        <p><strong>메뉴 추천 서비스</strong>는 매일 반복되는 "오늘 뭐 먹지?"라는 고민을 해결하기 위해 만들어진 무료 웹 애플리케이션입니다. 한식, 일식, 중식, 양식을 포함한 <strong>200가지 이상의 메뉴</strong> 중 하나를 랜덤으로 추천받을 수 있으며, 슬롯머신 방식의 재미있는 인터페이스를 제공합니다.</p>
-                        <p>이 서비스는 <strong>18개 언어</strong>를 지원하여 전 세계 70개국 이상의 사용자가 이용하고 있습니다. 혼밥, 가족 식사, 친구 모임, 회식, 데이트 등 <strong>상황별 메뉴 추천</strong>과 더울 때, 추울 때, 비 올 때, 해장 등 <strong>계절/날씨별 메뉴 추천</strong> 기능도 제공합니다.</p>
-                        <p>회원가입이나 앱 설치 없이 웹 브라우저에서 바로 사용할 수 있으며, 24시간 무료로 이용 가능합니다. 커뮤니티 게시판에서 다른 사용자들과 음식 이야기를 나눌 수도 있습니다.</p>
+                    <article class="space-y-3 text-sm text-gray-600 dark:text-gray-300 leading-relaxed" id="info-article">
+                        <p id="info-p1"><strong>메뉴 추천 서비스</strong>는 매일 반복되는 "오늘 뭐 먹지?"라는 고민을 해결하기 위해 만들어진 무료 웹 애플리케이션입니다. 한식, 일식, 중식, 양식을 포함한 <strong>200가지 이상의 메뉴</strong> 중 하나를 랜덤으로 추천받을 수 있으며, 슬롯머신 방식의 재미있는 인터페이스를 제공합니다.</p>
+                        <p id="info-p2">이 서비스는 <strong>18개 언어</strong>를 지원하여 전 세계 70개국 이상의 사용자가 이용하고 있습니다. 혼밥, 가족 식사, 친구 모임, 회식, 데이트 등 <strong>상황별 메뉴 추천</strong>과 더울 때, 추울 때, 비 올 때, 해장 등 <strong>계절/날씨별 메뉴 추천</strong> 기능도 제공합니다.</p>
+                        <p id="info-p3">회원가입이나 앱 설치 없이 웹 브라우저에서 바로 사용할 수 있으며, 24시간 무료로 이용 가능합니다. 커뮤니티 게시판에서 다른 사용자들과 음식 이야기를 나눌 수도 있습니다.</p>
                     </article>
                 </div>
             </section>
@@ -1320,21 +1352,21 @@
                             <div class="space-y-4">
                                 <div class="flex items-start gap-4">
                                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-lg shrink-0" aria-hidden="true">1</div>
-                                    <div>
+                                    <div class="step-content">
                                         <h3 class="font-bold text-gray-800 dark:text-white mb-1">메뉴 추천받기 버튼 클릭</h3>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">위의 "메뉴 추천받기" 버튼을 클릭하면 200가지 이상의 메뉴 중 하나가 무작위로 추천됩니다.</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start gap-4">
                                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-lg shrink-0" aria-hidden="true">2</div>
-                                    <div>
+                                    <div class="step-content">
                                         <h3 class="font-bold text-gray-800 dark:text-white mb-1">추천 메뉴 확인</h3>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">화면에 표시되는 메뉴와 이미지를 확인하세요. 맛있어 보이나요?</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start gap-4">
                                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-lg shrink-0" aria-hidden="true">3</div>
-                                    <div>
+                                    <div class="step-content">
                                         <h3 class="font-bold text-gray-800 dark:text-white mb-1">마음에 안 들면 다시!</h3>
                                         <p class="text-sm text-gray-500 dark:text-gray-400">추천된 메뉴가 마음에 들지 않으면 버튼을 다시 클릭해서 새로운 메뉴를 추천받으세요.</p>
                                     </div>
@@ -1352,8 +1384,8 @@
                                 <span class="material-icons-outlined text-secondary text-3xl">quiz</span>
                                 <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="faq-title">자주 묻는 질문</h2>
                             </div>
-                            <div class="space-y-2">
-                                <details class="group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                            <div class="space-y-2" id="faq-list">
+                                <details class="faq-item group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                                     <summary class="flex items-center justify-between cursor-pointer p-4 text-sm font-medium text-gray-800 dark:text-white">
                                         <span>오늘 뭐 먹지? 메뉴 추천은 어떻게 받나요?</span>
                                         <span class="material-icons-outlined text-gray-400 text-lg transition-transform group-open:rotate-180">expand_more</span>
@@ -1362,7 +1394,7 @@
                                         <p>메뉴 추천 서비스에서 '메뉴 추천받기' 버튼을 클릭하면 치킨, 피자, 삼겹살, 스테이크, 파스타 등 200가지 이상의 메뉴 중 하나를 랜덤으로 추천받을 수 있습니다. 슬롯머신 방식으로도 재미있게 메뉴를 선택할 수 있으며, 카테고리별로 필터링하여 원하는 종류의 음식만 추천받을 수도 있습니다.</p>
                                     </div>
                                 </details>
-                                <details class="group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <details class="faq-item group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                                     <summary class="flex items-center justify-between cursor-pointer p-4 text-sm font-medium text-gray-800 dark:text-white">
                                         <span>어떤 메뉴를 추천받을 수 있나요?</span>
                                         <span class="material-icons-outlined text-gray-400 text-lg transition-transform group-open:rotate-180">expand_more</span>
@@ -1371,7 +1403,7 @@
                                         <p>한식(비빔밥, 잡채, 김치찌개, 떡볶이, 삼겹살, 불고기 등), 일식(초밥, 돈카츠, 우동, 라멘 등), 양식(스테이크, 파스타, 햄버거, 피자 등), 중식(짜장면, 짬뽕, 마라탕 등), 동남아(팟타이, 쌀국수, 나시고렝 등), 멕시칸(타코, 부리또 등), 인도(커리, 탄두리 등), 중동(케밥, 팔라펠 등) 총 200가지 이상의 메뉴를 추천받을 수 있습니다.</p>
                                     </div>
                                 </details>
-                                <details class="group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <details class="faq-item group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                                     <summary class="flex items-center justify-between cursor-pointer p-4 text-sm font-medium text-gray-800 dark:text-white">
                                         <span>메뉴 추천은 무료인가요?</span>
                                         <span class="material-icons-outlined text-gray-400 text-lg transition-transform group-open:rotate-180">expand_more</span>
@@ -1380,7 +1412,7 @@
                                         <p>네, 메뉴 추천 서비스는 완전히 무료이며, 회원가입이나 앱 설치 없이 웹 브라우저에서 바로 이용 가능합니다. 24시간 언제든지 횟수 제한 없이 무료로 사용할 수 있으며, 18개 언어를 지원하여 전 세계 어디서든 사용할 수 있습니다.</p>
                                     </div>
                                 </details>
-                                <details class="group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <details class="faq-item group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                                     <summary class="flex items-center justify-between cursor-pointer p-4 text-sm font-medium text-gray-800 dark:text-white">
                                         <span>비 오는 날 뭐 먹지?</span>
                                         <span class="material-icons-outlined text-gray-400 text-lg transition-transform group-open:rotate-180">expand_more</span>
@@ -1389,7 +1421,7 @@
                                         <p>비 오는 날에는 파전, 칼국수, 수제비, 부침개, 해물전, 김치전 같은 따뜻한 전통 음식이 인기입니다. 막걸리나 동동주와 함께 먹으면 비 오는 날의 운치를 더할 수 있습니다. 위의 '계절/날씨별 메뉴' 섹션에서 날씨에 맞는 다양한 메뉴를 확인해보세요.</p>
                                     </div>
                                 </details>
-                                <details class="group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <details class="faq-item group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                                     <summary class="flex items-center justify-between cursor-pointer p-4 text-sm font-medium text-gray-800 dark:text-white">
                                         <span>혼밥할 때 추천 메뉴는?</span>
                                         <span class="material-icons-outlined text-gray-400 text-lg transition-transform group-open:rotate-180">expand_more</span>
@@ -1398,7 +1430,7 @@
                                         <p>혼자 먹을 때는 라멘, 김밥, 덮밥, 국수, 샌드위치 같은 1인분 단위로 주문하기 쉬운 메뉴가 좋습니다. 간편하게 먹을 수 있으면서도 다양한 영양소를 섭취할 수 있는 메뉴를 선택하세요. 위의 '상황별 메뉴 추천'에서 혼밥 카테고리를 참고하시면 더 많은 추천을 받을 수 있습니다.</p>
                                     </div>
                                 </details>
-                                <details class="group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <details class="faq-item group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                                     <summary class="flex items-center justify-between cursor-pointer p-4 text-sm font-medium text-gray-800 dark:text-white">
                                         <span>다이어트 중 메뉴 추천해주세요</span>
                                         <span class="material-icons-outlined text-gray-400 text-lg transition-transform group-open:rotate-180">expand_more</span>
@@ -1407,7 +1439,7 @@
                                         <p>다이어트 중이라면 샐러드, 닭가슴살, 포케, 곤약 같은 저칼로리 고단백 메뉴를 추천합니다. 탄수화물을 줄이고 채소와 단백질 중심으로 식단을 구성하면 건강한 식사가 가능합니다. '상황별 메뉴 추천'의 다이어트 카테고리에서 더 많은 아이디어를 확인하세요.</p>
                                     </div>
                                 </details>
-                                <details class="group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <details class="faq-item group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                                     <summary class="flex items-center justify-between cursor-pointer p-4 text-sm font-medium text-gray-800 dark:text-white">
                                         <span>이 서비스는 어떤 언어를 지원하나요?</span>
                                         <span class="material-icons-outlined text-gray-400 text-lg transition-transform group-open:rotate-180">expand_more</span>
@@ -1416,7 +1448,7 @@
                                         <p>한국어, 영어, 일본어, 중국어, 스페인어, 프랑스어, 독일어, 포르투갈어, 이탈리아어, 러시아어, 아랍어, 힌디어, 태국어, 베트남어, 인도네시아어, 터키어, 폴란드어, 네덜란드어 등 총 18개 언어를 지원합니다. 상단의 언어 선택 버튼에서 원하는 언어를 선택하면 메뉴명과 전체 인터페이스가 해당 언어로 변경됩니다.</p>
                                     </div>
                                 </details>
-                                <details class="group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <details class="faq-item group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                                     <summary class="flex items-center justify-between cursor-pointer p-4 text-sm font-medium text-gray-800 dark:text-white">
                                         <span>메뉴 고를 때 팁이 있나요?</span>
                                         <span class="material-icons-outlined text-gray-400 text-lg transition-transform group-open:rotate-180">expand_more</span>
@@ -1439,44 +1471,44 @@
                         <span class="material-icons-outlined text-fuchsia-500 text-3xl">menu_book</span>
                         <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="categories-guide-title">메뉴 카테고리 가이드</h2>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">전 세계 다양한 음식 문화를 탐험해보세요. 각 카테고리별 대표 메뉴와 특징을 소개합니다.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6" id="categories-guide-desc">전 세계 다양한 음식 문화를 탐험해보세요. 각 카테고리별 대표 메뉴와 특징을 소개합니다.</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <article class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <article class="category-guide-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center"><span class="material-icons-outlined text-red-500 text-lg">flag</span></span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">한식 (Korean Food)</h3>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">한국의 전통 음식은 발효 식품과 다양한 반찬이 특징입니다. 김치, 된장, 고추장 등 발효 양념을 기반으로 한 깊은 맛이 매력적이며, 비빔밥, 불고기, 갈비찜, 삼겹살 등이 대표 메뉴입니다. 건강에 좋은 식재료를 사용하며, 채소를 풍부하게 섭취할 수 있는 것이 장점입니다.</p>
                         </article>
-                        <article class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <article class="category-guide-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center"><span class="material-icons-outlined text-pink-500 text-lg">set_meal</span></span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">일식 (Japanese Food)</h3>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">일본 음식은 신선한 재료의 맛을 살리는 것이 특징입니다. 초밥, 사시미, 라멘, 우동, 돈카츠, 덴푸라 등이 인기 메뉴입니다. 계절감을 중시하며, 깔끔하고 담백한 맛으로 전 세계적으로 사랑받고 있습니다. 특히 라멘은 지역마다 독특한 스타일이 있어 그 다양성이 매력적입니다.</p>
                         </article>
-                        <article class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <article class="category-guide-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center"><span class="material-icons-outlined text-amber-500 text-lg">lunch_dining</span></span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">양식 (Western Food)</h3>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">서양 음식은 스테이크, 파스타, 피자, 햄버거, 리조또, 샐러드 등 다양한 메뉴가 있습니다. 올리브 오일, 치즈, 버터 등을 활용한 풍부한 맛이 특징이며, 가볍게 즐기는 캐주얼 다이닝부터 격식 있는 파인 다이닝까지 다양한 스타일로 즐길 수 있습니다.</p>
                         </article>
-                        <article class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <article class="category-guide-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center"><span class="material-icons-outlined text-orange-500 text-lg">wok</span></span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">중식 (Chinese Food)</h3>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">중국 음식은 지역별로 매우 다양한 특색을 가지고 있습니다. 사천, 광동, 상하이, 북경 스타일 등 각각 독특한 맛과 조리법이 있으며, 짜장면, 짬뽕, 마라탕, 탕수육, 깐풍기 등이 한국에서 인기 있는 중식 메뉴입니다. 강한 불 맛과 다양한 향신료 사용이 특징입니다.</p>
                         </article>
-                        <article class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <article class="category-guide-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center"><span class="material-icons-outlined text-green-500 text-lg">spa</span></span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">동남아 음식 (Southeast Asian)</h3>
                             </div>
                             <p class="text-xs text-gray-500 dark:text-gray-400">태국, 베트남, 인도네시아 등 동남아시아 음식은 향신료와 허브를 풍부하게 사용하는 것이 특징입니다. 팟타이, 쌀국수(포), 나시고렝, 분짜, 똠양꿍 등이 대표 메뉴이며, 새콤달콤매콤한 복합적인 맛이 매력적입니다. 코코넛 밀크, 라임, 고수 등의 재료가 독특한 풍미를 더합니다.</p>
                         </article>
-                        <article class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                        <article class="category-guide-card bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center"><span class="material-icons-outlined text-indigo-500 text-lg">public</span></span>
                                 <h3 class="font-bold text-gray-800 dark:text-white">기타 세계 음식</h3>

@@ -21,17 +21,17 @@
     <section class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 md:p-8">
         <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-2">
             <span class="material-icons-outlined text-pink-500">edit_note</span>
-            게시글 작성하기
+            <span id="bulletin-form-title">게시글 작성하기</span>
         </h3>
 
         <form id="bulletin-form" class="space-y-4">
             <div class="grid md:grid-cols-5 gap-4">
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1" for="bulletin-nickname">닉네임</label>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1" for="bulletin-nickname" id="bulletin-nickname-label">닉네임</label>
                     <input type="text" id="bulletin-nickname" placeholder="익명" maxlength="20" required class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:border-purple-500 focus:ring focus:ring-purple-200 dark:focus:ring-purple-800" />
                 </div>
                 <div class="md:col-span-3">
-                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1" for="bulletin-message">메시지</label>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1" for="bulletin-message" id="bulletin-message-label">메시지</label>
                     <input type="text" id="bulletin-message" placeholder="오늘 드신 맛있는 음식에 대해 이야기해주세요!" maxlength="200" required class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:border-purple-500 focus:ring focus:ring-purple-200 dark:focus:ring-purple-800" />
                 </div>
             </div>
@@ -46,10 +46,10 @@
 
     <section class="space-y-4">
         <div class="flex items-center justify-between">
-            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">최근 게시글</h3>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100" id="bulletin-recent-title">최근 게시글</h3>
             <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-800 px-3 py-1 rounded-full border border-gray-100 dark:border-gray-700 shadow-sm">
                 <span class="material-icons-outlined text-base animate-spin text-purple-500">sync</span>
-                <span class="font-medium">실시간 업데이트 중</span>
+                <span class="font-medium" id="bulletin-realtime">실시간 업데이트 중</span>
             </div>
         </div>
 
