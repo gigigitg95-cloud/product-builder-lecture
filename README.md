@@ -270,6 +270,49 @@
 
 ## 업데이트 기록
 
+### 2026-02-15 (전체 섹션 다국어 번역 지원)
+
+**요약**
+- 언어 변경 시 한국어로 고정되던 모든 섹션에 다국어 번역(영어/한국어/일본어/중국어)을 적용했습니다.
+- 기존 번역 로직이 HTML 요소를 찾지 못하던 문제(클래스/ID 누락)를 수정했습니다.
+- README 자동 동기화 스크립트가 파일 구조를 중복 생성하던 문제를 수정했습니다.
+
+**번역 추가된 섹션**
+
+| 섹션 | 수정 유형 | 설명 |
+|------|----------|------|
+| 헤더 부제목 | 클래스 추가 | `subtitle` 클래스 추가로 기존 번역 로직 연결 |
+| 게임 탭 버튼 | 신규 | 슬롯머신/오늘의 추천 메뉴 탭 번역 추가 |
+| 상황별 추천 | 클래스 추가 | `situation-card-title` 클래스 추가로 기존 번역 로직 연결 |
+| 집밥요리 추천 | 신규 | 6개 카드 제목/설명 번역 데이터 및 함수 추가 |
+| 아침 메뉴 추천 | 신규 | 3개 카드 + 팁 영역 번역 데이터 및 함수 추가 |
+| 칼로리 가이드 | 신규 | 테이블 헤더/설명/팁 번역 데이터 및 함수 추가 |
+| 음식 선택 팁 | 클래스 추가 | `tip-card` 클래스 추가로 기존 번역 로직 연결 |
+| 메뉴 추천이란 | 신규 | 3개 문단 번역 데이터 및 함수 추가 |
+| FAQ | 신규 | 8개 질문/답변 번역 데이터 및 함수 추가 |
+| 카테고리 가이드 | 신규 | 6개 카드 번역 데이터 및 함수 추가 |
+| How to Use | 클래스 추가 | `step-content` 클래스 추가로 기존 번역 로직 연결 |
+| 사이드바 | 신규 | 데스크톱/모바일 사이드바 12개 항목 번역 추가 |
+| 푸터 | 신규 | 13개 텍스트 요소 번역 추가 + 비동기 로드 후 번역 적용 |
+| 게시판 | 확장 | 폼 제목/라벨/최근글 제목/실시간 텍스트 5개 번역 추가 |
+
+**적용 패턴**
+- 패턴 A (클래스/ID 누락): HTML 요소에 기존 JS가 찾는 클래스/ID 추가 → 기존 번역 로직 자동 연결
+- 패턴 B (번역 미존재): 번역 데이터 객체(4개 언어) + 업데이트 함수 신규 생성 → `updateRouletteTranslations()`에서 호출
+
+**`update-readme.js` 수정**
+- 기존 "프로젝트 구조" 섹션의 코드 블록을 직접 업데이트하도록 변경 (설명 주석 유지)
+- 자동 동기화 블록에서 중복 "파일 구조(요약)" 제거, "변경 파일" 섹션만 유지
+
+**파일 단위 변경 포인트**
+- `index.html`: 번역 대상 요소에 클래스/ID 추가 (subtitle, situation-card-title, home-cooking-card, breakfast-card, calorie-th, tip-card, step-content, faq-item, category-guide-card, tab-btn-slot, tab-btn-recommend 등)
+- `js/app.js`: 10개 번역 데이터 객체 + 10개 업데이트 함수 추가 (~+930줄)
+- `js/translations.js`: 게시판 관련 번역 키 확장
+- `js/footer-loader.js`: 비동기 로드 후 `updateFooterTranslations()` 호출 추가
+- `pages/footer.html`: 번역 대상 요소에 ID 추가 (10개)
+- `pages/bulletin.html`: 번역 대상 요소에 ID 추가 (5개)
+- `scripts/update-readme.js`: 기존 프로젝트 구조 업데이트 방식으로 리팩토링
+
 ### 2026-02-15 (Polar 결제/Workers 연동)
 
 **요약**
@@ -415,14 +458,6 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	css/style.css
-M	index.html
-M	js/app.js
-M	js/footer-loader.js
-M	js/translations.js
-M	pages/bulletin.html
-M	pages/footer.html
-M	scripts/update-readme.js
 ```
 
 <!-- README:AUTO-END -->
