@@ -203,6 +203,7 @@
 │   ├── privacy.html         # 개인정보처리방침
 │   ├── terms.html           # 이용약관
 │   ├── contact.html         # 제휴 문의 페이지
+│   ├── payment.html         # Polar 결제 화면
 │   ├── cookies.html         # 쿠키 정책
 │   ├── faq.html             # 자주 묻는 질문
 │   ├── help.html            # 도움말 센터
@@ -232,6 +233,7 @@
 │   ├── countryLanguageService.js  # 국가-언어 매핑 서비스
 │   ├── footer-loader.js     # 공통 Footer 로더
 │   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
+│   ├── polar-worker-checkout.js # 결제 버튼 -> Workers checkout API 연동
 │   ├── privacy.js           # 개인정보처리방침 스크립트
 │   ├── terms.js             # 이용약관 스크립트
 │   ├── 404.js               # 404 페이지 스크립트
@@ -247,8 +249,17 @@
 ├── scripts/
 │   ├── inject-jsonld.js     # 빌드 시 JSON-LD inline 주입 (npm run build)
 │   └── check-dom-contract.js # DOM 계약 검증 스크립트
-└── docs/
-    └── dom-contract.json    # DOM 계약 정의 파일
+├── docs/
+│   ├── dom-contract.json    # DOM 계약 정의 파일
+│   └── cloudflare-workers-polar-setup.md # Workers/Polar 결제 설정 가이드
+└── workers/
+    └── polar-checkout-worker/
+        ├── src/index.ts     # checkout/status/webhook(+자동환불) Worker 엔드포인트
+        ├── wrangler.toml    # Worker 라우트/변수 설정
+        ├── package.json     # Worker 의존성/스크립트
+        ├── package-lock.json # Worker 잠금 파일
+        ├── tsconfig.json    # Worker 타입스크립트 설정
+        └── .gitignore       # Worker 로컬 산출물 제외
 ```
 
 ---
@@ -277,6 +288,35 @@ firebase deploy --only hosting
 ---
 
 ## 업데이트 기록
+
+### 2026-02-15 (Polar 결제/Workers 연동)
+
+**요약**
+- Polar Sandbox 기준 결제 플로우를 `Product ID: 45ee4c82-2396-44bd-8249-a577755cbf9e`로 연결했습니다.
+- 제휴 문의 페이지에서 결제 화면으로 진입할 수 있도록 UX를 추가했습니다.
+- Cloudflare Worker 기반 결제 API, 결제 상태 조회, 웹훅 검증 및 조건부 자동환불 구조를 도입했습니다.
+
+**적용 내용**
+- 결제 화면 추가: `pages/payment.html`
+  - 결제 버튼 클릭 시 Worker API(`/create-checkout`) 호출 후 Polar checkout URL로 이동
+- 제휴 문의 페이지 진입 버튼 추가: `pages/contact.html`
+  - “결제 화면으로 이동” CTA 추가
+- 결제 클라이언트 스크립트 추가: `js/polar-worker-checkout.js`
+  - 기본 Product ID 고정
+  - 로컬/Cloud Workstations 환경에서 개발용 엔드포인트 자동 분기
+  - 네트워크 실패 시 원인 파악 가능한 오류 메시지 출력
+- Worker 프로젝트 추가: `workers/polar-checkout-worker/`
+  - `POST /create-checkout`: Checkout Session 생성
+  - `GET /payment-status?order_id=...`: 결제 상태 조회
+  - `POST /webhooks/polar`: Polar webhook 서명 검증 + `order.paid` 조건부 자동환불
+  - 자동환불 변수: `AUTO_REFUND_ENABLED`, `AUTO_REFUND_PRODUCT_IDS`, `AUTO_REFUND_EMAIL_DOMAIN_DENYLIST`
+- 운영 문서 추가: `docs/cloudflare-workers-polar-setup.md`
+  - DNS/Route 설정, 시크릿 등록, 로컬 테스트, 웹훅 이벤트 구독 절차 정리
+
+**운영 메모**
+- `index.html`에서는 결제 버튼을 노출하지 않도록 유지
+- 자동환불 기본값은 현재 `true`로 설정되어 있으므로, 운영 정책에 맞게 `wrangler.toml`에서 조정 필요
+- Polar 토큰은 코드/문서에 직접 저장하지 않고 Wrangler Secret으로만 관리
 
 ### 2026-02-14 (안정화/일관성 패치)
 

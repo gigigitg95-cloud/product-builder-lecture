@@ -1263,8 +1263,10 @@ const pageTranslations = {
         termsSection8Desc: 'This service may display advertisements through Google AdSense. Please refer to our Privacy Policy for more details.',
         termsSection9Title: '9. Changes to Terms',
         termsSection9Desc: 'These terms may be modified as necessary. Changes become effective upon posting on this website.',
-        termsSection10Title: '10. Governing Law',
-        termsSection10Desc: 'These terms shall be governed by and construed in accordance with applicable laws.'
+        termsSection10Title: '10. Merchant of Record Compliance',
+        termsSection10Desc: 'If paid features are introduced, we will operate only within Polar Merchant of Record rules for permitted digital products/software. Requests involving physical goods, in-person or human-delivered services, or illegal/high-risk categories (for example adult content, gambling, weapons, or illegal drugs) may be rejected or terminated without notice.',
+        termsSection11Title: '11. Governing Law',
+        termsSection11Desc: 'These terms shall be governed by and construed in accordance with applicable laws.'
     },
     'Korean': {
         // About page
@@ -1375,8 +1377,10 @@ const pageTranslations = {
         termsSection8Desc: '본 서비스는 Google AdSense를 통해 광고를 게재할 수 있습니다. 광고 관련 상세 내용은 개인정보처리방침을 참조하시기 바랍니다.',
         termsSection9Title: '제9조 (약관의 변경)',
         termsSection9Desc: '본 약관은 필요에 따라 변경될 수 있으며, 변경된 약관은 웹사이트에 게시함으로써 효력이 발생합니다.',
-        termsSection10Title: '제10조 (준거법 및 관할)',
-        termsSection10Desc: '본 약관의 해석 및 분쟁에 관하여는 대한민국 법령을 적용합니다.'
+        termsSection10Title: '제10조 (Merchant of Record 준수)',
+        termsSection10Desc: '본 서비스가 유료 기능 또는 결제를 도입하는 경우, Polar Merchant of Record 정책에 따라 허용된 디지털 상품/소프트웨어 범위 내에서만 운영합니다. 물리적 상품, 오프라인·인력 제공 서비스, 불법 또는 고위험 카테고리(예: 성인·도박·무기·불법 약물 등) 관련 거래/제휴 요청은 접수 또는 진행하지 않으며, 관련 요청은 사전 고지 없이 거절 또는 중단될 수 있습니다.',
+        termsSection11Title: '제11조 (준거법 및 관할)',
+        termsSection11Desc: '본 약관의 해석 및 분쟁에 관하여는 대한민국 법령을 적용합니다.'
     },
     'Japanese': {
         aboutTitle: 'サービス紹介',

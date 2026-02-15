@@ -131,6 +131,8 @@ async function resolveInitialLanguage() {
         setText('t9-desc', t('termsSection9Desc'));
         setText('t10-title', t('termsSection10Title'));
         setText('t10-desc', t('termsSection10Desc'));
+        setText('t11-title', t('termsSection11Title'));
+        setText('t11-desc', t('termsSection11Desc'));
         setText('last-updated-label', t('lastUpdated'));
         setHTML('back-link', `<span class="material-symbols-outlined text-lg">arrow_back</span><span>${t('backToHome')}</span>`);
     }
