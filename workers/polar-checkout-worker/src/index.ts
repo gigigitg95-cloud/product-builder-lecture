@@ -250,15 +250,19 @@ async function getPaymentStatus(request: Request, env: Env): Promise<Response> {
   }
 
   const orderId = url.searchParams.get("order_id") || url.searchParams.get("orderId");
-  if (!orderId) {
-    return jsonResponse({ error: "order_id is required" }, { status: 400, headers: corsHeaders });
+  const checkoutId = url.searchParams.get("checkout_id") || url.searchParams.get("checkoutId");
+  if (!orderId && !checkoutId) {
+    return jsonResponse({ error: "order_id or checkout_id is required" }, { status: 400, headers: corsHeaders });
   }
 
-  const polar = await polarApiRequest(env, `/orders/${encodeURIComponent(orderId)}`);
+  const targetPath = orderId
+    ? `/orders/${encodeURIComponent(orderId)}`
+    : `/checkouts/${encodeURIComponent(String(checkoutId))}`;
+  const polar = await polarApiRequest(env, targetPath);
   if (!polar.ok) {
     return jsonResponse(
       {
-        error: "Failed to fetch order status",
+        error: orderId ? "Failed to fetch order status" : "Failed to fetch checkout status",
         status: polar.status,
         detail: polar.data,
       },
@@ -266,7 +270,7 @@ async function getPaymentStatus(request: Request, env: Env): Promise<Response> {
     );
   }
 
-  return jsonResponse({ order: polar.data }, { status: 200, headers: corsHeaders });
+  return jsonResponse(orderId ? { order: polar.data } : { checkout: polar.data }, { status: 200, headers: corsHeaders });
 }
 
 async function handlePolarWebhook(request: Request, env: Env): Promise<Response> {

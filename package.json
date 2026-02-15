@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "build": "node scripts/inject-jsonld.js"
+    "build": "node scripts/inject-jsonld.js",
+    "readme:update": "node scripts/update-readme.js"
   }
 }

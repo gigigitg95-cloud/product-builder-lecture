@@ -109,6 +109,12 @@
 - Formspree 기반 이메일 문의 양식
 - 광고, 제휴, 기타 문의 지원
 
+### 17. Polar 결제 및 결제 결과 확인
+- 제휴 문의 페이지에서 결제 화면으로 이동 가능
+- 결제 버튼 클릭 시 Polar Checkout Session 생성 후 결제 페이지로 이동
+- 결제 완료 시 메인 페이지로 리다이렉트 후 결제 상태 확인 팝업 표시
+- Cloudflare Worker 기반 결제 API/웹훅/자동환불(조건부) 구조 지원
+
 ---
 
 ## 다국어 지원 (18개 언어)
@@ -142,6 +148,8 @@
 | 음식 가이드 | `/pages/guide.html` | 상황별/계절별/건강목표별/예산별/세계음식/에티켓 가이드 |
 | 개인정보처리방침 | `/pages/privacy.html` | 개인정보 수집 및 이용 안내 |
 | 이용약관 | `/pages/terms.html` | 서비스 이용 약관 |
+| 제휴 문의 | `/pages/contact.html` | 제휴 문의 접수 및 결제 화면 진입 |
+| 결제 | `/pages/payment.html` | Polar Checkout 진입 및 결제 결과 확인 |
 
 ---
 
@@ -151,6 +159,7 @@
 |------|------|
 | Frontend | HTML5, CSS3, Vanilla JavaScript (빌드 도구 없음) |
 | Hosting | Firebase Hosting |
+| API Worker | Cloudflare Workers (Checkout / Webhook / Payment Status) |
 | Database | Firebase Firestore (커뮤니티 게시판) |
 | 이미지 API | Pexels API |
 | 언어 감지 | ipapi.co (IP Geolocation) |
@@ -169,6 +178,8 @@
 | Pexels API | 음식 이미지 제공 |
 | Firebase Firestore | 커뮤니티 게시판 데이터 저장 |
 | Formspree | 제휴 문의 이메일 전송 |
+| Polar API | 결제 세션 생성, 결제/환불 이벤트 처리 |
+| Cloudflare Workers | 결제 API 게이트웨이, 웹훅 검증, 조건부 자동환불 |
 
 ---
 
@@ -264,6 +275,79 @@
 
 ---
 
+
+<!-- README:AUTO-START -->
+### 자동 동기화
+
+#### 파일 구조(요약)
+```text
+├── index.html
+├── 404.html
+├── pages
+│   ├── about.html
+│   ├── bulletin.html
+│   ├── contact.html
+│   ├── cookies.html
+│   ├── faq.html
+│   ├── footer.html
+│   ├── guide.html
+│   ├── help.html
+│   ├── payment.html
+│   ├── privacy.html
+│   └── terms.html
+├── css
+│   ├── 404.css
+│   ├── guide.css
+│   ├── privacy.css
+│   ├── style.css
+│   └── terms.css
+├── js
+│   ├── analytics
+│   │   ├── clarity.js
+│   │   └── gtag.js
+│   ├── ld
+│   │   ├── about.json
+│   │   ├── guide.json
+│   │   ├── index.json
+│   │   ├── privacy.json
+│   │   └── terms.json
+│   ├── 404.js
+│   ├── app.js
+│   ├── countryLanguageService.js
+│   ├── footer-loader.js
+│   ├── footer-tailwind-safelist.js
+│   ├── polar-worker-checkout.js
+│   ├── privacy.js
+│   ├── terms.js
+│   └── translations.js
+├── workers
+│   └── polar-checkout-worker
+│       ├── src
+│       │   └── index.ts
+│       ├── .gitignore
+│       ├── package-lock.json
+│       ├── package.json
+│       ├── tsconfig.json
+│       └── wrangler.toml
+├── docs
+│   ├── cloudflare-workers-polar-setup.md
+│   └── dom-contract.json
+├── scripts
+│   ├── check-dom-contract.js
+│   ├── inject-jsonld.js
+│   └── update-readme.js
+├── firebase.json
+├── package.json
+└── README.md
+```
+
+#### 변경 파일(커밋 스테이징 기준)
+```text
+M	.githooks/pre-push
+```
+
+<!-- README:AUTO-END -->
+
 ## 로컬 실행
 
 ```bash
@@ -299,19 +383,23 @@ firebase deploy --only hosting
 **적용 내용**
 - 결제 화면 추가: `pages/payment.html`
   - 결제 버튼 클릭 시 Worker API(`/create-checkout`) 호출 후 Polar checkout URL로 이동
+  - 결제 결과 패널 표시(결제 화면 자체 확인 UI)
 - 제휴 문의 페이지 진입 버튼 추가: `pages/contact.html`
   - “결제 화면으로 이동” CTA 추가
 - 결제 클라이언트 스크립트 추가: `js/polar-worker-checkout.js`
   - 기본 Product ID 고정
   - 로컬/Cloud Workstations 환경에서 개발용 엔드포인트 자동 분기
   - 네트워크 실패 시 원인 파악 가능한 오류 메시지 출력
+  - 결제 성공 시 메인 페이지(`/?payment=success&checkout_id={CHECKOUT_ID}`)로 리다이렉트
 - Worker 프로젝트 추가: `workers/polar-checkout-worker/`
   - `POST /create-checkout`: Checkout Session 생성
-  - `GET /payment-status?order_id=...`: 결제 상태 조회
+  - `GET /payment-status?order_id=...|checkout_id=...`: 결제 상태 조회
   - `POST /webhooks/polar`: Polar webhook 서명 검증 + `order.paid` 조건부 자동환불
   - 자동환불 변수: `AUTO_REFUND_ENABLED`, `AUTO_REFUND_PRODUCT_IDS`, `AUTO_REFUND_EMAIL_DOMAIN_DENYLIST`
 - 운영 문서 추가: `docs/cloudflare-workers-polar-setup.md`
   - DNS/Route 설정, 시크릿 등록, 로컬 테스트, 웹훅 이벤트 구독 절차 정리
+- 메인 페이지 결제 결과 팝업 추가: `index.html`
+  - 결제 완료 후 복귀 시 상태 확인 팝업 노출
 
 **운영 메모**
 - `index.html`에서는 결제 버튼을 노출하지 않도록 유지
