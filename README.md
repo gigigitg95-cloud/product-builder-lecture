@@ -219,6 +219,7 @@
 │   ├── help.html                # 도움말 센터
 │   ├── payment.html             # Polar 결제 화면
 │   ├── privacy.html             # 개인정보처리방침
+│   ├── refund.html
 │   └── terms.html               # 이용약관
 ├── css
 │   ├── 404.css                  # 404 페이지 스타일
@@ -235,6 +236,7 @@
 │   │   ├── guide.json               # 가이드 페이지 구조화 데이터
 │   │   ├── index.json               # 메인 페이지 구조화 데이터
 │   │   ├── privacy.json             # 개인정보처리방침 구조화 데이터
+│   │   ├── refund.json
 │   │   └── terms.json               # 이용약관 구조화 데이터
 │   ├── 404.js                   # 404 페이지 스크립트
 │   ├── app.js                   # 메인 앱 로직 (추천/슬롯/공유/게시판/테마)
@@ -475,9 +477,17 @@
 
 #### 변경 파일(커밋 스테이징 기준)
 ```text
-M	index.html
-M	js/polar-worker-checkout.js
-M	pages/payment.html
+M	README.md
+M	js/app.js
+M	js/footer-loader.js
+A	js/ld/refund.json
+M	js/privacy.js
+M	js/terms.js
+M	js/translations.js
+M	pages/footer.html
+M	pages/privacy.html
+A	pages/refund.html
+M	pages/terms.html
 ```
 
 <!-- README:AUTO-END -->

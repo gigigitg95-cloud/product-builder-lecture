@@ -105,11 +105,13 @@ async function resolveInitialLanguage() {
         setText('s1-desc', t('privacySection1Desc'));
         setHTML('s1-item1', t('privacySection1Item1'));
         setHTML('s1-item2', t('privacySection1Item2'));
+        setHTML('s1-item3', t('privacySection1Item3'));
         setText('s2-title', t('privacySection2Title'));
         setText('s2-desc', t('privacySection2Desc'));
         setText('s2-item1', t('privacySection2Item1'));
         setText('s2-item2', t('privacySection2Item2'));
         setText('s2-item3', t('privacySection2Item3'));
+        setText('s2-item4', t('privacySection2Item4'));
         setText('s3-title', t('privacySection3Title'));
         setText('s3-desc', t('privacySection3Desc'));
         setText('s4-title', t('privacySection4Title'));
@@ -130,6 +132,11 @@ async function resolveInitialLanguage() {
         setText('s8-desc', t('privacySection8Desc'));
         setText('s9-title', t('privacySection9Title'));
         setText('s9-desc', t('privacySection9Desc'));
+        setText('s10-title', t('privacySection10Title'));
+        setText('s10-desc', t('privacySection10Desc'));
+        setText('s10-item1', t('privacySection10Item1'));
+        setText('s10-item2', t('privacySection10Item2'));
+        setText('s10-item3', t('privacySection10Item3'));
         setText('last-updated-label', t('lastUpdated'));
         setHTML('back-link', `<span class="material-symbols-outlined text-lg">arrow_back</span><span>${t('backToHome')}</span>`);
     }

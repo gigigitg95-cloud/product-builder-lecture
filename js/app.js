@@ -2797,6 +2797,7 @@ const footerData = {
         legalTitle: 'Legal',
         privacyLink: 'Privacy Policy',
         termsLink: 'Terms of Service',
+        refundLink: 'Refund Policy',
         cookiesLink: 'Cookie Policy'
     },
     'Korean': {
@@ -2813,6 +2814,7 @@ const footerData = {
         legalTitle: '법적 고지',
         privacyLink: '개인정보처리방침',
         termsLink: '이용약관',
+        refundLink: '환불 정책',
         cookiesLink: '쿠키 정책'
     },
     'Japanese': {
@@ -2829,6 +2831,7 @@ const footerData = {
         legalTitle: '法的情報',
         privacyLink: 'プライバシーポリシー',
         termsLink: '利用規約',
+        refundLink: '返金ポリシー',
         cookiesLink: 'クッキーポリシー'
     },
     'Mandarin Chinese': {
@@ -2845,6 +2848,7 @@ const footerData = {
         legalTitle: '法律声明',
         privacyLink: '隐私政策',
         termsLink: '服务条款',
+        refundLink: '退款政策',
         cookiesLink: 'Cookie政策'
     }
 };
@@ -2881,6 +2885,9 @@ function updateFooterTranslations() {
 
     const legalTitle = document.getElementById('footer-legal-title');
     if (legalTitle) legalTitle.textContent = lang.legalTitle;
+
+    const refundLink = document.getElementById('refund-link');
+    if (refundLink) refundLink.textContent = lang.refundLink;
 
     const cookiesLink = document.getElementById('footer-cookies-link');
     if (cookiesLink) cookiesLink.textContent = lang.cookiesLink;

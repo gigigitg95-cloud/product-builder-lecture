@@ -1241,11 +1241,13 @@ const pageTranslations = {
         privacySection1Desc: 'We may collect the following information:',
         privacySection1Item1: '<strong>Contact form:</strong> Email address and message content',
         privacySection1Item2: '<strong>Automatically collected:</strong> Access logs, cookies, IP address, browser type',
+        privacySection1Item3: '<strong>Payments:</strong> Checkout email, order/checkout identifiers, payment and refund status received via Polar APIs/webhooks',
         privacySection2Title: '2. How We Use Your Information',
         privacySection2Desc: 'We use collected information to:',
         privacySection2Item1: 'Respond to partnership and advertising inquiries',
         privacySection2Item2: 'Improve our services and analyze usage patterns',
         privacySection2Item3: 'Provide personalized content',
+        privacySection2Item4: 'Process payments, confirm orders, detect abuse, and deliver purchased digital reports',
         privacySection3Title: '3. Data Retention',
         privacySection3Desc: 'Personal information is deleted once its purpose is fulfilled, except where retention is required by law.',
         privacySection4Title: '4. Third-party Sharing',
@@ -1266,6 +1268,11 @@ const pageTranslations = {
         privacySection8Desc: 'For privacy-related inquiries, please use the contact form on our main page.',
         privacySection9Title: '9. Changes to This Policy',
         privacySection9Desc: 'This privacy policy may be updated due to legal changes or service updates. Changes will be posted on this website.',
+        privacySection10Title: '10. Payment and Processor Information',
+        privacySection10Desc: 'Payments are processed through Polar (Merchant of Record). We may share and process order/payment-related data with trusted processors strictly for payment, fraud prevention, delivery, and legal compliance.',
+        privacySection10Item1: 'Payment processor: Polar',
+        privacySection10Item2: 'Email delivery processor: Resend',
+        privacySection10Item3: 'Infrastructure/security providers: Cloudflare and analytics/advertising partners',
 
         // Terms page
         termsTitle: 'Terms of Service',
@@ -1302,7 +1309,9 @@ const pageTranslations = {
         termsSection10Title: '10. Merchant of Record Compliance',
         termsSection10Desc: 'If paid features are introduced, we will operate only within Polar Merchant of Record rules for permitted digital products/software. Requests involving physical goods, in-person or human-delivered services, or illegal/high-risk categories (for example adult content, gambling, weapons, or illegal drugs) may be rejected or terminated without notice. Result reports are sent only to the email address entered during Polar checkout, and non-delivery caused by an incorrectly entered email address is not eligible for a refund.',
         termsSection11Title: '11. Governing Law',
-        termsSection11Desc: 'These terms shall be governed by and construed in accordance with applicable laws.'
+        termsSection11Desc: 'These terms shall be governed by and construed in accordance with applicable laws.',
+        termsSection12Title: '12. Payments, Delivery, and Refunds',
+        termsSection12Desc: 'Paid transactions are processed through Polar Checkout. Purchased digital deliverables are sent to the email address entered at checkout. Refund eligibility, non-eligibility, request windows, and handling timelines are governed by the Refund Policy (/pages/refund.html), subject to Polar Merchant of Record policies and applicable law.'
     },
     'Korean': {
         // About page
@@ -1355,11 +1364,13 @@ const pageTranslations = {
         privacySection1Desc: '본 서비스는 다음과 같은 개인정보를 수집할 수 있습니다:',
         privacySection1Item1: '<strong>제휴 문의 시:</strong> 이메일 주소, 문의 내용',
         privacySection1Item2: '<strong>자동 수집 정보:</strong> 접속 기록, 쿠키, 접속 IP 정보, 브라우저 종류',
+        privacySection1Item3: '<strong>결제 관련 정보:</strong> Polar를 통해 전달되는 결제 이메일, 주문/체크아웃 식별자, 결제 및 환불 상태',
         privacySection2Title: '2. 개인정보의 수집 목적',
         privacySection2Desc: '수집된 개인정보는 다음 목적으로 사용됩니다:',
         privacySection2Item1: '제휴 및 광고 문의에 대한 답변',
         privacySection2Item2: '서비스 개선 및 통계 분석',
         privacySection2Item3: '맞춤형 서비스 제공',
+        privacySection2Item4: '결제 처리, 주문 확인, 부정 이용 방지, 구매한 디지털 결과물 전달',
         privacySection3Title: '3. 개인정보의 보유 및 이용 기간',
         privacySection3Desc: '개인정보는 수집 목적이 달성된 후 즉시 파기합니다. 단, 관련 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관합니다.',
         privacySection4Title: '4. 개인정보의 제3자 제공',
@@ -1380,6 +1391,11 @@ const pageTranslations = {
         privacySection8Desc: '개인정보 관련 문의사항은 메인 페이지의 제휴 문의 양식을 통해 연락해 주시기 바랍니다.',
         privacySection9Title: '9. 개인정보처리방침의 변경',
         privacySection9Desc: '본 개인정보처리방침은 법령 또는 서비스 변경에 따라 수정될 수 있습니다. 변경 시 웹사이트를 통해 공지합니다.',
+        privacySection10Title: '10. 결제 처리 및 외부 처리자',
+        privacySection10Desc: '유료 결제는 Polar(Merchant of Record)를 통해 처리됩니다. 본 서비스는 결제, 부정거래 방지, 결과물 전달 및 법적 준수를 위해 필요한 범위에서 주문/결제 관련 정보를 신뢰 가능한 외부 처리자와 공유·처리할 수 있습니다.',
+        privacySection10Item1: '결제 처리자: Polar',
+        privacySection10Item2: '이메일 전송 처리자: Resend',
+        privacySection10Item3: '인프라/보안 및 분석·광고 처리자: Cloudflare 및 관련 파트너',
 
         // Terms page
         termsTitle: '이용약관',
@@ -1416,7 +1432,9 @@ const pageTranslations = {
         termsSection10Title: '제10조 (Merchant of Record 준수)',
         termsSection10Desc: '본 서비스가 유료 기능 또는 결제를 도입하는 경우, Polar Merchant of Record 정책에 따라 허용된 디지털 상품/소프트웨어 범위 내에서만 운영합니다. 물리적 상품, 오프라인·인력 제공 서비스, 불법 또는 고위험 카테고리(예: 성인·도박·무기·불법 약물 등) 관련 거래/제휴 요청은 접수 또는 진행하지 않으며, 관련 요청은 사전 고지 없이 거절 또는 중단될 수 있습니다. 결과 리포트는 결제 시 입력된 이메일 주소로만 발송되며, 이메일 주소 오기재/오타로 인한 미수신은 환불 사유에 해당하지 않습니다.',
         termsSection11Title: '제11조 (준거법 및 관할)',
-        termsSection11Desc: '본 약관의 해석 및 분쟁에 관하여는 대한민국 법령을 적용합니다.'
+        termsSection11Desc: '본 약관의 해석 및 분쟁에 관하여는 대한민국 법령을 적용합니다.',
+        termsSection12Title: '제12조 (결제, 전달 및 환불)',
+        termsSection12Desc: '유료 결제는 Polar Checkout을 통해 처리되며, 결제 완료 후 디지털 결과물은 결제 시 입력한 이메일 주소로 전송됩니다. 환불 가능/불가 기준, 요청 기간 및 처리 절차는 환불 정책(/pages/refund.html)을 따르며, Polar Merchant of Record 정책 및 관련 법령이 우선 적용될 수 있습니다.'
     },
     'Japanese': {
         aboutTitle: 'サービス紹介',

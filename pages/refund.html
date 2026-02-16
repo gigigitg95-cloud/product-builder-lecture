@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>환불 정책 - MenuRec</title>
+<meta name="description" content="MenuRec 환불 정책입니다. 결제, 환불 가능/불가 조건, 요청 절차를 안내합니다."/>
+<meta name="robots" content="noindex, follow"/>
+<link rel="canonical" href="https://ninanoo.com/pages/refund.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="메뉴 추천 - Menu Recommendation"/>
+<meta property="og:title" content="환불 정책 - MenuRec"/>
+<meta property="og:description" content="MenuRec 환불 정책 안내"/>
+<meta property="og:url" content="https://ninanoo.com/pages/refund.html"/>
+<meta property="og:locale" content="ko_KR"/>
+<link rel="icon" type="image/svg+xml" href="/images/favicon.svg"/>
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+<script src="/js/footer-tailwind-safelist.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'Plus Jakarta Sans', 'sans-serif'],
+        },
+        colors: {
+          brand: {
+            purple: '#8b5cf6',
+            pink: '#ec4899',
+            light: '#f8fafc',
+            dark: '#1f2937',
+            cardDark: '#374151'
+          }
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .accent-gradient-text {
+    background: linear-gradient(to right, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+<script type="application/ld+json" src="/js/ld/refund.json"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KR2HW49NF0"></script>
+<script src="/js/analytics/gtag.js"></script>
+<script src="/js/analytics/clarity.js"></script>
+<script>
+  (function() {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved ? saved === 'dark' : prefersDark;
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  })();
+</script>
+</head>
+<body class="bg-brand-light dark:bg-brand-dark font-sans text-slate-800 dark:text-slate-100 antialiased min-h-screen flex flex-col transition-colors duration-300">
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-brand-cardDark/85 backdrop-blur-md border-b border-slate-100 dark:border-slate-700">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <a class="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-brand-purple transition-colors font-medium group" href="/index.html">
+      <span class="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+      <span>메인으로 돌아가기</span>
+    </a>
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 bg-gradient-to-br from-brand-purple to-brand-pink rounded-lg flex items-center justify-center text-white shadow-md shadow-purple-200">
+        <span class="material-symbols-outlined text-sm">receipt_long</span>
+      </div>
+      <span class="text-xl font-bold tracking-tight accent-gradient-text">MenuRec</span>
+    </div>
+  </div>
+</header>
+
+<main class="flex-grow py-12 px-4 sm:px-6">
+  <article class="max-w-[800px] mx-auto bg-white dark:bg-brand-cardDark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 md:p-12">
+    <header class="mb-10 pb-8 border-b border-slate-100 dark:border-slate-700">
+      <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-4">환불 정책 (Refund Policy)</h1>
+      <p class="text-slate-500 dark:text-slate-300">최종 수정일: 2026-02-16</p>
+    </header>
+
+    <div class="space-y-8 text-slate-600 dark:text-slate-300 leading-8">
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">1. 적용 범위</h2>
+        <p>본 환불 정책은 ninanoo.com에서 Polar Checkout을 통해 결제되는 MenuRec 디지털 결과 리포트 및 관련 유료 기능에 적용됩니다.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">2. 제공 방식</h2>
+        <p>구매 결과물은 결제 완료 후 결제 시 입력한 이메일 주소로 전송됩니다. 별도 이메일 수집 절차는 제공하지 않으며, 주문 정보의 기준 이메일(`order.customer_email`)만 사용합니다.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">3. 환불 불가 사유</h2>
+        <ul class="list-disc pl-6 space-y-2">
+          <li>결제 시 이메일 주소 오기재/오타로 인한 미수신</li>
+          <li>구매 후 단순 변심 또는 주관적 불만족</li>
+          <li>이용자 환경(스팸함, 메일 수신 차단, 회사 보안 정책 등)으로 인한 수신 실패</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">4. 환불 가능 사유</h2>
+        <ul class="list-disc pl-6 space-y-2">
+          <li>동일 주문의 중복 결제가 확인된 경우</li>
+          <li>결제 성공 후 서비스 측 기술적 오류로 결과물 제공이 불가능한 경우</li>
+          <li>관련 법령 또는 결제 네트워크 정책상 환불이 요구되는 경우</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">5. 환불 요청 기간 및 방법</h2>
+        <p>환불 요청은 결제일로부터 7일 이내 접수해야 하며, 주문번호/결제 이메일/문제 상황을 포함해 <a class="text-brand-purple hover:underline" href="/pages/contact.html">문의 페이지</a>로 요청해야 합니다.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">6. 처리 절차</h2>
+        <p>요청 검토 후 환불 승인 시 Polar 결제 시스템을 통해 환불이 진행됩니다. 카드사/결제수단에 따라 실제 환불 반영까지 영업일 기준 3~10일이 소요될 수 있습니다.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">7. 정책 우선순위</h2>
+        <p>본 정책은 MenuRec 운영 정책이며, 결제 처리 및 정산의 최종 기준은 Polar Merchant of Record 정책과 관련 법령을 따릅니다.</p>
+      </section>
+    </div>
+  </article>
+</main>
+
+<div id="site-footer" data-footer-current="refund"></div>
+<script src="/js/footer-loader.js"></script>
+</body>
+</html>

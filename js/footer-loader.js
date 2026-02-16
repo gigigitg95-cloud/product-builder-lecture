@@ -9,6 +9,7 @@
     guide: '/pages/guide.html',
     privacy: '/pages/privacy.html',
     terms: '/pages/terms.html',
+    refund: '/pages/refund.html',
     cookies: '/pages/cookies.html',
     contact: '/pages/contact.html',
     faq: '/pages/faq.html',
