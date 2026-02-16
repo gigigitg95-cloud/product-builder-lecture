@@ -48,12 +48,12 @@ npx wrangler secret put RESEND_API_KEY
 
 기본값(이미 설정됨):
 
-- `POLAR_MODE = "sandbox"`
-- `DEFAULT_PRODUCT_ID = "45ee4c82-2396-44bd-8249-a577755cbf9e"`
+- `POLAR_MODE = "production"`
+- `DEFAULT_PRODUCT_ID = "09ed8b9c-c328-4962-a12f-69923155d3c6"`
 - `ALLOWED_ORIGINS = "https://ninanoo.com,https://www.ninanoo.com,...localhost..."`
 - `ALLOWED_HOSTS = "api.ninanoo.com,localhost,127.0.0.1"`
 - `AUTO_REFUND_ENABLED = "false"`
-- `AUTO_REFUND_PRODUCT_IDS = "45ee4c82-2396-44bd-8249-a577755cbf9e"`
+- `AUTO_REFUND_PRODUCT_IDS = "09ed8b9c-c328-4962-a12f-69923155d3c6"`
 - `AUTO_REFUND_EMAIL_DOMAIN_DENYLIST = ""`
 - `REPORT_EMAIL_FROM = "Ninanoo Report <no-reply@ninanoo.com>"`
 - `REPORT_EMAIL_REPLY_TO = ""` (선택)
@@ -123,7 +123,7 @@ Polar Dashboard > Developers > Webhooks:
 curl -X POST "https://api.ninanoo.com/create-checkout" \
   -H "Content-Type: application/json" \
   -d '{
-    "productId": "45ee4c82-2396-44bd-8249-a577755cbf9e",
+    "productId": "09ed8b9c-c328-4962-a12f-69923155d3c6",
     "successUrl": "https://ninanoo.com/pages/payment.html#payment-success",
     "returnUrl": "https://ninanoo.com/pages/payment.html"
   }'

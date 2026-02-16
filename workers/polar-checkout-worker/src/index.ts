@@ -47,7 +47,7 @@ type PolarOrder = {
 
 const POLAR_API_PROD = "https://api.polar.sh/v1";
 const POLAR_API_SANDBOX = "https://sandbox-api.polar.sh/v1";
-const DEFAULT_PRODUCT_ID = "45ee4c82-2396-44bd-8249-a577755cbf9e";
+const DEFAULT_PRODUCT_ID = "09ed8b9c-c328-4962-a12f-69923155d3c6";
 const RESEND_EMAIL_API = "https://api.resend.com/emails";
 
 type WebhookReport = {

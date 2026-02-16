@@ -2,7 +2,7 @@
   "use strict";
 
   // From polar.txt: create checkout sessions with "products" array.
-  var PRODUCT_ID = "45ee4c82-2396-44bd-8249-a577755cbf9e";
+  var PRODUCT_ID = "09ed8b9c-c328-4962-a12f-69923155d3c6";
   var DEFAULT_API_ENDPOINT = "https://api.ninanoo.com/create-checkout";
 
   function setStatus(el, message, isError) {
