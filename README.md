@@ -110,7 +110,7 @@
 - 광고, 제휴, 기타 문의 지원
 
 ### 17. Polar 결제 및 프리미엄 리포트 전달
-- 제휴 문의 페이지에서 `프리미엄 리포트 정보 입력` 페이지로 이동
+- 제휴 문의 페이지에서 버튼 클릭 시 즉시 Polar 결제 세션 생성 후 checkout으로 이동
 - 결제 전 개인화 입력(목표/알레르기/기피 재료/선호 카테고리/추가 요청) 수집
 - 입력 데이터를 checkout `metadata`로 전달하여 리포트 생성 프롬프트에 반영
 - 결제 완료 후 결제 결과 패널에서 상태 확인 + `공유하기`/`저장하기` 지원
@@ -248,6 +248,7 @@
 │   ├── 404.js                   # 404 페이지 스크립트
 │   ├── app.js                   # 메인 앱 로직 (추천/슬롯/공유/게시판/테마)
 │   ├── auth-page.js             # 회원 인증 페이지 로직
+│   ├── contact-polar-checkout.js # 제휴 문의 페이지 즉시 Polar checkout 연동
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
 │   ├── footer-loader.js         # 공통 Footer 로더
 │   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
@@ -291,6 +292,13 @@
 ---
 
 ## 업데이트 기록
+
+### 2026-02-16 (제휴문의 즉시 Polar 결제 연결)
+
+**요약**
+- 제휴 문의 페이지의 결제 버튼이 중간 입력 페이지를 거치지 않고 즉시 Polar checkout 세션을 생성하도록 변경.
+- 결제 성공/취소 복귀는 기존 결제 결과 확인이 가능한 `pages/payment.html`로 유지.
+- 전용 클라이언트 스크립트(`js/contact-polar-checkout.js`)를 추가해 에러 메시지/이동 흐름을 분리 관리.
 
 ### 2026-02-16 (결제 전 입력 플로우 + 결제 결과 공유/저장)
 
@@ -508,7 +516,8 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	scripts/validate-readme-for-commit.js
+A	js/contact-polar-checkout.js
+M	pages/contact.html
 ```
 
 <!-- README:AUTO-END -->
