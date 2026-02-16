@@ -475,11 +475,7 @@
 
 #### 변경 파일(커밋 스테이징 기준)
 ```text
-M	docs/cloudflare-workers-polar-setup.md
-M	js/polar-worker-checkout.js
 M	pages/payment.html
-M	workers/polar-checkout-worker/src/index.ts
-M	workers/polar-checkout-worker/wrangler.toml
 ```
 
 <!-- README:AUTO-END -->
