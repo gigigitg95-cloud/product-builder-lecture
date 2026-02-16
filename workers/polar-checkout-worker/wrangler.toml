@@ -14,6 +14,10 @@ AUTO_REFUND_EMAIL_DOMAIN_DENYLIST = ""
 REPORT_EMAIL_FROM = "Ninanoo Report <no-reply@ninanoo.com>"
 REPORT_EMAIL_REPLY_TO = ""
 REPORT_EMAIL_SUBJECT_PREFIX = "[ninanoo]"
+PREMIUM_REPORT_ENABLED = "true"
+PREMIUM_REPORT_PRODUCT_IDS = "09ed8b9c-c328-4962-a12f-69923155d3c6"
+OPENAI_MODEL = "gpt-4.1-mini"
+PREMIUM_REPORT_MAX_TOKENS = "900"
 
 [[routes]]
 pattern = "api.ninanoo.com/*"

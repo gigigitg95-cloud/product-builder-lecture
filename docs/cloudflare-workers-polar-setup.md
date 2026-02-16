@@ -38,11 +38,13 @@ cd workers/polar-checkout-worker
 npx wrangler secret put POLAR_OAT_TOKEN
 npx wrangler secret put POLAR_WEBHOOK_SECRET
 npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put OPENAI_API_KEY
 ```
 
 - `POLAR_OAT_TOKEN`: Polar Organization Access Token
 - `POLAR_WEBHOOK_SECRET`: Polar Webhook Secret (`polar_whs_...`)
 - `RESEND_API_KEY`: Resend API Key (`re_...`)
+- `OPENAI_API_KEY`: OpenAI API Key (`sk-...`)
 
 ## 5) 환경값 확인 (`wrangler.toml`)
 
@@ -58,6 +60,10 @@ npx wrangler secret put RESEND_API_KEY
 - `REPORT_EMAIL_FROM = "Ninanoo Report <no-reply@ninanoo.com>"`
 - `REPORT_EMAIL_REPLY_TO = ""` (선택)
 - `REPORT_EMAIL_SUBJECT_PREFIX = "[ninanoo]"`
+- `PREMIUM_REPORT_ENABLED = "true"`
+- `PREMIUM_REPORT_PRODUCT_IDS = "09ed8b9c-c328-4962-a12f-69923155d3c6"`
+- `OPENAI_MODEL = "gpt-4.1-mini"`
+- `PREMIUM_REPORT_MAX_TOKENS = "900"`
 - `routes.pattern = "api.ninanoo.com/*"`
 
 ## 6) 로컬 테스트 (배포 전)
@@ -157,17 +163,18 @@ curl "https://api.ninanoo.com/payment-status?order_id=order_xxx"
 npx wrangler secret put POLAR_OAT_TOKEN
 npx wrangler secret put POLAR_WEBHOOK_SECRET
 npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put OPENAI_API_KEY
 npx wrangler deploy
 ```
 
-## 14) 자동환불 결과 이메일 리포트
+## 14) 결제 후 프리미엄 리포트 이메일 자동 발송
 
-`/webhooks/polar`에서 `order.paid` 이벤트를 처리하면, 자동환불 결과를 Resend로 이메일 발송합니다.
+`/webhooks/polar`에서 `order.paid` 이벤트를 처리하면, 환불 대상이 아닌 주문에 대해 OpenAI로 프리미엄 리포트를 생성해 Resend로 발송합니다.
 
 - 수신자: Polar 결제 단계에서 고객이 입력한 이메일(`order.customer_email`)
-- 발송 조건: `RESEND_API_KEY`, `REPORT_EMAIL_FROM`가 모두 설정되고, 결제 이메일 형식이 유효한 경우
+- 발송 조건: `RESEND_API_KEY`, `REPORT_EMAIL_FROM`, `OPENAI_API_KEY`가 설정되고, 결제 이메일 형식이 유효한 경우
 - 참고: `REPORT_EMAIL_FROM`의 도메인(`ninanoo.com`)은 Resend에서 Verified Domain으로 인증되어 있어야 합니다.
-- 실패 처리: 이메일 발송 실패가 있어도 웹훅 응답은 정상(`200`) 유지
+- 실패 처리: OpenAI 생성 실패 시 fallback 리포트로 대체하고, 이메일 발송 실패가 있어도 웹훅 응답은 정상(`200`) 유지
 - 응답 필드:
-  - `reportEmailQueued`: 백그라운드 이메일 발송 큐 등록 여부
-  - `reportEmailReason`: 큐 등록 실패 사유(예: `report_email_not_configured`, `missing_customer_email`, `invalid_customer_email`)
+  - `premiumReportQueued`: 백그라운드 발송 큐 등록 여부
+  - `premiumReportReason`: 큐 등록 실패 사유(예: `report_email_not_configured`, `missing_customer_email`, `invalid_customer_email`, `product_not_eligible`)

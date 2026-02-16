@@ -111,6 +111,7 @@
 
 ### 17. Polar 결제 및 프리미엄 리포트 전달
 - 제휴 문의 페이지에서 버튼 클릭 시 즉시 Polar 결제 세션 생성 후 checkout으로 이동
+- 메인 사이드바에서 `식단 짜기` 버튼으로 리포트 입력 페이지(`report-intake`) 진입
 - 결제 전 개인화 입력(목표/알레르기/기피 재료/선호 카테고리/추가 요청) 수집
 - 입력 데이터를 checkout `metadata`로 전달하여 리포트 생성 프롬프트에 반영
 - 결제 완료 후 결제 결과 패널에서 상태 확인 + `공유하기`/`저장하기` 지원
@@ -211,7 +212,7 @@
 ## 프로젝트 구조
 
 ```
-├── index.html               # 메인 페이지
+├── index.html               # 메인 페이지(사이드바 식단 짜기 진입 포함)
 ├── 404.html                 # 404 에러 페이지
 ├── pages
 │   ├── about.html               # 서비스 소개
@@ -265,7 +266,7 @@
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
 │       ├── tsconfig.json            # Worker 타입스크립트 설정
-│       └── wrangler.toml            # Worker 라우트/변수 설정
+│       └── wrangler.toml            # Worker 라우트/변수 설정(프리미엄 리포트 모델/토큰 변수 포함)
 ├── docs
 │   ├── cloudflare-workers-polar-setup.md # Workers/Polar 결제 설정 가이드
 │   └── dom-contract.json        # DOM 계약 정의 파일
@@ -292,6 +293,13 @@
 ---
 
 ## 업데이트 기록
+
+### 2026-02-16 (사이드바 식단 짜기 진입 + 리포트 입력 안내 강화)
+
+**요약**
+- 메인 페이지 사이드바(데스크톱/모바일)에 `식단 짜기` 진입 버튼을 추가.
+- `report-intake` 페이지 상단 복귀 링크를 메인으로 조정하고 Polar 허용 범위 고지 문구를 추가.
+- Worker 설정/문서에 프리미엄 리포트 관련 환경 변수(`OPENAI_MODEL`, `PREMIUM_REPORT_MAX_TOKENS` 등) 안내를 정리.
 
 ### 2026-02-16 (제휴문의 즉시 Polar 결제 연결)
 
@@ -516,8 +524,10 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-A	js/contact-polar-checkout.js
-M	pages/contact.html
+M	docs/cloudflare-workers-polar-setup.md
+M	index.html
+M	pages/report-intake.html
+M	workers/polar-checkout-worker/wrangler.toml
 ```
 
 <!-- README:AUTO-END -->
