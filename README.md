@@ -118,6 +118,7 @@
 - 결제 직후 `리포트 생성 진행 상태`와 `즉시 미리보기`를 화면에 제공
 - 이메일 미수신 대응을 위해 `리포트 재전송` 버튼으로 재발송 요청 가능
 - 결제 성공 시 전용 결과 페이지(`report-result`)에서 OpenAI 리포트 본문을 즉시 확인 가능
+- `order_id` 누락 checkout도 `checkout_id` fallback 처리로 리포트 조회/재전송 가능
 - 결과 리포트는 Polar 결제 시 입력한 이메일(`order.customer_email`)로 전송
 - Cloudflare Worker 기반 결제 API/웹훅/조건부 자동환불/프리미엄 리포트 생성/재전송 구조 지원
 
@@ -267,7 +268,7 @@
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
-│       │   └── index.ts                 # checkout/status/webhook + resend-report API
+│       │   └── index.ts                 # checkout/status/webhook + preview/resend API (checkout fallback 포함)
 │       ├── .gitignore               # Worker 로컬 산출물 제외
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
@@ -299,6 +300,12 @@
 ---
 
 ## 업데이트 기록
+
+### 2026-02-16 (checkout_id fallback 처리 보강)
+
+**요약**
+- 일부 checkout 응답에서 `order_id`가 비어 있는 케이스를 처리하도록 Worker를 보강.
+- `premium-report-preview`/`resend-report`가 `checkout_id`만으로도 fallback order를 구성해 정상 동작하도록 수정.
 
 ### 2026-02-16 (결제 후 전용 리포트 결과 페이지 추가)
 
@@ -544,10 +551,6 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	js/polar-worker-checkout.js
-A	js/report-result.js
-M	pages/payment.html
-A	pages/report-result.html
 M	workers/polar-checkout-worker/src/index.ts
 ```
 

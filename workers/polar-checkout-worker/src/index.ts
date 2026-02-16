@@ -716,6 +716,51 @@ function extractCheckoutOrderId(checkoutData: unknown): string {
   return "";
 }
 
+function buildOrderFallbackFromCheckout(checkoutData: unknown, checkoutId: string): PolarOrder | null {
+  if (!checkoutData || typeof checkoutData !== "object") return null;
+  const record = checkoutData as Record<string, unknown>;
+  const products = Array.isArray(record.products) ? (record.products as Array<unknown>) : [];
+  const items = products
+    .map((item) => {
+      if (typeof item === "string") {
+        return { product_id: item };
+      }
+      if (item && typeof item === "object") {
+        const productRecord = item as Record<string, unknown>;
+        const productId =
+          (typeof productRecord.product_id === "string" && productRecord.product_id) ||
+          (typeof productRecord.id === "string" && productRecord.id) ||
+          (productRecord.product &&
+          typeof productRecord.product === "object" &&
+          typeof (productRecord.product as Record<string, unknown>).id === "string"
+            ? ((productRecord.product as Record<string, unknown>).id as string)
+            : "");
+        if (productId) {
+          return { product_id: productId };
+        }
+      }
+      return null;
+    })
+    .filter(Boolean) as Array<{ product_id?: string }>;
+
+  return {
+    id: checkoutId || (typeof record.id === "string" ? record.id : ""),
+    status: typeof record.status === "string" ? record.status : "succeeded",
+    customer_email:
+      (typeof record.customer_email === "string" && record.customer_email) ||
+      (record.customer &&
+      typeof record.customer === "object" &&
+      typeof (record.customer as Record<string, unknown>).email === "string"
+        ? ((record.customer as Record<string, unknown>).email as string)
+        : "") ||
+      null,
+    metadata: (record.metadata && typeof record.metadata === "object"
+      ? (record.metadata as Record<string, unknown>)
+      : {}) as Record<string, unknown>,
+    items,
+  };
+}
+
 async function resolveOrderForResend(body: ResendReportRequest, env: Env): Promise<{ order?: PolarOrder; reason?: string }> {
   const rawOrderId = String(body.orderId || body.order_id || "").trim();
   const rawCheckoutId = String(body.checkoutId || body.checkout_id || "").trim();
@@ -728,7 +773,11 @@ async function resolveOrderForResend(body: ResendReportRequest, env: Env): Promi
     }
     orderId = extractCheckoutOrderId(checkout.data);
     if (!orderId) {
-      return { reason: "order_id_not_found_from_checkout" };
+      const fallbackOrder = buildOrderFallbackFromCheckout(checkout.data, rawCheckoutId);
+      if (!fallbackOrder) {
+        return { reason: "order_id_not_found_from_checkout" };
+      }
+      return { order: fallbackOrder };
     }
   }
 
