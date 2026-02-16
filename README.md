@@ -117,6 +117,7 @@
 - 결제 완료 후 결제 결과 패널에서 상태 확인 + `공유하기`/`저장하기` 지원
 - 결제 직후 `리포트 생성 진행 상태`와 `즉시 미리보기`를 화면에 제공
 - 이메일 미수신 대응을 위해 `리포트 재전송` 버튼으로 재발송 요청 가능
+- 결제 성공 시 전용 결과 페이지(`report-result`)에서 OpenAI 리포트 본문을 즉시 확인 가능
 - 결과 리포트는 Polar 결제 시 입력한 이메일(`order.customer_email`)로 전송
 - Cloudflare Worker 기반 결제 API/웹훅/조건부 자동환불/프리미엄 리포트 생성/재전송 구조 지원
 
@@ -156,6 +157,7 @@
 | 제휴 문의 | `/pages/contact.html` | 제휴 문의 접수 및 결제 화면 진입 |
 | 리포트 입력 | `/pages/report-intake.html` | 결제 전 개인화 정보 입력 |
 | 결제 | `/pages/payment.html` | 입력 정보 확인, Polar Checkout 진입, 결제 결과/공유/저장 |
+| 리포트 결과 | `/pages/report-result.html` | 결제 완료 후 OpenAI 리포트 즉시 확인/공유/저장/재전송 |
 
 ---
 
@@ -230,6 +232,7 @@
 │   ├── privacy.html             # 개인정보처리방침
 │   ├── refund.html              # 환불 정책
 │   ├── report-intake.html       # 결제 전 프리미엄 리포트 입력
+│   ├── report-result.html       # 결제 후 프리미엄 리포트 결과 확인
 │   └── terms.html               # 이용약관
 ├── css
 │   ├── 404.css                  # 404 페이지 스타일
@@ -258,6 +261,7 @@
 │   ├── polar-worker-checkout.js # 결제 버튼/결제결과/진행상태/리포트 재전송 연동
 │   ├── premium-report-intake.js # 리포트 입력 저장/결제 페이지 전달
 │   ├── privacy.js               # 개인정보처리방침 스크립트
+│   ├── report-result.js         # 결제 후 리포트 결과 페이지 로직
 │   ├── terms.js                 # 이용약관 스크립트
 │   └── translations.js          # 18개 언어 번역 데이터
 ├── workers
@@ -295,6 +299,13 @@
 ---
 
 ## 업데이트 기록
+
+### 2026-02-16 (결제 후 전용 리포트 결과 페이지 추가)
+
+**요약**
+- 결제 성공 시 `pages/report-result.html`로 이동해 OpenAI 리포트 본문을 즉시 확인할 수 있는 전용 결과 페이지를 추가.
+- 결과 페이지에서 `공유하기`/`저장하기`/`리포트 재전송`을 한 화면에서 제공.
+- Worker에 `POST /premium-report-preview` API를 추가해 결제건 기준 리포트 미리보기 조회를 지원.
 
 ### 2026-02-16 (결제 직후 리포트 진행상태/미리보기/재전송)
 
@@ -533,9 +544,10 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	js/contact-polar-checkout.js
 M	js/polar-worker-checkout.js
+A	js/report-result.js
 M	pages/payment.html
+A	pages/report-result.html
 M	workers/polar-checkout-worker/src/index.ts
 ```
 

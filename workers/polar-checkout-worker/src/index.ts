@@ -45,6 +45,8 @@ type ResendReportRequest = {
   checkout_id?: string;
 };
 
+type PremiumReportPreviewRequest = ResendReportRequest;
+
 type PolarOrder = {
   id?: string;
   status?: string;
@@ -787,6 +789,76 @@ async function resendPremiumReport(request: Request, env: Env, ctx: WorkerExecut
   );
 }
 
+async function getPremiumReportPreview(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  const origin = request.headers.get("origin");
+  const corsHeaders = resolveCorsHeaders(origin, env);
+
+  if (!isOriginAllowed(origin, env)) {
+    return jsonResponse({ error: "Origin not allowed" }, { status: 403, headers: corsHeaders });
+  }
+  if (!isHostAllowed(url.hostname, env)) {
+    return jsonResponse({ error: "Host not allowed" }, { status: 403, headers: corsHeaders });
+  }
+  if (!env.POLAR_OAT_TOKEN) {
+    return jsonResponse({ error: "Server misconfigured: missing POLAR_OAT_TOKEN" }, { status: 500, headers: corsHeaders });
+  }
+
+  let body: PremiumReportPreviewRequest = {};
+  try {
+    body = (await request.json()) as PremiumReportPreviewRequest;
+  } catch {
+    return jsonResponse({ error: "Invalid JSON body" }, { status: 400, headers: corsHeaders });
+  }
+
+  const resolved = await resolveOrderForResend(body, env);
+  if (!resolved.order) {
+    return jsonResponse(
+      {
+        ok: false,
+        reason: resolved.reason || "order_not_found",
+      },
+      { status: 200, headers: corsHeaders }
+    );
+  }
+
+  const order = resolved.order;
+  const status = String(order.status || "").toLowerCase();
+  if (status !== "paid" && status !== "confirmed" && status !== "succeeded") {
+    return jsonResponse(
+      {
+        ok: false,
+        reason: "order_not_paid",
+        orderId: order.id || null,
+        orderStatus: order.status || null,
+      },
+      { status: 200, headers: corsHeaders }
+    );
+  }
+
+  let premiumReport: { content: string; model: string };
+  try {
+    premiumReport = await generatePremiumReport(order, env);
+  } catch (error) {
+    console.error("premium_report_preview_generate_failed", {
+      message: error instanceof Error ? error.message : String(error),
+      orderId: order.id || null,
+    });
+    premiumReport = { content: buildFallbackPremiumReport(order), model: "fallback:preview_generation_failed" };
+  }
+
+  return jsonResponse(
+    {
+      ok: true,
+      orderId: order.id || null,
+      customerEmail: normalizeEmail(order.customer_email || ""),
+      model: premiumReport.model,
+      report: premiumReport.content,
+    },
+    { status: 200, headers: corsHeaders }
+  );
+}
+
 async function handlePolarWebhook(request: Request, env: Env, ctx: WorkerExecutionContext): Promise<Response> {
   const url = new URL(request.url);
   if (!isHostAllowed(url.hostname, env)) {
@@ -967,6 +1039,13 @@ export default {
 
     if (request.method === "POST" && (url.pathname === "/resend-report" || url.pathname === "/api/resend-report")) {
       return resendPremiumReport(request, env, ctx);
+    }
+
+    if (
+      request.method === "POST" &&
+      (url.pathname === "/premium-report-preview" || url.pathname === "/api/premium-report-preview")
+    ) {
+      return getPremiumReportPreview(request, env);
     }
 
     if (request.method === "POST" && (url.pathname === "/webhooks/polar" || url.pathname === "/api/webhooks/polar")) {

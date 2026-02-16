@@ -107,7 +107,7 @@
 
   async function requestCheckoutUrl(apiEndpoint, metadata) {
     var currentUrl = window.location.origin + window.location.pathname;
-    var successUrl = currentUrl + "?payment=success&checkout_id={CHECKOUT_ID}";
+    var successUrl = window.location.origin + "/pages/report-result.html?payment=success&checkout_id={CHECKOUT_ID}";
     var returnUrl = currentUrl + "?payment=return";
     var response = await fetch(apiEndpoint, {
       method: "POST",
@@ -149,6 +149,11 @@
   function resolveResendApiEndpoint() {
     var checkoutApi = resolveApiEndpoint();
     return checkoutApi.replace(/\/create-checkout$/, "/resend-report");
+  }
+
+  function resolveReportPreviewApiEndpoint() {
+    var checkoutApi = resolveApiEndpoint();
+    return checkoutApi.replace(/\/create-checkout$/, "/premium-report-preview");
   }
 
   async function requestPaymentStatus(params) {
@@ -211,6 +216,34 @@
     return data || {};
   }
 
+  async function requestPremiumReportPreview(params) {
+    var previewEndpoint = resolveReportPreviewApiEndpoint();
+    var body = {};
+    if (params.orderId) body.orderId = params.orderId;
+    if (params.checkoutId) body.checkoutId = params.checkoutId;
+
+    var response = await fetch(previewEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+
+    var data;
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = null;
+    }
+
+    if (!response.ok) {
+      var detail = data && (data.error || data.message || data.detail);
+      throw new Error(detail || ("Premium report preview API request failed (" + response.status + ")"));
+    }
+    return data || {};
+  }
+
   function maskEmail(value) {
     var email = String(value || "").trim();
     if (!email || email.indexOf("@") === -1) return "";
@@ -255,6 +288,42 @@
       "<p>- 기피 재료: " + escapeHtml(avoid) + "</p>" +
       "<p>- 추가 요청: " + escapeHtml(note) + "</p>" +
       "<p class=\"mt-2 text-slate-500 dark:text-slate-400\">상세 7일 플랜은 이메일 본문에서 확인할 수 있습니다.</p>";
+  }
+
+  function renderPreviewContent(content, model) {
+    var preview = document.getElementById("report-preview-box");
+    if (!preview) return;
+    var safeText = escapeHtml(content || "");
+    var modelLine = model ? "<p class=\"mb-2 text-[11px] text-slate-500 dark:text-slate-400\">생성 모델: " + escapeHtml(model) + "</p>" : "";
+    preview.innerHTML =
+      "<p class=\"font-semibold text-slate-800 dark:text-slate-100\">리포트 결과</p>" +
+      modelLine +
+      "<pre class=\"mt-2 whitespace-pre-wrap break-words text-xs leading-relaxed font-sans\">" + safeText + "</pre>";
+  }
+
+  async function loadAndRenderPremiumReport() {
+    var orderId = latestPaymentContext.orderId;
+    var checkoutId = latestPaymentContext.checkoutId;
+    if (!orderId && !checkoutId) return;
+
+    try {
+      var response = await requestPremiumReportPreview({
+        orderId: orderId,
+        checkoutId: checkoutId
+      });
+      if (response && response.ok && response.report) {
+        renderPreviewContent(String(response.report || ""), String(response.model || ""));
+        renderReportDeliveryState({
+          show: true,
+          stage: "queued",
+          orderId: latestPaymentContext.orderId,
+          checkoutId: latestPaymentContext.checkoutId,
+          customerEmail: latestPaymentContext.customerEmail
+        });
+      }
+    } catch (error) {
+      // Keep immediate preview on failure.
+    }
   }
 
   function renderReportDeliveryState(options) {
@@ -463,6 +532,9 @@
           checkoutId: latestPaymentContext.checkoutId,
           customerEmail: latestPaymentContext.customerEmail
         });
+        if (orderStatus === "paid") {
+          loadAndRenderPremiumReport();
+        }
         clearPaymentQueryParams();
         return;
       }
@@ -495,6 +567,9 @@
           checkoutId: latestPaymentContext.checkoutId,
           customerEmail: latestPaymentContext.customerEmail
         });
+        if (isSuccess) {
+          loadAndRenderPremiumReport();
+        }
         clearPaymentQueryParams();
         return;
       }
