@@ -115,8 +115,10 @@
 - 결제 전 개인화 입력(목표/알레르기/기피 재료/선호 카테고리/추가 요청) 수집
 - 입력 데이터를 checkout `metadata`로 전달하여 리포트 생성 프롬프트에 반영
 - 결제 완료 후 결제 결과 패널에서 상태 확인 + `공유하기`/`저장하기` 지원
+- 결제 직후 `리포트 생성 진행 상태`와 `즉시 미리보기`를 화면에 제공
+- 이메일 미수신 대응을 위해 `리포트 재전송` 버튼으로 재발송 요청 가능
 - 결과 리포트는 Polar 결제 시 입력한 이메일(`order.customer_email`)로 전송
-- Cloudflare Worker 기반 결제 API/웹훅/조건부 자동환불/프리미엄 리포트 생성 구조 지원
+- Cloudflare Worker 기반 결제 API/웹훅/조건부 자동환불/프리미엄 리포트 생성/재전송 구조 지원
 
 ---
 
@@ -253,7 +255,7 @@
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
 │   ├── footer-loader.js         # 공통 Footer 로더
 │   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
-│   ├── polar-worker-checkout.js # 결제 버튼 -> Workers checkout API 연동
+│   ├── polar-worker-checkout.js # 결제 버튼/결제결과/진행상태/리포트 재전송 연동
 │   ├── premium-report-intake.js # 리포트 입력 저장/결제 페이지 전달
 │   ├── privacy.js               # 개인정보처리방침 스크립트
 │   ├── terms.js                 # 이용약관 스크립트
@@ -261,7 +263,7 @@
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
-│       │   └── index.ts
+│       │   └── index.ts                 # checkout/status/webhook + resend-report API
 │       ├── .gitignore               # Worker 로컬 산출물 제외
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
@@ -293,6 +295,13 @@
 ---
 
 ## 업데이트 기록
+
+### 2026-02-16 (결제 직후 리포트 진행상태/미리보기/재전송)
+
+**요약**
+- 결제 완료 직후 사용자에게 `리포트 생성 진행 상태`(진행바/안내 문구)를 즉시 표시하도록 결제 결과 UI를 확장.
+- 결제 전에 입력한 개인화 정보를 기반으로 `즉시 미리보기`를 결제 완료 화면에서 바로 제공.
+- `리포트 재전송` 버튼을 추가하고 Worker에 `/resend-report` API를 구현해 주문 기준 재발송 요청을 지원.
 
 ### 2026-02-16 (사이드바 식단 짜기 진입 + 리포트 입력 안내 강화)
 
@@ -524,10 +533,10 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	docs/cloudflare-workers-polar-setup.md
-M	index.html
-M	pages/report-intake.html
-M	workers/polar-checkout-worker/wrangler.toml
+M	js/contact-polar-checkout.js
+M	js/polar-worker-checkout.js
+M	pages/payment.html
+M	workers/polar-checkout-worker/src/index.ts
 ```
 
 <!-- README:AUTO-END -->

@@ -10,6 +10,12 @@
     message: "",
     meta: ""
   };
+  var latestPaymentContext = {
+    orderId: "",
+    checkoutId: "",
+    customerEmail: "",
+    status: ""
+  };
 
   function setStatus(el, message, isError) {
     if (!el) return;
@@ -140,6 +146,11 @@
     return checkoutApi.replace(/\/create-checkout$/, "/payment-status");
   }
 
+  function resolveResendApiEndpoint() {
+    var checkoutApi = resolveApiEndpoint();
+    return checkoutApi.replace(/\/create-checkout$/, "/resend-report");
+  }
+
   async function requestPaymentStatus(params) {
     var statusEndpoint = resolveStatusApiEndpoint();
     var url = new URL(statusEndpoint);
@@ -170,6 +181,122 @@
       throw new Error(detail || ("Status API request failed (" + response.status + ")"));
     }
     return data;
+  }
+
+  async function requestReportResend(params) {
+    var resendEndpoint = resolveResendApiEndpoint();
+    var body = {};
+    if (params.orderId) body.orderId = params.orderId;
+    if (params.checkoutId) body.checkoutId = params.checkoutId;
+
+    var response = await fetch(resendEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+
+    var data;
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = null;
+    }
+
+    if (!response.ok) {
+      var detail = data && (data.error || data.message || data.detail);
+      throw new Error(detail || ("Resend API request failed (" + response.status + ")"));
+    }
+    return data || {};
+  }
+
+  function maskEmail(value) {
+    var email = String(value || "").trim();
+    if (!email || email.indexOf("@") === -1) return "";
+    var parts = email.split("@");
+    var local = parts[0];
+    var domain = parts.slice(1).join("@");
+    if (local.length <= 2) return local.charAt(0) + "*@" + domain;
+    return local.slice(0, 2) + "***@" + domain;
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function renderImmediatePreview(metadata) {
+    var preview = document.getElementById("report-preview-box");
+    if (!preview) return;
+    var goal = metadata.report_goal || "";
+    if (!goal) {
+      preview.innerHTML =
+        "<p class=\"font-semibold text-slate-800 dark:text-slate-100\">즉시 미리보기</p>" +
+        "<p class=\"mt-1\">입력 정보가 없어 미리보기를 표시할 수 없습니다. 최종 리포트는 결제 이메일로 발송됩니다.</p>";
+      return;
+    }
+
+    var allergies = metadata.report_allergies || "없음/미입력";
+    var avoid = metadata.report_avoid_ingredients || "없음/미입력";
+    var preferred = metadata.report_preferred_categories || "미입력";
+    var note = metadata.report_note || "없음";
+    var todayTip = preferred !== "미입력" ? preferred : "담백한 단백질 + 채소";
+
+    preview.innerHTML =
+      "<p class=\"font-semibold text-slate-800 dark:text-slate-100\">즉시 미리보기</p>" +
+      "<p class=\"mt-1\">- 목표: " + escapeHtml(goal) + "</p>" +
+      "<p>- 오늘 추천: " + escapeHtml(todayTip) + " 중심으로 1끼 구성</p>" +
+      "<p>- 알레르기: " + escapeHtml(allergies) + "</p>" +
+      "<p>- 기피 재료: " + escapeHtml(avoid) + "</p>" +
+      "<p>- 추가 요청: " + escapeHtml(note) + "</p>" +
+      "<p class=\"mt-2 text-slate-500 dark:text-slate-400\">상세 7일 플랜은 이메일 본문에서 확인할 수 있습니다.</p>";
+  }
+
+  function renderReportDeliveryState(options) {
+    var panel = document.getElementById("report-delivery-panel");
+    var progressText = document.getElementById("report-progress-text");
+    var progressBar = document.getElementById("report-progress-bar");
+    var emailHint = document.getElementById("report-email-hint");
+    var orderHint = document.getElementById("report-order-hint");
+    var resendButton = document.getElementById("report-resend-btn");
+    if (!panel || !progressText || !progressBar || !emailHint || !orderHint || !resendButton) return;
+
+    if (!options || !options.show) {
+      panel.classList.add("hidden");
+      return;
+    }
+
+    panel.classList.remove("hidden");
+    if (options.stage === "checking") {
+      progressText.textContent = "결제 확인 중입니다. 잠시만 기다려 주세요.";
+      progressBar.style.width = "25%";
+    } else if (options.stage === "generating") {
+      progressText.textContent = "결제 확인 완료. 프리미엄 리포트를 생성해 이메일로 발송 중입니다 (약 1~3분).";
+      progressBar.style.width = "70%";
+    } else if (options.stage === "queued") {
+      progressText.textContent = "리포트 발송이 접수되었습니다. 이메일을 확인해 주세요.";
+      progressBar.style.width = "100%";
+    } else {
+      progressText.textContent = "리포트 처리 상태를 확인해 주세요.";
+      progressBar.style.width = "40%";
+    }
+
+    var masked = maskEmail(options.customerEmail);
+    emailHint.textContent = masked
+      ? "발송 이메일: " + masked
+      : "결제 시 입력한 이메일 주소로 리포트가 발송됩니다.";
+    var orderLine = [];
+    if (options.orderId) orderLine.push("order_id: " + options.orderId);
+    if (options.checkoutId) orderLine.push("checkout_id: " + options.checkoutId);
+    orderHint.textContent = orderLine.join(" / ");
+
+    var canResend = !!(options.orderId || options.checkoutId);
+    resendButton.disabled = !canResend;
   }
 
   function renderPaymentResult(message, isError) {
@@ -311,6 +438,7 @@
     }
 
     renderPaymentResult("결제 결과를 확인하는 중입니다. 잠시만 기다려 주세요...", false);
+    renderReportDeliveryState({ show: true, stage: "checking" });
     try {
       var result = await requestPaymentStatus({
         orderId: orderId,
@@ -319,10 +447,22 @@
 
       if (result.order) {
         var orderStatus = String(result.order.status || "unknown");
+        latestPaymentContext.orderId = String(result.order.id || orderId || "");
+        latestPaymentContext.checkoutId = String(checkoutId || "");
+        latestPaymentContext.customerEmail = String(result.order.customer_email || "");
+        latestPaymentContext.status = orderStatus;
         renderPaymentResult(
           toUserFacingOrderMessage(orderStatus, result.order.id || orderId || ""),
           orderStatus !== "paid"
         );
+        renderImmediatePreview(resolvePremiumReportMetadata());
+        renderReportDeliveryState({
+          show: true,
+          stage: orderStatus === "paid" ? "generating" : "other",
+          orderId: latestPaymentContext.orderId,
+          checkoutId: latestPaymentContext.checkoutId,
+          customerEmail: latestPaymentContext.customerEmail
+        });
         clearPaymentQueryParams();
         return;
       }
@@ -330,18 +470,41 @@
       if (result.checkout) {
         var checkoutStatus = String(result.checkout.status || "unknown");
         var isSuccess = checkoutStatus === "succeeded" || checkoutStatus === "confirmed";
+        latestPaymentContext.orderId = String(
+          result.checkout.order_id ||
+            (result.checkout.order && (result.checkout.order.id || result.checkout.order)) ||
+            orderId ||
+            ""
+        );
+        latestPaymentContext.checkoutId = String(result.checkout.id || checkoutId || "");
+        latestPaymentContext.customerEmail = String(
+          result.checkout.customer_email ||
+            (result.checkout.customer && result.checkout.customer.email) ||
+            ""
+        );
+        latestPaymentContext.status = checkoutStatus;
         renderPaymentResult(
           toUserFacingCheckoutMessage(checkoutStatus, result.checkout.id || checkoutId || ""),
           !isSuccess
         );
+        renderImmediatePreview(resolvePremiumReportMetadata());
+        renderReportDeliveryState({
+          show: true,
+          stage: isSuccess ? "generating" : "other",
+          orderId: latestPaymentContext.orderId,
+          checkoutId: latestPaymentContext.checkoutId,
+          customerEmail: latestPaymentContext.customerEmail
+        });
         clearPaymentQueryParams();
         return;
       }
 
       renderPaymentResult("결제 상태 응답 형식을 확인할 수 없습니다.", true);
+      renderReportDeliveryState({ show: false });
       clearPaymentQueryParams();
     } catch (error) {
       renderPaymentResult(error && error.message ? error.message : "결제 상태 확인 중 오류가 발생했습니다.", true);
+      renderReportDeliveryState({ show: false });
       clearPaymentQueryParams();
     }
   }
@@ -363,6 +526,8 @@
     var status = document.getElementById("polar-pay-status");
     var shareButton = document.getElementById("payment-result-share-btn");
     var saveButton = document.getElementById("payment-result-save-btn");
+    var resendButton = document.getElementById("report-resend-btn");
+    var resendStatus = document.getElementById("report-resend-status");
     var metadata = resolvePremiumReportMetadata();
     checkReturnPaymentStatus();
     if (shareButton) {
@@ -379,6 +544,45 @@
         } catch (error) {
           setStatus(status, "저장에 실패했습니다. 잠시 후 다시 시도해 주세요.", true);
         }
+      });
+    }
+    if (resendButton) {
+      resendButton.addEventListener("click", function () {
+        if (resendButton.disabled) return;
+        resendButton.disabled = true;
+        if (resendStatus) {
+          resendStatus.textContent = "재전송 요청 중...";
+          resendStatus.classList.remove("text-red-500", "dark:text-red-300");
+        }
+        requestReportResend({
+          orderId: latestPaymentContext.orderId,
+          checkoutId: latestPaymentContext.checkoutId
+        })
+          .then(function (data) {
+            if (resendStatus) {
+              var ok = !!data.queued;
+              resendStatus.textContent = ok
+                ? "재전송 요청이 접수되었습니다. 이메일을 확인해 주세요."
+                : "재전송 요청이 접수되지 않았습니다: " + (data.reason || "unknown");
+              if (!ok) resendStatus.classList.add("text-red-500", "dark:text-red-300");
+            }
+            renderReportDeliveryState({
+              show: true,
+              stage: "queued",
+              orderId: latestPaymentContext.orderId,
+              checkoutId: latestPaymentContext.checkoutId,
+              customerEmail: latestPaymentContext.customerEmail
+            });
+          })
+          .catch(function (error) {
+            if (resendStatus) {
+              resendStatus.textContent = (error && error.message) || "재전송 요청 중 오류가 발생했습니다.";
+              resendStatus.classList.add("text-red-500", "dark:text-red-300");
+            }
+          })
+          .finally(function () {
+            resendButton.disabled = false;
+          });
       });
     }
     if (!button) return;

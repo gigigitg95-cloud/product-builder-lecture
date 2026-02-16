@@ -31,7 +31,7 @@
   }
 
   async function requestCheckoutUrl(apiEndpoint) {
-    var successUrl = window.location.origin + "/pages/payment.html?payment=success&checkout_id={CHECKOUT_ID}";
+    var successUrl = window.location.origin + "/?payment=success&checkout_id={CHECKOUT_ID}";
     var returnUrl = window.location.origin + "/pages/payment.html?payment=return";
 
     var response = await fetch(apiEndpoint, {

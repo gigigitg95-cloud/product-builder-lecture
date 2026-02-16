@@ -38,6 +38,13 @@ type WorkerExecutionContext = {
   waitUntil(promise: Promise<unknown>): void;
 };
 
+type ResendReportRequest = {
+  orderId?: string;
+  order_id?: string;
+  checkoutId?: string;
+  checkout_id?: string;
+};
+
 type PolarOrder = {
   id?: string;
   status?: string;
@@ -280,6 +287,18 @@ function buildFallbackPremiumReport(order: PolarOrder): string {
   ].join("\n");
 }
 
+function ensureStructuredPremiumReport(content: string, order: PolarOrder): string {
+  const trimmed = String(content || "").trim();
+  if (!trimmed) return buildFallbackPremiumReport(order);
+
+  const requiredSections = ["[요약]", "[맞춤 추천]", "[7일 플랜]", "[주의사항]"];
+  const missing = requiredSections.some((section) => !trimmed.includes(section));
+  if (missing) {
+    return buildFallbackPremiumReport(order);
+  }
+  return trimmed;
+}
+
 async function generatePremiumReport(order: PolarOrder, env: Env): Promise<{ content: string; model: string }> {
   const apiKey = String(env.OPENAI_API_KEY || "").trim();
   const model = String(env.OPENAI_MODEL || DEFAULT_OPENAI_MODEL).trim() || DEFAULT_OPENAI_MODEL;
@@ -291,11 +310,12 @@ async function generatePremiumReport(order: PolarOrder, env: Env): Promise<{ con
   const userMessage = [
     "아래 결제 주문/개인화 정보 기준으로 한국어 프리미엄 식단 리포트를 작성해줘.",
     "반드시 아래 섹션 제목을 그대로 사용해 출력:",
-    "1) [요약] (3~4줄)",
-    "2) [맞춤 추천] (5개, 각 항목에 이유 1줄 포함)",
-    "3) [7일 플랜] (Day1~Day7 형태, 매일 실행 가능한 1줄 계획)",
+    "1) [요약] (3~4줄, 현재 상태 + 핵심 목표 + 오늘 바로 실행할 1개 액션 포함)",
+    "2) [맞춤 추천] (5개, 각 항목에 '추천 이유:' 1줄 포함)",
+    "3) [7일 플랜] (Day1~Day7 형태, 매일 1줄 식단/행동 계획 + 1줄 체크포인트)",
     "4) [주의사항] (1~2줄)",
     "출력은 과장 없는 실용적인 문장으로 작성하고, 알레르기/기피 재료를 절대 추천하지 마.",
+    "가격/의학적 치료 효능/과장된 확신 표현은 금지하고, 실행 가능한 분량으로 간결하게 써.",
     "",
     `order_id: ${order.id || ""}`,
     `customer_email: ${normalizeEmail(order.customer_email)}`,
@@ -340,7 +360,7 @@ async function generatePremiumReport(order: PolarOrder, env: Env): Promise<{ con
   }
 
   const data = (await response.json().catch(() => null)) as unknown;
-  const content = extractOpenAIOutputText(data);
+  const content = ensureStructuredPremiumReport(extractOpenAIOutputText(data), order);
   if (!content) {
     throw new Error("openai_generate_failed empty_output_text");
   }
@@ -682,6 +702,91 @@ async function getPaymentStatus(request: Request, env: Env): Promise<Response> {
   return jsonResponse(orderId ? { order: polar.data } : { checkout: polar.data }, { status: 200, headers: corsHeaders });
 }
 
+function extractCheckoutOrderId(checkoutData: unknown): string {
+  if (!checkoutData || typeof checkoutData !== "object") return "";
+  const record = checkoutData as Record<string, unknown>;
+  if (typeof record.order_id === "string") return record.order_id;
+  if (typeof record.order === "string") return record.order;
+  if (record.order && typeof record.order === "object") {
+    const orderRecord = record.order as Record<string, unknown>;
+    if (typeof orderRecord.id === "string") return orderRecord.id;
+  }
+  return "";
+}
+
+async function resolveOrderForResend(body: ResendReportRequest, env: Env): Promise<{ order?: PolarOrder; reason?: string }> {
+  const rawOrderId = String(body.orderId || body.order_id || "").trim();
+  const rawCheckoutId = String(body.checkoutId || body.checkout_id || "").trim();
+  let orderId = rawOrderId;
+
+  if (!orderId && rawCheckoutId) {
+    const checkout = await polarApiRequest(env, `/checkouts/${encodeURIComponent(rawCheckoutId)}`);
+    if (!checkout.ok) {
+      return { reason: "checkout_lookup_failed" };
+    }
+    orderId = extractCheckoutOrderId(checkout.data);
+    if (!orderId) {
+      return { reason: "order_id_not_found_from_checkout" };
+    }
+  }
+
+  if (!orderId) {
+    return { reason: "missing_order_or_checkout_id" };
+  }
+
+  const orderResponse = await polarApiRequest(env, `/orders/${encodeURIComponent(orderId)}`);
+  if (!orderResponse.ok) {
+    return { reason: "order_lookup_failed" };
+  }
+
+  return { order: (orderResponse.data || {}) as PolarOrder };
+}
+
+async function resendPremiumReport(request: Request, env: Env, ctx: WorkerExecutionContext): Promise<Response> {
+  const url = new URL(request.url);
+  const origin = request.headers.get("origin");
+  const corsHeaders = resolveCorsHeaders(origin, env);
+
+  if (!isOriginAllowed(origin, env)) {
+    return jsonResponse({ error: "Origin not allowed" }, { status: 403, headers: corsHeaders });
+  }
+  if (!isHostAllowed(url.hostname, env)) {
+    return jsonResponse({ error: "Host not allowed" }, { status: 403, headers: corsHeaders });
+  }
+  if (!env.POLAR_OAT_TOKEN) {
+    return jsonResponse({ error: "Server misconfigured: missing POLAR_OAT_TOKEN" }, { status: 500, headers: corsHeaders });
+  }
+
+  let body: ResendReportRequest = {};
+  try {
+    body = (await request.json()) as ResendReportRequest;
+  } catch {
+    return jsonResponse({ error: "Invalid JSON body" }, { status: 400, headers: corsHeaders });
+  }
+
+  const resolved = await resolveOrderForResend(body, env);
+  if (!resolved.order) {
+    return jsonResponse(
+      {
+        queued: false,
+        reason: resolved.reason || "order_not_found",
+      },
+      { status: 200, headers: corsHeaders }
+    );
+  }
+
+  const queued = queuePremiumReportEmail(ctx, resolved.order, env);
+  return jsonResponse(
+    {
+      queued: queued.queued,
+      reason: queued.reason || null,
+      orderId: resolved.order.id || null,
+      customerEmail: normalizeEmail(resolved.order.customer_email || ""),
+    },
+    { status: 200, headers: corsHeaders }
+  );
+}
+
 async function handlePolarWebhook(request: Request, env: Env, ctx: WorkerExecutionContext): Promise<Response> {
   const url = new URL(request.url);
   if (!isHostAllowed(url.hostname, env)) {
@@ -858,6 +963,10 @@ export default {
 
     if (request.method === "GET" && (url.pathname === "/payment-status" || url.pathname === "/api/payment-status")) {
       return getPaymentStatus(request, env);
+    }
+
+    if (request.method === "POST" && (url.pathname === "/resend-report" || url.pathname === "/api/resend-report")) {
+      return resendPremiumReport(request, env, ctx);
     }
 
     if (request.method === "POST" && (url.pathname === "/webhooks/polar" || url.pathname === "/api/webhooks/polar")) {
