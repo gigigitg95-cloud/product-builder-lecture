@@ -93,6 +93,49 @@ function ensureReadmeStagedForCommit() {
   }
 }
 
+function getSectionBlock(content, title) {
+  const regex = new RegExp(`^##\\s+${title}\\s*$`, "m");
+  const match = regex.exec(content);
+  if (!match || match.index < 0) return "";
+  const start = match.index;
+  const tail = content.slice(start);
+  const nextIdx = tail.slice(1).search(/\n##\s+/);
+  if (nextIdx === -1) return tail.trim();
+  return tail.slice(0, nextIdx + 1).trim();
+}
+
+function readHeadReadme() {
+  try {
+    return execSync("git show HEAD:README.md", { encoding: "utf8" });
+  } catch {
+    return "";
+  }
+}
+
+function ensureRequiredSectionsActuallyUpdated(content) {
+  const staged = run("git diff --cached --name-only").split("\n").filter(Boolean);
+  const nonReadme = staged.filter((file) => file !== "README.md");
+  if (nonReadme.length === 0) return;
+
+  const headContent = readHeadReadme();
+  if (!headContent) return;
+
+  const requiredSections = ["주요 기능", "프로젝트 구조", "업데이트 기록"];
+  const unchanged = requiredSections.filter((title) => {
+    const before = getSectionBlock(headContent, title);
+    const after = getSectionBlock(content, title);
+    return before === after;
+  });
+
+  if (unchanged.length > 0) {
+    fail(
+      `README required sections not updated: ${unchanged
+        .map((title) => `"${title}"`)
+        .join(", ")}. Update these sections before commit.`
+    );
+  }
+}
+
 function main() {
   const mode = process.argv.includes("--mode=push") ? "push" : "commit";
   const repoRoot = run("git rev-parse --show-toplevel");
@@ -111,6 +154,7 @@ function main() {
   ensureFeatureListLooksUpdated(content);
   if (mode === "commit") {
     ensureReadmeStagedForCommit();
+    ensureRequiredSectionsActuallyUpdated(content);
   }
 
   console.log(`README ${mode} check passed.`);

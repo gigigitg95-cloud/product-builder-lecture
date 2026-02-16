@@ -109,11 +109,13 @@
 - Formspree 기반 이메일 문의 양식
 - 광고, 제휴, 기타 문의 지원
 
-### 17. Polar 결제 및 결제 결과 확인
-- 제휴 문의 페이지에서 결제 화면으로 이동 가능
-- 결제 버튼 클릭 시 Polar Checkout Session 생성 후 결제 페이지로 이동
-- 결제 완료 시 메인 페이지로 리다이렉트 후 결제 상태 확인 팝업 표시
-- Cloudflare Worker 기반 결제 API/웹훅/자동환불(조건부) 구조 지원
+### 17. Polar 결제 및 프리미엄 리포트 전달
+- 제휴 문의 페이지에서 `프리미엄 리포트 정보 입력` 페이지로 이동
+- 결제 전 개인화 입력(목표/알레르기/기피 재료/선호 카테고리/추가 요청) 수집
+- 입력 데이터를 checkout `metadata`로 전달하여 리포트 생성 프롬프트에 반영
+- 결제 완료 후 결제 결과 패널에서 상태 확인 + `공유하기`/`저장하기` 지원
+- 결과 리포트는 Polar 결제 시 입력한 이메일(`order.customer_email`)로 전송
+- Cloudflare Worker 기반 결제 API/웹훅/조건부 자동환불/프리미엄 리포트 생성 구조 지원
 
 ---
 
@@ -149,7 +151,8 @@
 | 개인정보처리방침 | `/pages/privacy.html` | 개인정보 수집 및 이용 안내 |
 | 이용약관 | `/pages/terms.html` | 서비스 이용 약관 |
 | 제휴 문의 | `/pages/contact.html` | 제휴 문의 접수 및 결제 화면 진입 |
-| 결제 | `/pages/payment.html` | Polar Checkout 진입 및 결제 결과 확인 |
+| 리포트 입력 | `/pages/report-intake.html` | 결제 전 개인화 정보 입력 |
+| 결제 | `/pages/payment.html` | 입력 정보 확인, Polar Checkout 진입, 결제 결과/공유/저장 |
 
 ---
 
@@ -179,7 +182,9 @@
 | Firebase Firestore | 커뮤니티 게시판 데이터 저장 |
 | Formspree | 제휴 문의 이메일 전송 |
 | Polar API | 결제 세션 생성, 결제/환불 이벤트 처리 |
-| Cloudflare Workers | 결제 API 게이트웨이, 웹훅 검증, 조건부 자동환불 |
+| Resend API | 결제 결과 및 프리미엄 리포트 이메일 발송 |
+| OpenAI API | 결제/입력 metadata 기반 프리미엄 리포트 생성 |
+| Cloudflare Workers | 결제 API 게이트웨이, 웹훅 검증, 조건부 자동환불, 리포트 생성/발송 |
 
 ---
 
@@ -210,7 +215,7 @@
 ├── 404.html                 # 404 에러 페이지
 ├── pages
 │   ├── about.html               # 서비스 소개
-│   ├── auth.html
+│   ├── auth.html                # 회원 인증(준비/확장 중)
 │   ├── bulletin.html            # 커뮤니티 게시판 include
 │   ├── contact.html             # 제휴 문의 페이지
 │   ├── cookies.html             # 쿠키 정책
@@ -220,8 +225,8 @@
 │   ├── help.html                # 도움말 센터
 │   ├── payment.html             # Polar 결제 화면
 │   ├── privacy.html             # 개인정보처리방침
-│   ├── refund.html
-│   ├── report-intake.html
+│   ├── refund.html              # 환불 정책
+│   ├── report-intake.html       # 결제 전 프리미엄 리포트 입력
 │   └── terms.html               # 이용약관
 ├── css
 │   ├── 404.css                  # 404 페이지 스타일
@@ -242,12 +247,12 @@
 │   │   └── terms.json               # 이용약관 구조화 데이터
 │   ├── 404.js                   # 404 페이지 스크립트
 │   ├── app.js                   # 메인 앱 로직 (추천/슬롯/공유/게시판/테마)
-│   ├── auth-page.js
+│   ├── auth-page.js             # 회원 인증 페이지 로직
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
 │   ├── footer-loader.js         # 공통 Footer 로더
 │   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
 │   ├── polar-worker-checkout.js # 결제 버튼 -> Workers checkout API 연동
-│   ├── premium-report-intake.js
+│   ├── premium-report-intake.js # 리포트 입력 저장/결제 페이지 전달
 │   ├── privacy.js               # 개인정보처리방침 스크립트
 │   ├── terms.js                 # 이용약관 스크립트
 │   └── translations.js          # 18개 언어 번역 데이터
@@ -286,6 +291,27 @@
 ---
 
 ## 업데이트 기록
+
+### 2026-02-16 (결제 전 입력 플로우 + 결제 결과 공유/저장)
+
+**요약**
+- 결제 전용 입력 페이지(`/pages/report-intake.html`)를 추가하고 개인화 입력값을 `sessionStorage`로 전달하는 2단계 흐름(입력 → 결제)을 도입.
+- 결제 API 요청 시 입력값을 Polar checkout `metadata`로 전달하도록 클라이언트 로직을 확장.
+- Worker에서 `metadata + 주문정보` 기반으로 OpenAI 프롬프트를 구성해 `[요약]/[맞춤 추천]/[7일 플랜]/[주의사항]` 템플릿 리포트 생성 강화.
+- 결제 결과 화면(`payment`)에 `공유하기`/`저장하기` 버튼을 추가해 결제 완료 상태를 사용자 친화적으로 재사용 가능하게 개선.
+
+**적용 내용**
+- `pages/contact.html`: 결제 CTA를 입력 시작 페이지(`/pages/report-intake.html`)로 변경
+- `pages/report-intake.html`, `js/premium-report-intake.js`: 결제 전 입력/검증/저장/이동 신규 추가
+- `pages/payment.html`, `js/polar-worker-checkout.js`:
+  - 입력값 요약 표시
+  - 입력 누락 시 결제 차단
+  - 성공/취소 리다이렉트 처리
+  - 결제 결과 `공유하기`/`저장하기` 버튼 동작 추가
+- `workers/polar-checkout-worker/src/index.ts`:
+  - metadata 파싱/정규화
+  - OpenAI 프롬프트 및 fallback 리포트 고도화
+  - 결제 이메일 기준 리포트 발송 흐름 유지
 
 ### 2026-02-16 (자동환불 이메일 리포트)
 
@@ -481,12 +507,8 @@
 
 #### 변경 파일(커밋 스테이징 기준)
 ```text
-M	js/polar-worker-checkout.js
-A	js/premium-report-intake.js
-M	pages/contact.html
-M	pages/payment.html
-A	pages/report-intake.html
-M	workers/polar-checkout-worker/src/index.ts
+M	README.md
+M	scripts/validate-readme-for-commit.js
 ```
 
 <!-- README:AUTO-END -->
