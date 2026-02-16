@@ -281,6 +281,13 @@
 
 ## 업데이트 기록
 
+### 2026-02-16 (자동환불 이메일 리포트)
+
+**요약**
+- Polar 웹훅 자동환불 처리 후 Resend API를 통해 결과 리포트 이메일 발송 기능 추가.
+- 이용약관 및 결제 페이지에 이메일 미수신 환불 불가 안내 문구 추가.
+- Cloudflare Workers 설정 문서에 Resend 관련 시크릿/환경변수 가이드 추가.
+
 ### 2026-02-15 (전체 섹션 다국어 번역 지원)
 
 **요약**
@@ -468,10 +475,13 @@
 
 #### 변경 파일(커밋 스테이징 기준)
 ```text
-M	.githooks/pre-commit
-M	.githooks/pre-push
 M	README.md
-A	scripts/validate-readme-for-commit.js
+M	docs/cloudflare-workers-polar-setup.md
+M	js/translations.js
+M	pages/payment.html
+M	pages/terms.html
+M	workers/polar-checkout-worker/src/index.ts
+M	workers/polar-checkout-worker/wrangler.toml
 ```
 
 <!-- README:AUTO-END -->

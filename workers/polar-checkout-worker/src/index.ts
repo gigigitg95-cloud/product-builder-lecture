@@ -10,6 +10,10 @@ interface Env {
   AUTO_REFUND_ENABLED?: string;
   AUTO_REFUND_PRODUCT_IDS?: string;
   AUTO_REFUND_EMAIL_DOMAIN_DENYLIST?: string;
+  RESEND_API_KEY?: string;
+  REPORT_EMAIL_FROM?: string;
+  REPORT_EMAIL_REPLY_TO?: string;
+  REPORT_EMAIL_SUBJECT_PREFIX?: string;
 }
 
 type CheckoutRequest = {
@@ -23,6 +27,10 @@ type CheckoutRequest = {
 type WebhookPayload = {
   type?: string;
   data?: Record<string, unknown>;
+};
+
+type WorkerExecutionContext = {
+  waitUntil(promise: Promise<unknown>): void;
 };
 
 type PolarOrder = {
@@ -40,6 +48,19 @@ type PolarOrder = {
 const POLAR_API_PROD = "https://api.polar.sh/v1";
 const POLAR_API_SANDBOX = "https://sandbox-api.polar.sh/v1";
 const DEFAULT_PRODUCT_ID = "45ee4c82-2396-44bd-8249-a577755cbf9e";
+const RESEND_EMAIL_API = "https://api.resend.com/emails";
+
+type WebhookReport = {
+  eventType: string;
+  mode: string;
+  orderId?: string | null;
+  customerEmail?: string | null;
+  reason?: string;
+  autoRefunded: boolean;
+  refundStatus?: number;
+  detail?: unknown;
+  refund?: unknown;
+};
 
 function splitCsv(value?: string): string[] {
   if (!value) return [];
@@ -93,6 +114,108 @@ function isHostAllowed(hostname: string, env: Env): boolean {
 function getPolarApiBase(env: Env): string {
   const mode = String(env.POLAR_MODE || "sandbox").toLowerCase();
   return mode === "production" ? POLAR_API_PROD : POLAR_API_SANDBOX;
+}
+
+function safeStringify(value: unknown, maxLength = 4000): string {
+  if (value === undefined) return "";
+  const asText = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+  if (!asText) return "";
+  if (asText.length <= maxLength) return asText;
+  return `${asText.slice(0, maxLength)}\n...(truncated)`;
+}
+
+function normalizeEmail(value?: string | null): string {
+  return String(value || "").trim();
+}
+
+function isPlausibleEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function buildReportEmail(report: WebhookReport, env: Env): { subject: string; text: string } {
+  const statusText = report.autoRefunded ? "SUCCESS" : "FAILED_OR_SKIPPED";
+  const prefix = String(env.REPORT_EMAIL_SUBJECT_PREFIX || "[ninanoo]").trim() || "[ninanoo]";
+  const subject = `${prefix} auto-refund report ${statusText} (${report.eventType})`;
+  const lines = [
+    `generated_at: ${new Date().toISOString()}`,
+    `mode: ${report.mode}`,
+    `event_type: ${report.eventType}`,
+    `auto_refunded: ${report.autoRefunded}`,
+    `reason: ${report.reason || ""}`,
+    `order_id: ${report.orderId || ""}`,
+    `customer_email: ${report.customerEmail || ""}`,
+    `refund_status: ${report.refundStatus ?? ""}`,
+    "",
+    "[detail]",
+    safeStringify(report.detail),
+    "",
+    "[refund]",
+    safeStringify(report.refund),
+  ];
+  return { subject, text: lines.join("\n") };
+}
+
+async function sendWebhookReportEmail(report: WebhookReport, recipientEmail: string, env: Env): Promise<void> {
+  const apiKey = String(env.RESEND_API_KEY || "").trim();
+  const from = String(env.REPORT_EMAIL_FROM || "").trim();
+  const replyTo = String(env.REPORT_EMAIL_REPLY_TO || "").trim();
+  if (!apiKey || !from || !recipientEmail) return;
+
+  const email = buildReportEmail(report, env);
+  const payload: Record<string, unknown> = {
+    from,
+    to: [recipientEmail],
+    subject: email.subject,
+    text: email.text,
+  };
+  if (replyTo) payload.reply_to = replyTo;
+
+  const response = await fetch(RESEND_EMAIL_API, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text().catch(() => "");
+    throw new Error(`resend_send_failed status=${response.status} body=${errorBody}`);
+  }
+}
+
+function queueWebhookReportEmail(
+  ctx: WorkerExecutionContext,
+  report: WebhookReport,
+  recipientEmailRaw: string | null | undefined,
+  env: Env
+): { queued: boolean; reason?: string } {
+  const apiKey = String(env.RESEND_API_KEY || "").trim();
+  const from = String(env.REPORT_EMAIL_FROM || "").trim();
+  const recipientEmail = normalizeEmail(recipientEmailRaw);
+  if (!apiKey || !from) {
+    return { queued: false, reason: "report_email_not_configured" };
+  }
+  if (!recipientEmail) {
+    return { queued: false, reason: "missing_customer_email" };
+  }
+  if (!isPlausibleEmail(recipientEmail)) {
+    return { queued: false, reason: "invalid_customer_email" };
+  }
+
+  ctx.waitUntil(
+    sendWebhookReportEmail(report, recipientEmail, env).catch((error) => {
+      console.error("report_email_send_failed", {
+        message: error instanceof Error ? error.message : String(error),
+        eventType: report.eventType,
+        orderId: report.orderId || null,
+        recipientEmail,
+      });
+    })
+  );
+
+  return { queued: true };
 }
 
 async function polarApiRequest(
@@ -273,7 +396,7 @@ async function getPaymentStatus(request: Request, env: Env): Promise<Response> {
   return jsonResponse(orderId ? { order: polar.data } : { checkout: polar.data }, { status: 200, headers: corsHeaders });
 }
 
-async function handlePolarWebhook(request: Request, env: Env): Promise<Response> {
+async function handlePolarWebhook(request: Request, env: Env, ctx: WorkerExecutionContext): Promise<Response> {
   const url = new URL(request.url);
   if (!isHostAllowed(url.hostname, env)) {
     return jsonResponse({ error: "Host not allowed" }, { status: 403 });
@@ -314,13 +437,59 @@ async function handlePolarWebhook(request: Request, env: Env): Promise<Response>
   }
 
   const order = (payload.data || {}) as unknown as PolarOrder;
+  const baseReport: Omit<WebhookReport, "autoRefunded"> = {
+    eventType,
+    mode: String(env.POLAR_MODE || "sandbox").toLowerCase(),
+    orderId: order.id || null,
+    customerEmail: order.customer_email || null,
+  };
   const decision = shouldAutoRefund(order, env);
   if (!decision.apply) {
-    return jsonResponse({ received: true, handled: true, autoRefunded: false, reason: "rule_not_matched" }, { status: 200 });
+    const report = queueWebhookReportEmail(
+      ctx,
+      {
+        ...baseReport,
+        autoRefunded: false,
+        reason: "rule_not_matched",
+      },
+      order.customer_email,
+      env
+    );
+    return jsonResponse(
+      {
+        received: true,
+        handled: true,
+        autoRefunded: false,
+        reason: "rule_not_matched",
+        reportEmailQueued: report.queued,
+        reportEmailReason: report.reason || null,
+      },
+      { status: 200 }
+    );
   }
 
   if (!order.id) {
-    return jsonResponse({ received: true, handled: true, autoRefunded: false, reason: "missing_order_id" }, { status: 200 });
+    const report = queueWebhookReportEmail(
+      ctx,
+      {
+        ...baseReport,
+        autoRefunded: false,
+        reason: "missing_order_id",
+      },
+      order.customer_email,
+      env
+    );
+    return jsonResponse(
+      {
+        received: true,
+        handled: true,
+        autoRefunded: false,
+        reason: "missing_order_id",
+        reportEmailQueued: report.queued,
+        reportEmailReason: report.reason || null,
+      },
+      { status: 200 }
+    );
   }
 
   const refundPayload = {
@@ -333,6 +502,18 @@ async function handlePolarWebhook(request: Request, env: Env): Promise<Response>
   });
 
   if (!refundResult.ok) {
+    const report = queueWebhookReportEmail(
+      ctx,
+      {
+        ...baseReport,
+        autoRefunded: false,
+        reason: decision.reason || "refund_api_failed",
+        refundStatus: refundResult.status,
+        detail: refundResult.data,
+      },
+      order.customer_email,
+      env
+    );
     return jsonResponse(
       {
         received: true,
@@ -341,11 +522,24 @@ async function handlePolarWebhook(request: Request, env: Env): Promise<Response>
         reason: decision.reason || "refund_api_failed",
         refundStatus: refundResult.status,
         detail: refundResult.data,
+        reportEmailQueued: report.queued,
+        reportEmailReason: report.reason || null,
       },
       { status: 200 }
     );
   }
 
+  const report = queueWebhookReportEmail(
+    ctx,
+    {
+      ...baseReport,
+      autoRefunded: true,
+      reason: decision.reason || "auto_refund_rule",
+      refund: refundResult.data,
+    },
+    order.customer_email,
+    env
+  );
   return jsonResponse(
     {
       received: true,
@@ -353,13 +547,15 @@ async function handlePolarWebhook(request: Request, env: Env): Promise<Response>
       autoRefunded: true,
       reason: decision.reason || "auto_refund_rule",
       refund: refundResult.data,
+      reportEmailQueued: report.queued,
+      reportEmailReason: report.reason || null,
     },
     { status: 200 }
   );
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: WorkerExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const origin = request.headers.get("origin");
     const corsHeaders = resolveCorsHeaders(origin, env);
@@ -388,7 +584,7 @@ export default {
     }
 
     if (request.method === "POST" && (url.pathname === "/webhooks/polar" || url.pathname === "/api/webhooks/polar")) {
-      return handlePolarWebhook(request, env);
+      return handlePolarWebhook(request, env, ctx);
     }
 
     return jsonResponse({ error: "Not found" }, { status: 404, headers: corsHeaders });

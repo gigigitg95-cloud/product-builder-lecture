@@ -11,6 +11,9 @@ ALLOWED_HOSTS = "api.ninanoo.com,localhost,127.0.0.1"
 AUTO_REFUND_ENABLED = "true"
 AUTO_REFUND_PRODUCT_IDS = "45ee4c82-2396-44bd-8249-a577755cbf9e"
 AUTO_REFUND_EMAIL_DOMAIN_DENYLIST = ""
+REPORT_EMAIL_FROM = "Ninanoo Report <no-reply@ninanoo.com>"
+REPORT_EMAIL_REPLY_TO = ""
+REPORT_EMAIL_SUBJECT_PREFIX = "[ninanoo]"
 
 [[routes]]
 pattern = "api.ninanoo.com/*"
