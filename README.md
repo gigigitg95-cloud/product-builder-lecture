@@ -475,6 +475,8 @@
 
 #### 변경 파일(커밋 스테이징 기준)
 ```text
+M	index.html
+M	js/polar-worker-checkout.js
 M	pages/payment.html
 ```
 

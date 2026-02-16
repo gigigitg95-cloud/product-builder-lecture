@@ -106,19 +106,76 @@
   function renderPaymentResult(message, isError) {
     var panel = document.getElementById("payment-result-panel");
     var text = document.getElementById("payment-result-text");
+    var title = document.getElementById("payment-result-title");
+    var badge = document.getElementById("payment-result-badge");
+    var meta = document.getElementById("payment-result-meta");
     if (!panel || !text) return;
 
     panel.classList.remove("hidden");
     panel.classList.toggle("border-red-300", !!isError);
     panel.classList.toggle("dark:border-red-700", !!isError);
-    text.classList.toggle("text-red-600", !!isError);
-    text.classList.toggle("dark:text-red-300", !!isError);
-    if (isError) {
-      text.classList.remove("text-slate-600", "dark:text-slate-300");
-    } else {
-      text.classList.add("text-slate-600", "dark:text-slate-300");
+    text.classList.remove("text-red-600", "dark:text-red-300", "text-slate-600", "dark:text-slate-300");
+    text.classList.add(isError ? "text-red-600" : "text-slate-600");
+    if (document.documentElement.classList.contains("dark")) {
+      text.classList.add(isError ? "dark:text-red-300" : "dark:text-slate-300");
+    }
+    if (title) title.textContent = isError ? "결제 확인이 필요합니다" : "결제가 완료되었습니다";
+    if (badge) {
+      badge.textContent = isError ? "오류" : "완료";
+      badge.classList.remove(
+        "bg-emerald-100",
+        "text-emerald-700",
+        "dark:bg-emerald-900/40",
+        "dark:text-emerald-300",
+        "bg-rose-100",
+        "text-rose-700",
+        "dark:bg-rose-900/40",
+        "dark:text-rose-300"
+      );
+      if (isError) {
+        badge.classList.add("bg-rose-100", "text-rose-700", "dark:bg-rose-900/40", "dark:text-rose-300");
+      } else {
+        badge.classList.add("bg-emerald-100", "text-emerald-700", "dark:bg-emerald-900/40", "dark:text-emerald-300");
+      }
+    }
+    if (meta) {
+      if (isError) {
+        meta.textContent = "문제가 계속되면 문의 페이지를 이용해 주세요.";
+      } else {
+        meta.textContent = "결과 리포트는 결제 시 입력한 이메일로 전송됩니다.";
+      }
     }
     text.textContent = message;
+  }
+
+  function toUserFacingOrderMessage(orderStatus, orderId) {
+    var normalized = String(orderStatus || "").toLowerCase();
+    if (normalized === "paid") {
+      return "결제가 정상적으로 완료되었습니다. 이용해 주셔서 감사합니다.";
+    }
+    if (normalized === "pending") {
+      return "결제 승인 처리 중입니다. 잠시 후 다시 확인해 주세요.";
+    }
+    if (normalized.indexOf("refund") !== -1) {
+      return "결제 건이 환불 상태입니다. 상세 내역은 이메일을 확인해 주세요.";
+    }
+    var idHint = orderId ? " (주문번호: " + orderId + ")" : "";
+    return "결제 상태를 확인했습니다: " + normalized + idHint;
+  }
+
+  function toUserFacingCheckoutMessage(checkoutStatus, checkoutId) {
+    var normalized = String(checkoutStatus || "").toLowerCase();
+    if (normalized === "succeeded" || normalized === "confirmed") {
+      return "결제가 정상적으로 완료되었습니다. 결과 리포트 메일을 확인해 주세요.";
+    }
+    if (normalized === "processing" || normalized === "pending") {
+      return "결제 확인 중입니다. 잠시 후 자동으로 반영됩니다.";
+    }
+    if (normalized === "expired") {
+      return "결제 시간이 만료되었습니다. 다시 결제를 진행해 주세요.";
+    }
+    var idHint = checkoutId ? " (checkout_id: " + checkoutId + ")" : "";
+    return "결제 상태를 확인했습니다: " + normalized + idHint;
   }
 
   async function checkReturnPaymentStatus() {
@@ -130,7 +187,7 @@
     if (!paymentState && !checkoutId && !orderId) return;
 
     if (paymentState === "return") {
-      renderPaymentResult("결제가 완료되지 않았거나 결제 화면에서 돌아왔습니다. 다시 시도할 수 있습니다.", false);
+      renderPaymentResult("결제가 완료되지 않았습니다. 결제 화면에서 취소했거나 중단된 경우 다시 시도해 주세요.", true);
       clearPaymentQueryParams();
       return;
     }
@@ -141,7 +198,7 @@
       return;
     }
 
-    renderPaymentResult("결제 결과를 확인하는 중입니다...", false);
+    renderPaymentResult("결제 결과를 확인하는 중입니다. 잠시만 기다려 주세요...", false);
     try {
       var result = await requestPaymentStatus({
         orderId: orderId,
@@ -150,7 +207,10 @@
 
       if (result.order) {
         var orderStatus = String(result.order.status || "unknown");
-        renderPaymentResult("결제 상태: " + orderStatus + " (order_id: " + (result.order.id || orderId || "-") + ")", orderStatus !== "paid");
+        renderPaymentResult(
+          toUserFacingOrderMessage(orderStatus, result.order.id || orderId || ""),
+          orderStatus !== "paid"
+        );
         clearPaymentQueryParams();
         return;
       }
@@ -158,7 +218,10 @@
       if (result.checkout) {
         var checkoutStatus = String(result.checkout.status || "unknown");
         var isSuccess = checkoutStatus === "succeeded" || checkoutStatus === "confirmed";
-        renderPaymentResult("체크아웃 상태: " + checkoutStatus + " (checkout_id: " + (result.checkout.id || checkoutId || "-") + ")", !isSuccess);
+        renderPaymentResult(
+          toUserFacingCheckoutMessage(checkoutStatus, result.checkout.id || checkoutId || ""),
+          !isSuccess
+        );
         clearPaymentQueryParams();
         return;
       }
