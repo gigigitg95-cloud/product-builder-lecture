@@ -14,6 +14,11 @@ interface Env {
   REPORT_EMAIL_FROM?: string;
   REPORT_EMAIL_REPLY_TO?: string;
   REPORT_EMAIL_SUBJECT_PREFIX?: string;
+  OPENAI_API_KEY?: string;
+  OPENAI_MODEL?: string;
+  PREMIUM_REPORT_ENABLED?: string;
+  PREMIUM_REPORT_PRODUCT_IDS?: string;
+  PREMIUM_REPORT_MAX_TOKENS?: string;
 }
 
 type CheckoutRequest = {
@@ -49,6 +54,8 @@ const POLAR_API_PROD = "https://api.polar.sh/v1";
 const POLAR_API_SANDBOX = "https://sandbox-api.polar.sh/v1";
 const DEFAULT_PRODUCT_ID = "09ed8b9c-c328-4962-a12f-69923155d3c6";
 const RESEND_EMAIL_API = "https://api.resend.com/emails";
+const OPENAI_RESPONSES_API = "https://api.openai.com/v1/responses";
+const DEFAULT_OPENAI_MODEL = "gpt-4.1-mini";
 
 type WebhookReport = {
   eventType: string;
@@ -60,6 +67,19 @@ type WebhookReport = {
   refundStatus?: number;
   detail?: unknown;
   refund?: unknown;
+};
+
+type PremiumReportQueueResult = {
+  queued: boolean;
+  reason?: string;
+};
+
+type PremiumProfile = {
+  goal: string;
+  allergies: string;
+  avoidIngredients: string;
+  preferredCategories: string;
+  note: string;
 };
 
 function splitCsv(value?: string): string[] {
@@ -153,6 +173,272 @@ function buildReportEmail(report: WebhookReport, env: Env): { subject: string; t
     safeStringify(report.refund),
   ];
   return { subject, text: lines.join("\n") };
+}
+
+function getPremiumReportProductIds(env: Env): string[] {
+  return splitCsv(env.PREMIUM_REPORT_PRODUCT_IDS || env.DEFAULT_PRODUCT_ID || DEFAULT_PRODUCT_ID);
+}
+
+function shouldGeneratePremiumReport(order: PolarOrder, env: Env): { apply: boolean; reason?: string } {
+  if (!isTruthy(env.PREMIUM_REPORT_ENABLED || "true")) {
+    return { apply: false, reason: "premium_report_disabled" };
+  }
+  if (!order?.id) {
+    return { apply: false, reason: "missing_order_id" };
+  }
+  if (!normalizeEmail(order.customer_email)) {
+    return { apply: false, reason: "missing_customer_email" };
+  }
+  const products = getPremiumReportProductIds(env);
+  const orderProductIds = extractOrderProductIds(order);
+  if (products.length > 0 && !orderProductIds.some((id) => products.includes(id))) {
+    return { apply: false, reason: "product_not_eligible" };
+  }
+  if (String(order.status || "").toLowerCase().includes("refund")) {
+    return { apply: false, reason: "order_refunded" };
+  }
+  return { apply: true };
+}
+
+function extractOpenAIOutputText(data: unknown): string {
+  if (!data || typeof data !== "object") return "";
+  const record = data as Record<string, unknown>;
+  if (typeof record.output_text === "string" && record.output_text.trim()) {
+    return record.output_text.trim();
+  }
+  const output = Array.isArray(record.output) ? record.output : [];
+  const lines: string[] = [];
+  for (const item of output) {
+    if (!item || typeof item !== "object") continue;
+    const content = Array.isArray((item as Record<string, unknown>).content)
+      ? ((item as Record<string, unknown>).content as Array<Record<string, unknown>>)
+      : [];
+    for (const part of content) {
+      if (typeof part?.text === "string" && part.text.trim()) {
+        lines.push(part.text.trim());
+      }
+    }
+  }
+  return lines.join("\n").trim();
+}
+
+function extractStringMetadata(metadata: Record<string, unknown> | undefined, key: string, maxLen: number): string {
+  return String(metadata?.[key] || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLen);
+}
+
+function extractPremiumProfile(order: PolarOrder): PremiumProfile {
+  const metadata = (order.metadata || {}) as Record<string, unknown>;
+  return {
+    goal: extractStringMetadata(metadata, "report_goal", 100),
+    allergies: extractStringMetadata(metadata, "report_allergies", 120),
+    avoidIngredients: extractStringMetadata(metadata, "report_avoid_ingredients", 120),
+    preferredCategories: extractStringMetadata(metadata, "report_preferred_categories", 120),
+    note: extractStringMetadata(metadata, "report_note", 300),
+  };
+}
+
+function buildPremiumProfileSummary(profile: PremiumProfile): string {
+  const lines = [
+    `- 목표: ${profile.goal || "미입력"}`,
+    `- 알레르기: ${profile.allergies || "없음/미입력"}`,
+    `- 기피 재료: ${profile.avoidIngredients || "없음/미입력"}`,
+    `- 선호 카테고리: ${profile.preferredCategories || "미입력"}`,
+    `- 추가 요청: ${profile.note || "없음"}`,
+  ];
+  return lines.join("\n");
+}
+
+function buildFallbackPremiumReport(order: PolarOrder): string {
+  const email = normalizeEmail(order.customer_email) || "고객";
+  const profile = extractPremiumProfile(order);
+  return [
+    "프리미엄 메뉴 리포트",
+    "",
+    "[요약]",
+    `- 고객 이메일: ${email}`,
+    `주문번호: ${order.id || "-"}`,
+    `- 목표: ${profile.goal || "미입력"}`,
+    `- 선호 카테고리: ${profile.preferredCategories || "미입력"}`,
+    "",
+    "[맞춤 추천]",
+    "1) 단백질 중심 메인 + 채소 반찬 2가지 구성을 기본으로 시작하세요.",
+    "2) 기피 재료/알레르기는 반드시 제외한 재료로 대체하세요.",
+    "3) 선호 카테고리를 주 3회 이상 반영해 식단 지속성을 높이세요.",
+    "",
+    "[7일 플랜]",
+    "- Day1-2: 담백한 메뉴로 시작해 식단 적응",
+    "- Day3-4: 선호 카테고리 메뉴를 포함해 만족도 확보",
+    "- Day5: 외식/배달 1회 허용, 양 조절 중심",
+    "- Day6: 단백질/채소 비중 강화",
+    "- Day7: 다음 주 식단을 위한 재료 사전 준비",
+    "",
+    "[주의사항]",
+    "- 알레르기 정보가 있다면 해당 성분 교차오염 가능성까지 확인하세요.",
+  ].join("\n");
+}
+
+async function generatePremiumReport(order: PolarOrder, env: Env): Promise<{ content: string; model: string }> {
+  const apiKey = String(env.OPENAI_API_KEY || "").trim();
+  const model = String(env.OPENAI_MODEL || DEFAULT_OPENAI_MODEL).trim() || DEFAULT_OPENAI_MODEL;
+  const profile = extractPremiumProfile(order);
+  if (!apiKey) {
+    return { content: buildFallbackPremiumReport(order), model: "fallback:no_openai_key" };
+  }
+
+  const userMessage = [
+    "아래 결제 주문/개인화 정보 기준으로 한국어 프리미엄 식단 리포트를 작성해줘.",
+    "반드시 아래 섹션 제목을 그대로 사용해 출력:",
+    "1) [요약] (3~4줄)",
+    "2) [맞춤 추천] (5개, 각 항목에 이유 1줄 포함)",
+    "3) [7일 플랜] (Day1~Day7 형태, 매일 실행 가능한 1줄 계획)",
+    "4) [주의사항] (1~2줄)",
+    "출력은 과장 없는 실용적인 문장으로 작성하고, 알레르기/기피 재료를 절대 추천하지 마.",
+    "",
+    `order_id: ${order.id || ""}`,
+    `customer_email: ${normalizeEmail(order.customer_email)}`,
+    `order_status: ${String(order.status || "")}`,
+    `products: ${extractOrderProductIds(order).join(", ")}`,
+    "",
+    "[개인화 정보]",
+    buildPremiumProfileSummary(profile),
+    "",
+    `raw_metadata: ${safeStringify(order.metadata || {})}`,
+  ].join("\n");
+
+  const maxOutputTokensRaw = Number.parseInt(String(env.PREMIUM_REPORT_MAX_TOKENS || "900"), 10);
+  const maxOutputTokens = Number.isFinite(maxOutputTokensRaw) && maxOutputTokensRaw > 0 ? maxOutputTokensRaw : 900;
+
+  const response = await fetch(OPENAI_RESPONSES_API, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      max_output_tokens: maxOutputTokens,
+      input: [
+        {
+          role: "system",
+          content:
+            "You are a Korean nutrition and meal-planning assistant for paid customers. Keep recommendations specific, safe, and easy to execute.",
+        },
+        {
+          role: "user",
+          content: userMessage,
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    throw new Error(`openai_generate_failed status=${response.status} body=${errorText}`);
+  }
+
+  const data = (await response.json().catch(() => null)) as unknown;
+  const content = extractOpenAIOutputText(data);
+  if (!content) {
+    throw new Error("openai_generate_failed empty_output_text");
+  }
+  return { content, model };
+}
+
+async function sendPremiumReportEmail(
+  order: PolarOrder,
+  premiumReport: { content: string; model: string },
+  recipientEmail: string,
+  env: Env
+): Promise<void> {
+  const apiKey = String(env.RESEND_API_KEY || "").trim();
+  const from = String(env.REPORT_EMAIL_FROM || "").trim();
+  const replyTo = String(env.REPORT_EMAIL_REPLY_TO || "").trim();
+  const subjectPrefix = String(env.REPORT_EMAIL_SUBJECT_PREFIX || "[ninanoo]").trim() || "[ninanoo]";
+  if (!apiKey || !from || !recipientEmail) return;
+
+  const subject = `${subjectPrefix} 프리미엄 메뉴 리포트`;
+  const text = [
+    "결제가 정상적으로 확인되어 프리미엄 리포트를 발송드립니다.",
+    "",
+    `주문번호: ${order.id || "-"}`,
+    `생성모델: ${premiumReport.model}`,
+    "",
+    premiumReport.content,
+    "",
+    "안내: 본 메일은 결제 시 입력하신 이메일 주소 기준으로 발송됩니다.",
+  ].join("\n");
+
+  const payload: Record<string, unknown> = {
+    from,
+    to: [recipientEmail],
+    subject,
+    text,
+  };
+  if (replyTo) payload.reply_to = replyTo;
+
+  const response = await fetch(RESEND_EMAIL_API, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const errorBody = await response.text().catch(() => "");
+    throw new Error(`premium_email_send_failed status=${response.status} body=${errorBody}`);
+  }
+}
+
+function queuePremiumReportEmail(
+  ctx: WorkerExecutionContext,
+  order: PolarOrder,
+  env: Env
+): PremiumReportQueueResult {
+  const apiKey = String(env.RESEND_API_KEY || "").trim();
+  const from = String(env.REPORT_EMAIL_FROM || "").trim();
+  const recipientEmail = normalizeEmail(order.customer_email);
+  if (!apiKey || !from) {
+    return { queued: false, reason: "report_email_not_configured" };
+  }
+  if (!recipientEmail) {
+    return { queued: false, reason: "missing_customer_email" };
+  }
+  if (!isPlausibleEmail(recipientEmail)) {
+    return { queued: false, reason: "invalid_customer_email" };
+  }
+
+  const decision = shouldGeneratePremiumReport(order, env);
+  if (!decision.apply) {
+    return { queued: false, reason: decision.reason || "premium_report_skipped" };
+  }
+
+  ctx.waitUntil(
+    (async () => {
+      let premiumReport: { content: string; model: string };
+      try {
+        premiumReport = await generatePremiumReport(order, env);
+      } catch (error) {
+        console.error("premium_report_generate_failed", {
+          message: error instanceof Error ? error.message : String(error),
+          orderId: order.id || null,
+        });
+        premiumReport = { content: buildFallbackPremiumReport(order), model: "fallback:generation_failed" };
+      }
+
+      await sendPremiumReportEmail(order, premiumReport, recipientEmail, env);
+    })().catch((error) => {
+      console.error("premium_report_delivery_failed", {
+        message: error instanceof Error ? error.message : String(error),
+        orderId: order.id || null,
+        recipientEmail,
+      });
+    })
+  );
+  return { queued: true };
 }
 
 async function sendWebhookReportEmail(report: WebhookReport, recipientEmail: string, env: Env): Promise<void> {
@@ -445,24 +731,15 @@ async function handlePolarWebhook(request: Request, env: Env, ctx: WorkerExecuti
   };
   const decision = shouldAutoRefund(order, env);
   if (!decision.apply) {
-    const report = queueWebhookReportEmail(
-      ctx,
-      {
-        ...baseReport,
-        autoRefunded: false,
-        reason: "rule_not_matched",
-      },
-      order.customer_email,
-      env
-    );
+    const premiumReport = queuePremiumReportEmail(ctx, order, env);
     return jsonResponse(
       {
         received: true,
         handled: true,
         autoRefunded: false,
         reason: "rule_not_matched",
-        reportEmailQueued: report.queued,
-        reportEmailReason: report.reason || null,
+        premiumReportQueued: premiumReport.queued,
+        premiumReportReason: premiumReport.reason || null,
       },
       { status: 200 }
     );

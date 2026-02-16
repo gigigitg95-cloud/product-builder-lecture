@@ -4,6 +4,12 @@
   // From polar.txt: create checkout sessions with "products" array.
   var PRODUCT_ID = "09ed8b9c-c328-4962-a12f-69923155d3c6";
   var DEFAULT_API_ENDPOINT = "https://api.ninanoo.com/create-checkout";
+  var DRAFT_STORAGE_KEY = "ninanooPremiumReportDraft";
+  var latestPaymentResult = {
+    title: "",
+    message: "",
+    meta: ""
+  };
 
   function setStatus(el, message, isError) {
     if (!el) return;
@@ -31,9 +37,71 @@
     return DEFAULT_API_ENDPOINT;
   }
 
-  async function requestCheckoutUrl(apiEndpoint) {
+  function sanitizeField(value, maxLen) {
+    return String(value || "").replace(/\s+/g, " ").trim().slice(0, maxLen);
+  }
+
+  function loadPremiumReportDraft() {
+    try {
+      var raw = window.sessionStorage.getItem(DRAFT_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function resolvePremiumReportMetadata() {
+    var draft = loadPremiumReportDraft();
+    var metadata = {
+      report_goal: sanitizeField(draft && draft.report_goal, 100),
+      report_allergies: sanitizeField(draft && draft.report_allergies, 120),
+      report_avoid_ingredients: sanitizeField(draft && draft.report_avoid_ingredients, 120),
+      report_preferred_categories: sanitizeField(draft && draft.report_preferred_categories, 120),
+      report_note: sanitizeField(draft && draft.report_note, 300)
+    };
+
+    Object.keys(metadata).forEach(function (key) {
+      if (!metadata[key]) delete metadata[key];
+    });
+
+    return metadata;
+  }
+
+  function renderPremiumReportSummary(metadata) {
+    var summary = document.getElementById("premium-report-summary");
+    if (!summary) return;
+    var goal = metadata.report_goal || "";
+    if (!goal) {
+      summary.innerHTML =
+        "<p class=\"text-rose-600 dark:text-rose-300 font-semibold\">입력된 리포트 정보가 없습니다.</p>" +
+        "<p class=\"text-slate-600 dark:text-slate-300\">먼저 정보 입력 페이지에서 내용을 작성해 주세요.</p>";
+      return;
+    }
+
+    var items = [
+      ["목표", metadata.report_goal],
+      ["알레르기", metadata.report_allergies || "없음/미입력"],
+      ["기피 재료", metadata.report_avoid_ingredients || "없음/미입력"],
+      ["선호 카테고리", metadata.report_preferred_categories || "미입력"],
+      ["추가 요청", metadata.report_note || "없음"]
+    ];
+
+    summary.innerHTML = items
+      .map(function (item) {
+        return (
+          "<p><span class=\"font-semibold text-slate-900 dark:text-white\">" +
+          item[0] +
+          ":</span> " +
+          item[1] +
+          "</p>"
+        );
+      })
+      .join("");
+  }
+
+  async function requestCheckoutUrl(apiEndpoint, metadata) {
     var currentUrl = window.location.origin + window.location.pathname;
-    var successUrl = window.location.origin + "/?payment=success&checkout_id={CHECKOUT_ID}";
+    var successUrl = currentUrl + "?payment=success&checkout_id={CHECKOUT_ID}";
     var returnUrl = currentUrl + "?payment=return";
     var response = await fetch(apiEndpoint, {
       method: "POST",
@@ -43,7 +111,8 @@
       body: JSON.stringify({
         productId: PRODUCT_ID,
         successUrl: successUrl,
-        returnUrl: returnUrl
+        returnUrl: returnUrl,
+        metadata: metadata
       })
     });
 
@@ -146,6 +215,49 @@
       }
     }
     text.textContent = message;
+    latestPaymentResult.title = title ? title.textContent : (isError ? "결제 확인 필요" : "결제 완료");
+    latestPaymentResult.message = message || "";
+    latestPaymentResult.meta = meta ? meta.textContent || "" : "";
+  }
+
+  function getSharePayload() {
+    var lines = [latestPaymentResult.title, latestPaymentResult.message, latestPaymentResult.meta]
+      .filter(Boolean);
+    var text = lines.join("\n");
+    return {
+      title: "ninanoo 결제/리포트 결과",
+      text: text || "결제 결과를 확인했습니다.",
+      url: window.location.origin + window.location.pathname
+    };
+  }
+
+  function savePaymentResultAsFile() {
+    var payload = getSharePayload();
+    var content = [
+      "ninanoo 결제/리포트 결과",
+      "generated_at: " + new Date().toISOString(),
+      "",
+      payload.text,
+      "",
+      "url: " + payload.url
+    ].join("\n");
+    var blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "ninanoo-report-result-" + new Date().toISOString().slice(0, 10) + ".txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }
+
+  async function sharePaymentResult() {
+    var payload = getSharePayload();
+    if (navigator.share) {
+      await navigator.share(payload);
+      return;
+    }
+    await navigator.clipboard.writeText(payload.text + "\n" + payload.url);
   }
 
   function toUserFacingOrderMessage(orderStatus, orderId) {
@@ -249,8 +361,34 @@
   document.addEventListener("DOMContentLoaded", function () {
     var button = document.getElementById("polar-pay-button");
     var status = document.getElementById("polar-pay-status");
+    var shareButton = document.getElementById("payment-result-share-btn");
+    var saveButton = document.getElementById("payment-result-save-btn");
+    var metadata = resolvePremiumReportMetadata();
     checkReturnPaymentStatus();
+    if (shareButton) {
+      shareButton.addEventListener("click", function () {
+        sharePaymentResult().catch(function () {
+          setStatus(status, "공유에 실패했습니다. 잠시 후 다시 시도해 주세요.", true);
+        });
+      });
+    }
+    if (saveButton) {
+      saveButton.addEventListener("click", function () {
+        try {
+          savePaymentResultAsFile();
+        } catch (error) {
+          setStatus(status, "저장에 실패했습니다. 잠시 후 다시 시도해 주세요.", true);
+        }
+      });
+    }
     if (!button) return;
+    renderPremiumReportSummary(metadata);
+
+    if (!metadata.report_goal) {
+      button.disabled = true;
+      setStatus(status, "입력 정보가 없어 결제를 진행할 수 없습니다. 정보 입력 페이지에서 먼저 작성해 주세요.", true);
+      return;
+    }
 
     button.addEventListener("click", async function () {
       if (button.disabled) return;
@@ -258,7 +396,7 @@
       setStatus(status, "결제 세션을 준비하는 중입니다...", false);
 
       try {
-        var checkoutUrl = await requestCheckoutUrl(resolveApiEndpoint());
+        var checkoutUrl = await requestCheckoutUrl(resolveApiEndpoint(), metadata);
         window.location.href = checkoutUrl;
       } catch (error) {
         var endpoint = resolveApiEndpoint();

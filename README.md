@@ -210,6 +210,7 @@
 ├── 404.html                 # 404 에러 페이지
 ├── pages
 │   ├── about.html               # 서비스 소개
+│   ├── auth.html
 │   ├── bulletin.html            # 커뮤니티 게시판 include
 │   ├── contact.html             # 제휴 문의 페이지
 │   ├── cookies.html             # 쿠키 정책
@@ -220,6 +221,7 @@
 │   ├── payment.html             # Polar 결제 화면
 │   ├── privacy.html             # 개인정보처리방침
 │   ├── refund.html
+│   ├── report-intake.html
 │   └── terms.html               # 이용약관
 ├── css
 │   ├── 404.css                  # 404 페이지 스타일
@@ -240,10 +242,12 @@
 │   │   └── terms.json               # 이용약관 구조화 데이터
 │   ├── 404.js                   # 404 페이지 스크립트
 │   ├── app.js                   # 메인 앱 로직 (추천/슬롯/공유/게시판/테마)
+│   ├── auth-page.js
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
 │   ├── footer-loader.js         # 공통 Footer 로더
 │   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
 │   ├── polar-worker-checkout.js # 결제 버튼 -> Workers checkout API 연동
+│   ├── premium-report-intake.js
 │   ├── privacy.js               # 개인정보처리방침 스크립트
 │   ├── terms.js                 # 이용약관 스크립트
 │   └── translations.js          # 18개 언어 번역 데이터
@@ -477,17 +481,12 @@
 
 #### 변경 파일(커밋 스테이징 기준)
 ```text
-M	README.md
-M	js/app.js
-M	js/footer-loader.js
-A	js/ld/refund.json
-M	js/privacy.js
-M	js/terms.js
-M	js/translations.js
-M	pages/footer.html
-M	pages/privacy.html
-A	pages/refund.html
-M	pages/terms.html
+M	js/polar-worker-checkout.js
+A	js/premium-report-intake.js
+M	pages/contact.html
+M	pages/payment.html
+A	pages/report-intake.html
+M	workers/polar-checkout-worker/src/index.ts
 ```
 
 <!-- README:AUTO-END -->
