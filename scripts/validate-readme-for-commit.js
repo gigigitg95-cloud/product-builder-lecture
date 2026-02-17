@@ -28,15 +28,29 @@ function ensureRecentUpdateEntry(content) {
   }
 
   const tail = content.slice(updatesIdx);
-  const headingMatches = [...tail.matchAll(/^###\s+(\d{4}-\d{2}-\d{2})(?:\s*\(([^\n]+)\))?\s*$/gm)];
+  const headingMatches = [...tail.matchAll(/^###\s+(\d{4}-\d{2}-\d{2})(?:\s*\(([^\n]+)\))?\s*$/gm)]
+    .map((match) => ({
+      index: match.index ?? 0,
+      date: String(match[1] || "").trim(),
+      title: String(match[2] || "").trim(),
+    }));
 
-  if (headingMatches.length === 0) {
+  const detailsMatches = [...tail.matchAll(/<summary><strong>(\d{4}-\d{2}-\d{2})<\/strong>\s*-\s*([^<\n]+)<\/summary>/gm)]
+    .map((match) => ({
+      index: match.index ?? 0,
+      date: String(match[1] || "").trim(),
+      title: String(match[2] || "").trim(),
+    }));
+
+  const updateEntries = [...headingMatches, ...detailsMatches].sort((a, b) => a.index - b.index);
+
+  if (updateEntries.length === 0) {
     fail("no dated update entry found under \"## 업데이트 기록\"");
   }
 
-  const latest = headingMatches[0];
-  const date = latest[1];
-  const title = (latest[2] || "").trim();
+  const latest = updateEntries[0];
+  const date = latest.date;
+  const title = latest.title;
 
   const today = new Date();
   const yyyy = String(today.getFullYear());

@@ -120,6 +120,7 @@
 - 리포트 결과 페이지에서 `저장하기`를 PDF 다운로드로 지원
 - 리포트 결과 로드 직후 결제 이메일로 리포트 즉시 발송 요청(중복 발송 방지) 지원
 - 결제 성공 시 전용 결과 페이지(`report-result`)에서 OpenAI 리포트 본문을 즉시 확인 가능
+- 공통 푸터 `서비스` 섹션에서 `식단 짜기` 링크로 리포트 입력/결제/결과 플로우를 바로 진입 가능
 - `order_id` 누락 checkout도 `checkout_id` fallback 처리로 리포트 조회/재전송 가능
 - 결과 리포트는 Polar 결제 시 입력한 이메일(`order.customer_email`)로 전송
 - OpenAI 리포트 생성 시 전문가 상담 리포트 톤으로 프롬프트를 고도화하고, 품질 기준(섹션/Day1~Day7/추천 이유/실행 가이드/체크포인트) 미달 시 고급 fallback 리포트로 자동 대체
@@ -283,8 +284,8 @@
 ├── scripts
 │   ├── check-dom-contract.js    # DOM 계약 검증 스크립트
 │   ├── inject-jsonld.js         # 빌드 시 JSON-LD inline 주입 (npm run build)
-│   ├── update-readme.js
-│   └── validate-readme-for-commit.js
+│   ├── update-readme.js         # README 구조 동기화 + 업데이트 기록 동일 날짜 병합/접기형(details) 변환
+│   └── validate-readme-for-commit.js # README 커밋/푸시 게이트 검증(접기형 업데이트 기록 포함)
 ├── firebase.json            # Firebase Hosting 설정
 ├── package.json             # Worker 의존성/스크립트
 └── README.md
@@ -304,7 +305,10 @@
 
 ## 업데이트 기록
 
-### 2026-02-17 (리포트 결과 PDF 저장 + 즉시 이메일 발송)
+<details>
+<summary><strong>2026-02-17</strong> - 리포트 결과 PDF 저장 + 즉시 이메일 발송 외 1건</summary>
+
+#### 리포트 결과 PDF 저장 + 즉시 이메일 발송
 
 **요약**
 - `pages/report-result.html`에 PDF 생성을 위한 라이브러리(`html2canvas`, `jsPDF`)를 추가.
@@ -312,7 +316,7 @@
 - 리포트 결과 로드 후 결제 이메일로 즉시 발송 요청을 자동 1회 수행하도록 개선.
 - 결과 화면 발송 버튼 문구를 `이메일로 보내기`로 정리하고 상태 메시지를 이메일 발송 기준으로 통일.
 
-### 2026-02-17 (프리미엄 식단 리포트 전문성 강화)
+#### 프리미엄 식단 리포트 전문성 강화
 
 **요약**
 - `workers/polar-checkout-worker/src/index.ts`의 OpenAI 프롬프트를 전문가 상담 리포트 톤으로 강화.
@@ -320,41 +324,46 @@
 - 생성 결과의 품질 검증(분량/섹션/Day1~Day7/추천 이유/체크포인트/실행 가이드) 로직을 추가.
 - OpenAI 응답 품질이 기준 미달일 때 제공되는 fallback 리포트를 실무형 7일 계획 형태로 고도화.
 
-### 2026-02-16 (checkout_id fallback 처리 보강)
+</details>
+
+<details>
+<summary><strong>2026-02-16</strong> - checkout_id fallback 처리 보강 외 6건</summary>
+
+#### checkout_id fallback 처리 보강
 
 **요약**
 - 일부 checkout 응답에서 `order_id`가 비어 있는 케이스를 처리하도록 Worker를 보강.
 - `premium-report-preview`/`resend-report`가 `checkout_id`만으로도 fallback order를 구성해 정상 동작하도록 수정.
 
-### 2026-02-16 (결제 후 전용 리포트 결과 페이지 추가)
+#### 결제 후 전용 리포트 결과 페이지 추가
 
 **요약**
 - 결제 성공 시 `pages/report-result.html`로 이동해 OpenAI 리포트 본문을 즉시 확인할 수 있는 전용 결과 페이지를 추가.
 - 결과 페이지에서 `공유하기`/`저장하기`/`리포트 재전송`을 한 화면에서 제공.
 - Worker에 `POST /premium-report-preview` API를 추가해 결제건 기준 리포트 미리보기 조회를 지원.
 
-### 2026-02-16 (결제 직후 리포트 진행상태/미리보기/재전송)
+#### 결제 직후 리포트 진행상태/미리보기/재전송
 
 **요약**
 - 결제 완료 직후 사용자에게 `리포트 생성 진행 상태`(진행바/안내 문구)를 즉시 표시하도록 결제 결과 UI를 확장.
 - 결제 전에 입력한 개인화 정보를 기반으로 `즉시 미리보기`를 결제 완료 화면에서 바로 제공.
 - `리포트 재전송` 버튼을 추가하고 Worker에 `/resend-report` API를 구현해 주문 기준 재발송 요청을 지원.
 
-### 2026-02-16 (사이드바 식단 짜기 진입 + 리포트 입력 안내 강화)
+#### 사이드바 식단 짜기 진입 + 리포트 입력 안내 강화
 
 **요약**
 - 메인 페이지 사이드바(데스크톱/모바일)에 `식단 짜기` 진입 버튼을 추가.
 - `report-intake` 페이지 상단 복귀 링크를 메인으로 조정하고 Polar 허용 범위 고지 문구를 추가.
 - Worker 설정/문서에 프리미엄 리포트 관련 환경 변수(`OPENAI_MODEL`, `PREMIUM_REPORT_MAX_TOKENS` 등) 안내를 정리.
 
-### 2026-02-16 (제휴문의 즉시 Polar 결제 연결)
+#### 제휴문의 즉시 Polar 결제 연결
 
 **요약**
 - 제휴 문의 페이지의 결제 버튼이 중간 입력 페이지를 거치지 않고 즉시 Polar checkout 세션을 생성하도록 변경.
 - 결제 성공/취소 복귀는 기존 결제 결과 확인이 가능한 `pages/payment.html`로 유지.
 - 전용 클라이언트 스크립트(`js/contact-polar-checkout.js`)를 추가해 에러 메시지/이동 흐름을 분리 관리.
 
-### 2026-02-16 (결제 전 입력 플로우 + 결제 결과 공유/저장)
+#### 결제 전 입력 플로우 + 결제 결과 공유/저장
 
 **요약**
 - 결제 전용 입력 페이지(`/pages/report-intake.html`)를 추가하고 개인화 입력값을 `sessionStorage`로 전달하는 2단계 흐름(입력 → 결제)을 도입.
@@ -375,14 +384,19 @@
   - OpenAI 프롬프트 및 fallback 리포트 고도화
   - 결제 이메일 기준 리포트 발송 흐름 유지
 
-### 2026-02-16 (자동환불 이메일 리포트)
+#### 자동환불 이메일 리포트
 
 **요약**
 - Polar 웹훅 자동환불 처리 후 Resend API를 통해 결과 리포트 이메일 발송 기능 추가.
 - 이용약관 및 결제 페이지에 이메일 미수신 환불 불가 안내 문구 추가.
 - Cloudflare Workers 설정 문서에 Resend 관련 시크릿/환경변수 가이드 추가.
 
-### 2026-02-15 (전체 섹션 다국어 번역 지원)
+</details>
+
+<details>
+<summary><strong>2026-02-15</strong> - 전체 섹션 다국어 번역 지원 외 1건</summary>
+
+#### 전체 섹션 다국어 번역 지원
 
 **요약**
 - 언어 변경 시 한국어로 고정되던 모든 섹션에 다국어 번역(영어/한국어/일본어/중국어)을 적용했.
@@ -425,7 +439,7 @@
 - `pages/bulletin.html`: 번역 대상 요소에 ID 추가 (5개)
 - `scripts/update-readme.js`: 기존 프로젝트 구조 업데이트 방식으로 리팩토링
 
-### 2026-02-15 (Polar 결제/Workers 연동)
+#### Polar 결제/Workers 연동
 
 **요약**
 - Polar Sandbox 기준 결제 플로우를 `Product ID: 45ee4c82-2396-44bd-8249-a577755cbf9e`로 연결.
@@ -458,7 +472,10 @@
 - 자동환불 기본값은 현재 `true`로 설정되어 있으므로, 운영 정책에 맞게 `wrangler.toml`에서 조정 필요
 - Polar 토큰은 코드/문서에 직접 저장하지 않고 Wrangler Secret으로만 관리
 
-### 2026-02-14 (안정화/일관성 패치)
+</details>
+
+<details>
+<summary><strong>2026-02-14</strong> - 안정화/일관성 패치</summary>
 
 **요약**
 - 공통 Footer 로딩 구조를 메인/서브 페이지에 통일 적용하고, 다크모드 색상 불일치 문제를 해소.
@@ -536,8 +553,10 @@
 - 초기 로딩 시 언어 라벨/슬롯 버튼/테마 토글 깜빡임 감소 여부
 - 공통 Footer 다크모드 색상 톤이 메인/서브 페이지에서 동일한지 확인
 
+</details>
 
-### 2026-02-13 (리팩토링 진행)
+<details>
+<summary><strong>2026-02-13</strong> - 리팩토링 진행</summary>
 
 **원칙**
 - 콘텐츠/기능 100% 유지, 스타일 단계적 전환
@@ -557,7 +576,10 @@
 | Step 8 | How to Use + FAQ | 2/3 + 1/3 그리드 레이아웃, FAQ 아코디언 인터랙션 정리 |
 | Step 9 | Footer + 다크모드 마무리 | 푸터 시맨틱 구조 개선, FOUC 방지/테마 저장/아이콘 전환 로직 정리 |
 
-### 2026-02-11 (구조/SEO/빌드 정리)
+</details>
+
+<details>
+<summary><strong>2026-02-11</strong> - 구조/SEO/빌드 정리</summary>
 
 - `code.html` 제외 HTML을 `pages/`로 이동하고 기존 경로를 301 리다이렉트로 연결
 - `canonical`, `og:url`, `sitemap.xml`을 `/pages/` 경로 기준으로 정리
@@ -570,8 +592,19 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
+M	js/app.js
+M	js/footer-loader.js
 M	js/report-result.js
+M	pages/footer.html
+M	pages/payment.html
+M	pages/report-intake.html
 M	pages/report-result.html
+M	scripts/update-readme.js
+M	scripts/validate-readme-for-commit.js
+M	workers/polar-checkout-worker/src/index.ts
+M	workers/polar-checkout-worker/wrangler.toml
 ```
 
 <!-- README:AUTO-END -->
+
+</details>

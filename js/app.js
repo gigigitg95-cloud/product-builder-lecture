@@ -564,6 +564,8 @@ function applyTranslations() {
     setSidebarNavLabel('nav-recommendation', slotMachineLabel, 'casino');
     setSidebarNavLabel('nav-recommend', t.navRecommendation || t.todayRecommendation, 'recommend');
     setSidebarNavLabel('nav-bulletin', t.navBulletin, 'forum');
+    const plannerLabel = currentLanguage === 'Korean' ? '식단 짜기' : 'Meal Planner';
+    setSidebarNavLabel('nav-planner', plannerLabel, 'restaurant_menu');
     setSidebarNavLabel('nav-contact', t.navContact, 'mail');
     const contactTitle = document.getElementById('contact-title');
     if (contactTitle) contactTitle.textContent = t.partnershipTitle;
@@ -786,6 +788,10 @@ function applyTranslations() {
         if (tips[0]) tips[0].innerHTML = getMealText('mealTip1');
         if (tips[1]) tips[1].innerHTML = getMealText('mealTip2');
     }
+
+    if (typeof updateAuthUI === 'function') {
+        updateAuthUI(currentAuthUser);
+    }
 }
 
 // Select language
@@ -987,13 +993,258 @@ const firebaseConfig = {
 
 // Initialize Firebase
 let db;
+let auth;
+let currentAuthUser = null;
+let authUiInitialized = false;
+const KAKAO_OIDC_PROVIDER_ID = 'oidc.kakao';
 try {
     if (typeof firebase !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         db = firebase.firestore();
+        if (firebase.auth) {
+            auth = firebase.auth();
+        }
     }
 } catch (e) {
     console.log('Firebase initialization skipped or failed:', e);
+}
+
+function parseCsvInput(value) {
+    if (!value) return [];
+    return String(value)
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+}
+
+function getAuthUiCopy() {
+    if (currentLanguage === 'Korean') {
+        return {
+            signedOut: '로그인하면 맞춤 리포트 이력을 저장할 수 있습니다.',
+            signedInPrefix: '로그인됨',
+            googleButton: 'Google 로그인',
+            kakaoButton: 'Kakao 로그인',
+            signOutButton: '로그아웃',
+            saveProfile: '프로필 저장',
+            saveSuccess: '프로필이 저장되었습니다.',
+            saveFail: '프로필 저장 중 오류가 발생했습니다.',
+            loginFail: '로그인에 실패했습니다.',
+            needConfig: 'Kakao OIDC 설정이 필요합니다.'
+        };
+    }
+    return {
+        signedOut: 'Sign in to save your personalized report history.',
+        signedInPrefix: 'Signed in',
+        googleButton: 'Sign in with Google',
+        kakaoButton: 'Sign in with Kakao',
+        signOutButton: 'Sign out',
+        saveProfile: 'Save Profile',
+        saveSuccess: 'Profile saved.',
+        saveFail: 'Failed to save profile.',
+        loginFail: 'Failed to sign in.',
+        needConfig: 'Kakao OIDC setup is required.'
+    };
+}
+
+function setAuthTextContent(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+}
+
+function setAuthValue(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.value = value || '';
+}
+
+function fillAuthProfileForm(profile) {
+    setAuthValue('profile-goal', profile?.goal || '');
+    setAuthValue('profile-allergies', Array.isArray(profile?.allergies) ? profile.allergies.join(', ') : '');
+    setAuthValue('profile-dislikes', Array.isArray(profile?.dislikedIngredients) ? profile.dislikedIngredients.join(', ') : '');
+    setAuthValue('profile-preferred-categories', Array.isArray(profile?.preferredCategories) ? profile.preferredCategories.join(', ') : '');
+}
+
+function updateAuthUI(user) {
+    const copy = getAuthUiCopy();
+    const signedIn = !!user;
+    const signedInActions = document.getElementById('auth-signin-actions');
+    const signOutBtn = document.getElementById('auth-signout-btn');
+    const profileForm = document.getElementById('auth-profile-form');
+    const mobileSignedInActions = document.getElementById('mobile-auth-signin-actions');
+    const mobileSignOutBtn = document.getElementById('mobile-auth-signout-btn');
+
+    const displayName = user?.displayName || user?.email || user?.uid || '';
+    const statusText = signedIn
+        ? `${copy.signedInPrefix}: ${displayName}`
+        : copy.signedOut;
+
+    setAuthTextContent('auth-status-text', statusText);
+    setAuthTextContent('mobile-auth-status-text', statusText);
+    setAuthTextContent('auth-google-btn', copy.googleButton);
+    setAuthTextContent('auth-kakao-btn', copy.kakaoButton);
+    setAuthTextContent('mobile-auth-google-btn', copy.googleButton);
+    setAuthTextContent('mobile-auth-kakao-btn', copy.kakaoButton);
+    setAuthTextContent('auth-signout-btn', copy.signOutButton);
+    setAuthTextContent('mobile-auth-signout-btn', copy.signOutButton);
+    setAuthTextContent('profile-save-btn', copy.saveProfile);
+
+    if (signedInActions) signedInActions.classList.toggle('hidden', signedIn);
+    if (mobileSignedInActions) mobileSignedInActions.classList.toggle('hidden', signedIn);
+    if (signOutBtn) signOutBtn.classList.toggle('hidden', !signedIn);
+    if (mobileSignOutBtn) mobileSignOutBtn.classList.toggle('hidden', !signedIn);
+    if (profileForm) profileForm.classList.toggle('hidden', !signedIn);
+}
+
+async function upsertMemberProfile(user, providerId) {
+    if (!db || !user?.uid) return;
+    const userRef = db.collection('users').doc(user.uid);
+    const snapshot = await userRef.get().catch(() => null);
+    const now = firebase.firestore.FieldValue.serverTimestamp();
+    const basePayload = {
+        uid: user.uid,
+        email: user.email || null,
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || '',
+        providerId: providerId || user.providerData?.[0]?.providerId || 'password',
+        updatedAt: now,
+        lastLoginAt: now
+    };
+
+    if (!snapshot || !snapshot.exists) {
+        const initialPayload = {
+            ...basePayload,
+            createdAt: now,
+            goal: '',
+            allergies: [],
+            dislikedIngredients: [],
+            preferredCategories: []
+        };
+        await userRef.set(initialPayload, { merge: true });
+        fillAuthProfileForm(initialPayload);
+        return;
+    }
+
+    await userRef.set(basePayload, { merge: true });
+    const existing = snapshot.data() || {};
+    fillAuthProfileForm(existing);
+}
+
+async function saveCurrentUserProfile() {
+    if (!db || !currentAuthUser) return;
+    const copy = getAuthUiCopy();
+    const userRef = db.collection('users').doc(currentAuthUser.uid);
+    const payload = {
+        goal: document.getElementById('profile-goal')?.value || '',
+        allergies: parseCsvInput(document.getElementById('profile-allergies')?.value),
+        dislikedIngredients: parseCsvInput(document.getElementById('profile-dislikes')?.value),
+        preferredCategories: parseCsvInput(document.getElementById('profile-preferred-categories')?.value),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    try {
+        await userRef.set(payload, { merge: true });
+        if (typeof showNotification === 'function') {
+            showNotification(copy.saveSuccess, '\u2705');
+        }
+    } catch (error) {
+        console.error('Failed to save profile', error);
+        if (typeof showNotification === 'function') {
+            showNotification(copy.saveFail, '\u26A0\uFE0F');
+        }
+    }
+}
+
+function shouldUseRedirect(error) {
+    const code = error?.code || '';
+    return code === 'auth/popup-blocked' || code === 'auth/cancelled-popup-request' || code === 'auth/operation-not-supported-in-this-environment';
+}
+
+async function signInWithGoogle() {
+    if (!auth) return;
+    const copy = getAuthUiCopy();
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    try {
+        await auth.signInWithPopup(provider);
+    } catch (error) {
+        if (shouldUseRedirect(error)) {
+            await auth.signInWithRedirect(provider);
+            return;
+        }
+        console.error('Google sign-in failed', error);
+        if (typeof showNotification === 'function') {
+            showNotification(copy.loginFail, '\u26A0\uFE0F');
+        }
+    }
+}
+
+async function signInWithKakao() {
+    if (!auth) return;
+    const copy = getAuthUiCopy();
+    if (!KAKAO_OIDC_PROVIDER_ID) {
+        if (typeof showNotification === 'function') {
+            showNotification(copy.needConfig, '\u26A0\uFE0F');
+        }
+        return;
+    }
+    const provider = new firebase.auth.OAuthProvider(KAKAO_OIDC_PROVIDER_ID);
+    provider.setCustomParameters({ prompt: 'login' });
+    try {
+        await auth.signInWithPopup(provider);
+    } catch (error) {
+        if (shouldUseRedirect(error)) {
+            await auth.signInWithRedirect(provider);
+            return;
+        }
+        console.error('Kakao sign-in failed', error);
+        if (typeof showNotification === 'function') {
+            showNotification(copy.loginFail, '\u26A0\uFE0F');
+        }
+    }
+}
+
+async function signOutMember() {
+    if (!auth) return;
+    await auth.signOut().catch((error) => {
+        console.error('Sign-out failed', error);
+    });
+}
+
+function bindAuthUIEvents() {
+    if (authUiInitialized) return;
+    authUiInitialized = true;
+
+    const onGoogle = () => signInWithGoogle();
+    const onKakao = () => signInWithKakao();
+    const onSignOut = () => signOutMember();
+    const onSaveProfile = () => saveCurrentUserProfile();
+
+    document.getElementById('auth-google-btn')?.addEventListener('click', onGoogle);
+    document.getElementById('mobile-auth-google-btn')?.addEventListener('click', onGoogle);
+    document.getElementById('auth-kakao-btn')?.addEventListener('click', onKakao);
+    document.getElementById('mobile-auth-kakao-btn')?.addEventListener('click', onKakao);
+    document.getElementById('auth-signout-btn')?.addEventListener('click', onSignOut);
+    document.getElementById('mobile-auth-signout-btn')?.addEventListener('click', onSignOut);
+    document.getElementById('profile-save-btn')?.addEventListener('click', onSaveProfile);
+}
+
+function initMemberAuth() {
+    bindAuthUIEvents();
+    updateAuthUI(null);
+    if (!auth) return;
+
+    auth.onAuthStateChanged(async (user) => {
+        currentAuthUser = user || null;
+        updateAuthUI(user || null);
+        if (!user) {
+            fillAuthProfileForm(null);
+            return;
+        }
+        const providerId = user.providerData?.[0]?.providerId || '';
+        await upsertMemberProfile(user, providerId).catch((error) => {
+            console.error('Failed to upsert member profile', error);
+        });
+    });
 }
 
 // Bulletin Board functionality
@@ -2730,31 +2981,31 @@ const sidebarData = {
         slot: 'Slot Machine', recommend: "Today's Pick", bulletin: 'Community Board',
         discover: 'Discover', situation: 'By Situation', seasonal: 'Seasonal / Weather',
         popular: 'Popular Top 10', delivery: 'Delivery Guide',
-        tools: 'Tools', calorie: 'Calorie Guide', faq: 'FAQ', contact: 'Partnership'
+        tools: 'Tools', calorie: 'Calorie Guide', faq: 'FAQ', planner: 'Meal Planner', contact: 'Partnership'
     },
     'Korean': {
         slot: '슬롯머신', recommend: '오늘의 추천 메뉴', bulletin: '커뮤니티 게시판',
         discover: 'Discover', situation: '상황별 추천', seasonal: '계절/날씨별 메뉴',
         popular: '인기 메뉴 Top 10', delivery: '배달 메뉴 가이드',
-        tools: 'Tools', calorie: '칼로리 가이드', faq: '자주 묻는 질문', contact: '제휴 문의'
+        tools: 'Tools', calorie: '칼로리 가이드', faq: '자주 묻는 질문', planner: '식단 짜기', contact: '제휴 문의'
     },
     'Japanese': {
         slot: 'スロットマシン', recommend: '今日のおすすめ', bulletin: 'コミュニティ掲示板',
         discover: 'Discover', situation: 'シーン別おすすめ', seasonal: '季節・天気別メニュー',
         popular: '人気メニューTop 10', delivery: 'デリバリーガイド',
-        tools: 'Tools', calorie: 'カロリーガイド', faq: 'よくある質問', contact: '提携お問い合わせ'
+        tools: 'Tools', calorie: 'カロリーガイド', faq: 'よくある質問', planner: '食事プラン', contact: '提携お問い合わせ'
     },
     'Mandarin Chinese': {
         slot: '老虎机', recommend: '今日推荐', bulletin: '社区留言板',
         discover: 'Discover', situation: '场景推荐', seasonal: '季节/天气菜单',
         popular: '热门菜单 Top 10', delivery: '外卖指南',
-        tools: 'Tools', calorie: '卡路里指南', faq: '常见问题', contact: '合作咨询'
+        tools: 'Tools', calorie: '卡路里指南', faq: '常见问题', planner: '饮食计划', contact: '合作咨询'
     }
 };
 
 function updateSidebarTranslations() {
     const lang = sidebarData[currentLanguage] || sidebarData['English'];
-    const keys = ['slot', 'recommend', 'bulletin', 'discover', 'situation', 'seasonal', 'popular', 'delivery', 'tools', 'calorie', 'faq', 'contact'];
+    const keys = ['slot', 'recommend', 'bulletin', 'discover', 'situation', 'seasonal', 'popular', 'delivery', 'tools', 'calorie', 'faq', 'planner', 'contact'];
     keys.forEach(key => {
         const desktop = document.getElementById('sidebar-' + key);
         if (desktop) desktop.textContent = lang[key];
@@ -2789,10 +3040,12 @@ const footerData = {
         homeLink: 'Home',
         aboutLink: 'About Us',
         guideLink: 'User Guide',
+        plannerLink: 'Meal Planner',
         slotLink: 'Slot Machine',
         supportTitle: 'Support',
         helpLink: 'Help Center',
         contactLink: 'Partnership',
+        accountLink: 'Sign In / Register',
         faqLink: 'FAQ',
         legalTitle: 'Legal',
         privacyLink: 'Privacy Policy',
@@ -2806,10 +3059,12 @@ const footerData = {
         homeLink: '홈으로',
         aboutLink: '브랜드 소개',
         guideLink: '이용 가이드',
+        plannerLink: '식단 짜기',
         slotLink: '슬롯 머신',
         supportTitle: '고객 지원',
         helpLink: '도움말 센터',
         contactLink: '제휴 문의',
+        accountLink: '회원가입/로그인',
         faqLink: 'FAQ',
         legalTitle: '법적 고지',
         privacyLink: '개인정보처리방침',
@@ -2823,10 +3078,12 @@ const footerData = {
         homeLink: 'ホーム',
         aboutLink: 'ブランド紹介',
         guideLink: 'ご利用ガイド',
+        plannerLink: '食事プラン',
         slotLink: 'スロットマシン',
         supportTitle: 'サポート',
         helpLink: 'ヘルプセンター',
         contactLink: '提携お問い合わせ',
+        accountLink: '会員登録 / ログイン',
         faqLink: 'FAQ',
         legalTitle: '法的情報',
         privacyLink: 'プライバシーポリシー',
@@ -2840,10 +3097,12 @@ const footerData = {
         homeLink: '首页',
         aboutLink: '品牌介绍',
         guideLink: '使用指南',
+        plannerLink: '饮食计划',
         slotLink: '老虎机',
         supportTitle: '客户支持',
         helpLink: '帮助中心',
         contactLink: '合作咨询',
+        accountLink: '注册 / 登录',
         faqLink: 'FAQ',
         legalTitle: '法律声明',
         privacyLink: '隐私政策',
@@ -2868,6 +3127,9 @@ function updateFooterTranslations() {
     const guideLink = document.getElementById('guide-link');
     if (guideLink) guideLink.textContent = lang.guideLink;
 
+    const plannerLink = document.getElementById('footer-planner-link');
+    if (plannerLink) plannerLink.textContent = lang.plannerLink;
+
     const slotLink = document.getElementById('footer-slot-link');
     if (slotLink) slotLink.textContent = lang.slotLink;
 
@@ -2879,6 +3141,9 @@ function updateFooterTranslations() {
 
     const contactLink = document.getElementById('footer-contact-link');
     if (contactLink) contactLink.textContent = lang.contactLink;
+
+    const accountLink = document.getElementById('footer-account-link');
+    if (accountLink) accountLink.textContent = lang.accountLink;
 
     const faqLink = document.getElementById('footer-faq-link');
     if (faqLink) faqLink.textContent = lang.faqLink;
@@ -2920,6 +3185,7 @@ async function loadBulletinInclude() {
     // applyTranslations runs inside initLanguageSelector after language resolution.
     await initLanguageSelector();
 
+    initMemberAuth();
     initShareButtons();
     await loadBulletinInclude();
 })();

@@ -87,10 +87,161 @@
       .replace(/'/g, "&#39;");
   }
 
+  function cleanLine(line) {
+    return String(line || "").replace(/^\s*[-*]\s*/, "").trim();
+  }
+
+  function parseSections(content) {
+    var lines = String(content || "").split("\n");
+    var sectionOrder = ["요약", "맞춤 추천", "7일 플랜", "주의사항"];
+    var sectionMap = {};
+    sectionOrder.forEach(function (name) { sectionMap[name] = []; });
+    var current = "";
+
+    lines.forEach(function (raw) {
+      var line = String(raw || "").trim();
+      if (!line) return;
+      var sectionMatch = line.match(/^\[(.+)\]$/);
+      if (sectionMatch) {
+        current = sectionMatch[1];
+        if (!sectionMap[current]) sectionMap[current] = [];
+        return;
+      }
+      if (current) sectionMap[current].push(line);
+    });
+
+    return sectionMap;
+  }
+
+  function renderSummary(lines) {
+    var items = (lines || []).map(cleanLine).filter(Boolean);
+    if (!items.length) return "";
+
+    var action = "";
+    var actionItem = items.find(function (line) {
+      return /오늘\s*실행|오늘\s*액션/.test(line);
+    });
+    if (actionItem) action = actionItem;
+
+    var itemHtml = items.map(function (line) {
+      return "<li class=\"flex items-start gap-2\"><span class=\"mt-2 w-1.5 h-1.5 rounded-full bg-indigo-400\"></span><span>" + escapeHtml(line) + "</span></li>";
+    }).join("");
+
+    var actionHtml = action
+      ? "<div class=\"mt-3 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm text-indigo-900\"><strong>오늘의 실행 포인트</strong><br/>" + escapeHtml(action) + "</div>"
+      : "";
+
+    return "<section class=\"rounded-2xl border border-slate-200 bg-white p-4 shadow-sm\"><h3 class=\"text-base font-bold text-slate-900\">요약</h3><ul class=\"mt-3 space-y-2 text-sm text-slate-700\">" + itemHtml + "</ul>" + actionHtml + "</section>";
+  }
+
+  function parseRecommendations(lines) {
+    var blocks = [];
+    var current = null;
+    (lines || []).forEach(function (raw) {
+      var line = cleanLine(raw);
+      if (!line) return;
+      if (/^\d+\)/.test(line)) {
+        if (current) blocks.push(current);
+        current = { title: line, reason: "", guide: "" };
+        return;
+      }
+      if (!current) return;
+      if (/^추천 이유\s*:/.test(line)) {
+        current.reason = line.replace(/^추천 이유\s*:\s*/, "");
+      } else if (/^실행 가이드\s*:/.test(line)) {
+        current.guide = line.replace(/^실행 가이드\s*:\s*/, "");
+      } else {
+        current.title += " " + line;
+      }
+    });
+    if (current) blocks.push(current);
+    return blocks;
+  }
+
+  function renderRecommendations(lines) {
+    var blocks = parseRecommendations(lines);
+    if (!blocks.length) return "";
+    var cards = blocks.map(function (item) {
+      var reasonHtml = item.reason ? "<p class=\"mt-2 text-xs text-slate-600\"><strong>추천 이유</strong> " + escapeHtml(item.reason) + "</p>" : "";
+      var guideHtml = item.guide ? "<p class=\"mt-1 text-xs text-emerald-700\"><strong>실행 가이드</strong> " + escapeHtml(item.guide) + "</p>" : "";
+      return "<article class=\"rounded-xl border border-slate-200 bg-white p-3\"><p class=\"text-sm font-semibold text-slate-900\">" + escapeHtml(item.title) + "</p>" + reasonHtml + guideHtml + "</article>";
+    }).join("");
+
+    return "<section class=\"rounded-2xl border border-slate-200 bg-slate-50 p-4\"><h3 class=\"text-base font-bold text-slate-900\">맞춤 추천</h3><div class=\"mt-3 grid gap-3\">" + cards + "</div></section>";
+  }
+
+  function parseDayPlans(lines) {
+    var days = [];
+    var current = null;
+    (lines || []).forEach(function (raw) {
+      var line = cleanLine(raw);
+      if (!line) return;
+      var dayMatch = line.match(/^Day([1-7])\s*:\s*(.+)$/i);
+      if (dayMatch) {
+        if (current) days.push(current);
+        current = { day: "Day" + dayMatch[1], plan: dayMatch[2], checkpoint: "" };
+        return;
+      }
+      if (!current) return;
+      if (/^체크포인트\s*:/.test(line)) {
+        current.checkpoint = line.replace(/^체크포인트\s*:\s*/, "");
+      } else if (!current.checkpoint) {
+        current.plan += " " + line;
+      }
+    });
+    if (current) days.push(current);
+    return days;
+  }
+
+  function renderDayPlans(lines) {
+    var days = parseDayPlans(lines);
+    if (!days.length) return "";
+    var cards = days.map(function (d) {
+      var checkpoint = d.checkpoint || "오늘 계획 이행 여부를 체크하세요.";
+      return "<article class=\"rounded-xl border border-emerald-200 bg-white p-3\"><p class=\"text-sm font-bold text-emerald-700\">" + escapeHtml(d.day) + "</p><p class=\"mt-1 text-sm text-slate-800\">" + escapeHtml(d.plan) + "</p><p class=\"mt-2 text-xs text-slate-600\"><strong>체크포인트</strong> " + escapeHtml(checkpoint) + "</p></article>";
+    }).join("");
+    return "<section class=\"rounded-2xl border border-emerald-200 bg-emerald-50 p-4\"><h3 class=\"text-base font-bold text-slate-900\">7일 플랜</h3><div class=\"mt-3 grid gap-3 sm:grid-cols-2\">" + cards + "</div></section>";
+  }
+
+  function renderWarnings(lines) {
+    var items = (lines || []).map(cleanLine).filter(Boolean);
+    if (!items.length) return "";
+    var list = items.map(function (line) {
+      return "<li class=\"flex items-start gap-2\"><span class=\"mt-2 w-1.5 h-1.5 rounded-full bg-rose-400\"></span><span>" + escapeHtml(line) + "</span></li>";
+    }).join("");
+    return "<section class=\"rounded-2xl border border-rose-200 bg-rose-50 p-4\"><h3 class=\"text-base font-bold text-slate-900\">주의사항</h3><ul class=\"mt-3 space-y-2 text-sm text-slate-700\">" + list + "</ul></section>";
+  }
+
+  function buildFriendlyReportHtml(content) {
+    var sections = parseSections(content);
+    var summaryHtml = renderSummary(sections["요약"] || []);
+    var recoHtml = renderRecommendations(sections["맞춤 추천"] || []);
+    var planHtml = renderDayPlans(sections["7일 플랜"] || []);
+    var warnHtml = renderWarnings(sections["주의사항"] || []);
+
+    if (!summaryHtml && !recoHtml && !planHtml && !warnHtml) {
+      return "<pre class=\"whitespace-pre-wrap break-words text-sm leading-relaxed font-sans\">" + escapeHtml(content) + "</pre>";
+    }
+
+    return [
+      "<div class=\"mb-4 rounded-xl bg-gradient-to-r from-indigo-500 to-sky-500 p-[1px]\">",
+      "<div class=\"rounded-xl bg-white px-4 py-3\">",
+      "<p class=\"text-sm font-semibold text-slate-900\">좋은 리포트는 실행할 때 가치가 생깁니다.</p>",
+      "<p class=\"mt-1 text-xs text-slate-600\">오늘 액션 1개부터 시작하고, 7일 플랜 체크포인트를 매일 확인해보세요.</p>",
+      "</div></div>",
+      "<div class=\"space-y-4\">",
+      summaryHtml,
+      recoHtml,
+      planHtml,
+      warnHtml,
+      "</div>"
+    ].join("");
+  }
+
   function renderReport(content, model) {
     var box = document.getElementById("report-content-text");
     if (!box) return;
-    box.innerHTML = "<pre class=\"whitespace-pre-wrap break-words text-sm leading-relaxed font-sans\">" + escapeHtml(content) + "</pre>";
+    box.innerHTML = buildFriendlyReportHtml(content);
     resultContext.reportText = String(content || "");
     resultContext.model = String(model || "");
   }

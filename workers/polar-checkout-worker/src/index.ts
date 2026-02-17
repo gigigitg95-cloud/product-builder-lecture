@@ -66,6 +66,48 @@ const RESEND_EMAIL_API = "https://api.resend.com/emails";
 const OPENAI_RESPONSES_API = "https://api.openai.com/v1/responses";
 const DEFAULT_OPENAI_MODEL = "gpt-4.1-mini";
 
+// 프롬프트를 직접 수정하려면 아래 2개 상수를 편집하세요.
+const PREMIUM_REPORT_SYSTEM_PROMPT =
+  "You are a Korean premium nutrition-planning assistant for paying customers. Write in Korean only, with a practical professional diet-coach tone (not bloggy). Deliver a high-value, actionable, personalized 7-day meal-plan report. Safety: no diagnosis, no treatment claims, no extreme dieting (very low calories, fasting, detox), and no supplement/medication guidance. If pregnancy, eating disorder history, chronic disease, or concerning symptoms are possible, include a brief 'consult a clinician' note. Personalization: strictly respect allergies/avoid-ingredients and preferences; prefer Korean foods and realistic convenience options. If user data is insufficient, still provide a usable plan, but explicitly state key assumptions and include a short list of minimum follow-up questions to optimize.";
+
+function buildPremiumReportUserPrompt(order: PolarOrder, profile: PremiumProfile): string {
+  return [
+    "아래 결제 주문/개인화 정보 기준으로 **유료 고객이 만족할 만한** 한국어 프리미엄 식단 리포트를 작성해줘.",
+    "문체: 영양사/코치의 실무형 코칭(간결하지만 구체적, 숫자 포함). 광고/감성/블로그 톤 금지.",
+    "",
+    "핵심 원칙(반드시 준수):",
+    "- 알레르기/기피 재료는 절대 추천하지 말 것(유사 성분/가공식품 라벨 주의까지 언급)",
+    "- 의료행위(진단/치료) 단정 금지, 위험 신호가 있으면 '의료진 상담'을 권고",
+    "- 과도한 제한식/단식/디톡스/극단 저칼로리 금지",
+    "- 모호한 표현 대신 실행 가능한 지시(분량/횟수/타이밍/대체안)로 작성",
+    "",
+    "데이터가 부족해도 반드시 플랜을 제공하되, **중요 가정(예: 목표 칼로리 범위/활동량/체중 변동 목표 등)**을 명시하고, 리포트 안에 '추가로 답하면 더 정밀해지는 질문'을 포함해줘.",
+    "",
+    "출력 형식(섹션 제목/개수 엄수):",
+    "1) [요약]: 정확히 4줄. (현재 상태) / (핵심 목표) / (실행 우선순위 3개) / (오늘 실행 액션 1개)",
+    "2) [맞춤 추천]: 정확히 5개. 각 항목은 아래 3줄 형식 고정.",
+    "   - n) 추천 내용 1줄",
+    "   - 추천 이유: 근거 1줄",
+    "   - 실행 가이드: 분량/횟수/타이밍 중 최소 1개 숫자 포함 1줄",
+    "   *5번째 항목은 '추가로 알려주면 더 정밀해지는 질문(최대 8개)'으로 구성해.",
+    "3) [7일 플랜]: Day1~Day7 모두 작성.",
+    "   - 각 Day는 '식단/행동 계획' 1줄 + '체크포인트:' 1줄로 구성.",
+    "   - '식단/행동 계획' 1줄 안에 아침/점심/저녁/간식(선택)을 **짧게** 넣고, 각 끼니에 분량(예: g, 공기, 컵, 개수) 또는 손바닥/주먹 기준 중 1개는 반드시 포함.",
+    "   - 외식/편의점 대안도 최소 2일은 포함.",
+    "4) [주의사항]: 정확히 2줄. (알레르기/기피 재료 회피) + (의료 안전/개인차/상담 권고) 포함.",
+    "",
+    `order_id: ${order.id || ""}`,
+    `customer_email: ${normalizeEmail(order.customer_email)}`,
+    `order_status: ${String(order.status || "")}`,
+    `products: ${extractOrderProductIds(order).join(", ")}`,
+    "",
+    "[개인화 정보]",
+    buildPremiumProfileSummary(profile),
+    "",
+    `raw_metadata: ${safeStringify(order.metadata || {})}`,
+  ].join("\n");
+}
+
 type WebhookReport = {
   eventType: string;
   mode: string;
@@ -402,33 +444,7 @@ async function generatePremiumReport(order: PolarOrder, env: Env): Promise<{ con
     return { content: buildFallbackPremiumReport(order), model: "fallback:no_openai_key" };
   }
 
-  const userMessage = [
-    "아래 결제 주문/개인화 정보 기준으로 한국어 프리미엄 식단 리포트를 작성해줘.",
-    "유료 고객용 보고서이므로 일반 블로그 톤이 아니라 실무형 영양 코칭 문체로 작성해.",
-    "반드시 아래 섹션 제목을 정확히 지켜서 출력:",
-    "1) [요약]: 4줄. 현재 상태/핵심 목표/실행 우선순위/오늘 실행 액션 1개를 포함.",
-    "2) [맞춤 추천]: 정확히 5개. 각 항목은 다음 형식을 지켜.",
-    "   - n) 추천 내용 1줄",
-    "   - 추천 이유: 근거 1줄",
-    "   - 실행 가이드: 분량/횟수/타이밍 중 최소 1개 숫자 포함 1줄",
-    "3) [7일 플랜]: Day1~Day7 모두 작성.",
-    "   - 각 Day는 '식단/행동 계획' 1줄 + '체크포인트:' 1줄로 구성.",
-    "4) [주의사항]: 2줄. 알레르기/기피 재료 회피 + 의료 안전 문구 포함.",
-    "절대 지킬 것:",
-    "- 알레르기/기피 재료는 추천 금지",
-    "- 과장/치료 단정/광고성 표현 금지",
-    "- 모호한 표현 대신 실행 가능한 지시 사용",
-    "",
-    `order_id: ${order.id || ""}`,
-    `customer_email: ${normalizeEmail(order.customer_email)}`,
-    `order_status: ${String(order.status || "")}`,
-    `products: ${extractOrderProductIds(order).join(", ")}`,
-    "",
-    "[개인화 정보]",
-    buildPremiumProfileSummary(profile),
-    "",
-    `raw_metadata: ${safeStringify(order.metadata || {})}`,
-  ].join("\n");
+  const userMessage = buildPremiumReportUserPrompt(order, profile);
 
   const maxOutputTokensRaw = Number.parseInt(String(env.PREMIUM_REPORT_MAX_TOKENS || "1200"), 10);
   const maxOutputTokens = Number.isFinite(maxOutputTokensRaw) && maxOutputTokensRaw > 0 ? maxOutputTokensRaw : 1200;
@@ -445,8 +461,7 @@ async function generatePremiumReport(order: PolarOrder, env: Env): Promise<{ con
       input: [
         {
           role: "system",
-          content:
-            "You are a Korean premium nutrition planning assistant for paying customers. Produce concise but professional reports with concrete, safe, and personalized actions. Use only Korean.",
+          content: PREMIUM_REPORT_SYSTEM_PROMPT,
         },
         {
           role: "user",
