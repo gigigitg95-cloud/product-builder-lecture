@@ -3,6 +3,7 @@
 
   var DEFAULT_API_ENDPOINT = "https://api.ninanoo.com/create-checkout";
   var DRAFT_STORAGE_KEY = "ninanooPremiumReportDraft";
+  var AUTO_EMAIL_SENT_KEY_PREFIX = "ninanooPremiumReportAutoEmailSent:";
   var resultContext = {
     orderId: "",
     checkoutId: "",
@@ -89,8 +90,7 @@
   function renderReport(content, model) {
     var box = document.getElementById("report-content-text");
     if (!box) return;
-    var modelLine = model ? "<p class=\"mb-2 text-[11px] text-slate-500 dark:text-slate-400\">생성 모델: " + escapeHtml(model) + "</p>" : "";
-    box.innerHTML = modelLine + "<pre class=\"whitespace-pre-wrap break-words text-sm leading-relaxed font-sans\">" + escapeHtml(content) + "</pre>";
+    box.innerHTML = "<pre class=\"whitespace-pre-wrap break-words text-sm leading-relaxed font-sans\">" + escapeHtml(content) + "</pre>";
     resultContext.reportText = String(content || "");
     resultContext.model = String(model || "");
   }
@@ -115,7 +115,7 @@
       "",
       "[안내]",
       "- 상세 리포트는 이메일로 순차 발송됩니다.",
-      "- 하단 '리포트 재전송' 버튼으로 재요청할 수 있습니다."
+      "- 하단 '이메일로 보내기' 버튼으로 재요청할 수 있습니다."
     ];
     renderReport(lines.join("\n"), "fallback:preview");
   }
@@ -205,23 +205,67 @@
     await navigator.clipboard.writeText(text + "\n" + payload.url);
   }
 
-  function saveReport() {
-    var content = [
-      "ninanoo 프리미엄 리포트",
-      "generated_at: " + new Date().toISOString(),
-      resultContext.orderId ? "order_id: " + resultContext.orderId : "",
-      "",
-      resultContext.reportText || "리포트 내용을 불러오지 못했습니다."
-    ].filter(Boolean).join("\n");
+  async function saveReportAsPdf() {
+    if (!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) {
+      throw new Error("PDF 라이브러리를 불러오지 못했습니다.");
+    }
+    var reportBox = document.getElementById("report-content-box");
+    if (!reportBox) {
+      throw new Error("리포트 영역을 찾을 수 없습니다.");
+    }
 
-    var blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    var a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "ninanoo-premium-report-" + new Date().toISOString().slice(0, 10) + ".txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(a.href);
+    var canvas = await window.html2canvas(reportBox, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff"
+    });
+    var imageData = canvas.toDataURL("image/png");
+    var pdf = new window.jspdf.jsPDF("p", "pt", "a4");
+
+    var pageWidth = pdf.internal.pageSize.getWidth();
+    var pageHeight = pdf.internal.pageSize.getHeight();
+    var margin = 24;
+    var printableWidth = pageWidth - (margin * 2);
+    var printableHeight = pageHeight - (margin * 2);
+    var imageHeight = (canvas.height * printableWidth) / canvas.width;
+    var offsetY = 0;
+
+    pdf.addImage(imageData, "PNG", margin, margin - offsetY, printableWidth, imageHeight, undefined, "FAST");
+    while ((imageHeight - offsetY) > printableHeight) {
+      offsetY += printableHeight;
+      pdf.addPage();
+      pdf.addImage(imageData, "PNG", margin, margin - offsetY, printableWidth, imageHeight, undefined, "FAST");
+    }
+
+    var filename = "ninanoo-premium-report-" + new Date().toISOString().slice(0, 10) + ".pdf";
+    pdf.save(filename);
+  }
+
+  function getAutoEmailSentKey() {
+    var keyBase = resultContext.orderId || resultContext.checkoutId || "";
+    return AUTO_EMAIL_SENT_KEY_PREFIX + keyBase;
+  }
+
+  async function requestImmediateEmailSend() {
+    var keyBase = resultContext.orderId || resultContext.checkoutId || "";
+    if (!keyBase) return;
+
+    var sentKey = getAutoEmailSentKey();
+    if (window.sessionStorage.getItem(sentKey) === "1") return;
+    window.sessionStorage.setItem(sentKey, "1");
+
+    try {
+      var data = await requestResend();
+      if (data && data.queued) {
+        setActionStatus("리포트가 결제 이메일로 발송되었습니다.", false);
+        return;
+      }
+      window.sessionStorage.removeItem(sentKey);
+      setActionStatus("이메일 발송 요청 실패: " + ((data && data.reason) || "unknown"), true);
+    } catch (error) {
+      window.sessionStorage.removeItem(sentKey);
+      setActionStatus((error && error.message) || "이메일 발송 요청 중 오류가 발생했습니다.", true);
+    }
   }
 
   function setActionStatus(message, isError) {
@@ -277,6 +321,7 @@
         renderFallbackPreview();
         setProgress("generating", "리포트 생성이 지연되고 있어 미리보기를 먼저 표시합니다.");
       }
+      await requestImmediateEmailSend();
     } catch (error) {
       renderFallbackPreview();
       setProgress("checking", "리포트 조회 중 오류가 발생했습니다. 아래 미리보기를 참고해 주세요.");
@@ -303,12 +348,13 @@
 
     if (saveBtn) {
       saveBtn.addEventListener("click", function () {
-        try {
-          saveReport();
-          setActionStatus("리포트 파일 저장이 완료되었습니다.", false);
-        } catch (error) {
-          setActionStatus("저장에 실패했습니다.", true);
-        }
+        saveReportAsPdf()
+          .then(function () {
+            setActionStatus("리포트 PDF 저장이 완료되었습니다.", false);
+          })
+          .catch(function (error) {
+            setActionStatus((error && error.message) || "PDF 저장에 실패했습니다.", true);
+          });
       });
     }
 
@@ -316,17 +362,17 @@
       resendBtn.addEventListener("click", function () {
         if (resendBtn.disabled) return;
         resendBtn.disabled = true;
-        setActionStatus("리포트 재전송 요청 중...", false);
+        setActionStatus("이메일 발송 요청 중...", false);
         requestResend()
           .then(function (data) {
             if (data && data.queued) {
-              setActionStatus("재전송 요청이 접수되었습니다. 이메일을 확인해 주세요.", false);
+              setActionStatus("이메일 발송 요청이 접수되었습니다. 받은함을 확인해 주세요.", false);
             } else {
-              setActionStatus("재전송 요청 실패: " + ((data && data.reason) || "unknown"), true);
+              setActionStatus("이메일 발송 요청 실패: " + ((data && data.reason) || "unknown"), true);
             }
           })
           .catch(function (error) {
-            setActionStatus((error && error.message) || "재전송 요청 중 오류가 발생했습니다.", true);
+            setActionStatus((error && error.message) || "이메일 발송 요청 중 오류가 발생했습니다.", true);
           })
           .finally(function () {
             resendBtn.disabled = false;

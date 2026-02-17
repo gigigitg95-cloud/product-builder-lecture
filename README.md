@@ -117,6 +117,8 @@
 - 결제 완료 후 결제 결과 패널에서 상태 확인 + `공유하기`/`저장하기` 지원
 - 결제 직후 `리포트 생성 진행 상태`와 `즉시 미리보기`를 화면에 제공
 - 이메일 미수신 대응을 위해 `리포트 재전송` 버튼으로 재발송 요청 가능
+- 리포트 결과 페이지에서 `저장하기`를 PDF 다운로드로 지원
+- 리포트 결과 로드 직후 결제 이메일로 리포트 즉시 발송 요청(중복 발송 방지) 지원
 - 결제 성공 시 전용 결과 페이지(`report-result`)에서 OpenAI 리포트 본문을 즉시 확인 가능
 - `order_id` 누락 checkout도 `checkout_id` fallback 처리로 리포트 조회/재전송 가능
 - 결과 리포트는 Polar 결제 시 입력한 이메일(`order.customer_email`)로 전송
@@ -263,7 +265,7 @@
 │   ├── polar-worker-checkout.js # 결제 버튼/결제결과/진행상태/리포트 재전송 연동
 │   ├── premium-report-intake.js # 리포트 입력 저장/결제 페이지 전달
 │   ├── privacy.js               # 개인정보처리방침 스크립트
-│   ├── report-result.js         # 결제 후 리포트 결과 페이지 로직
+│   ├── report-result.js         # 결제 후 리포트 결과(공유/PDF 저장/이메일 발송) 로직
 │   ├── terms.js                 # 이용약관 스크립트
 │   └── translations.js          # 18개 언어 번역 데이터
 ├── workers
@@ -301,6 +303,14 @@
 ---
 
 ## 업데이트 기록
+
+### 2026-02-17 (리포트 결과 PDF 저장 + 즉시 이메일 발송)
+
+**요약**
+- `pages/report-result.html`에 PDF 생성을 위한 라이브러리(`html2canvas`, `jsPDF`)를 추가.
+- `js/report-result.js`의 `저장하기`를 TXT가 아닌 PDF 다운로드로 전환.
+- 리포트 결과 로드 후 결제 이메일로 즉시 발송 요청을 자동 1회 수행하도록 개선.
+- 결과 화면 발송 버튼 문구를 `이메일로 보내기`로 정리하고 상태 메시지를 이메일 발송 기준으로 통일.
 
 ### 2026-02-17 (프리미엄 식단 리포트 전문성 강화)
 
@@ -560,7 +570,8 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	workers/polar-checkout-worker/src/index.ts
+M	js/report-result.js
+M	pages/report-result.html
 ```
 
 <!-- README:AUTO-END -->
