@@ -4,6 +4,7 @@
   var DEFAULT_API_ENDPOINT = "https://api.ninanoo.com/create-checkout";
   var DRAFT_STORAGE_KEY = "ninanooPremiumReportDraft";
   var AUTO_EMAIL_SENT_KEY_PREFIX = "ninanooPremiumReportAutoEmailSent:";
+  var REPORT_PROGRESS_KEY_PREFIX = "ninanooPremiumReportProgress:";
   var resultContext = {
     orderId: "",
     checkoutId: "",
@@ -87,6 +88,32 @@
       .replace(/'/g, "&#39;");
   }
 
+  function getProgressStorageKey() {
+    var keyBase = resultContext.orderId || resultContext.checkoutId || "guest";
+    return REPORT_PROGRESS_KEY_PREFIX + keyBase;
+  }
+
+  function getProgressState() {
+    try {
+      var raw = window.localStorage.getItem(getProgressStorageKey());
+      var parsed = raw ? JSON.parse(raw) : null;
+      return {
+        actionDone: !!(parsed && parsed.actionDone),
+        daysDone: parsed && parsed.daysDone && typeof parsed.daysDone === "object" ? parsed.daysDone : {}
+      };
+    } catch (error) {
+      return { actionDone: false, daysDone: {} };
+    }
+  }
+
+  function setProgressState(next) {
+    try {
+      window.localStorage.setItem(getProgressStorageKey(), JSON.stringify(next || { actionDone: false, daysDone: {} }));
+    } catch (error) {
+      // ignore storage errors
+    }
+  }
+
   function cleanLine(line) {
     return String(line || "").replace(/^\s*[-*]\s*/, "").trim();
   }
@@ -116,6 +143,7 @@
   function renderSummary(lines) {
     var items = (lines || []).map(cleanLine).filter(Boolean);
     if (!items.length) return "";
+    var state = getProgressState();
 
     var action = "";
     var actionItem = items.find(function (line) {
@@ -128,10 +156,15 @@
     }).join("");
 
     var actionHtml = action
-      ? "<div class=\"mt-3 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm text-indigo-900\"><strong>오늘의 실행 포인트</strong><br/>" + escapeHtml(action) + "</div>"
+      ? "<div class=\"mt-3 rounded-xl border border-indigo-200 bg-indigo-50 dark:border-indigo-700 dark:bg-indigo-900/40 px-3 py-3 text-sm text-indigo-900 dark:text-indigo-100\">" +
+          "<div class=\"flex items-center justify-between gap-3\">" +
+          "<div><strong>오늘의 실행 포인트</strong><br/>" + escapeHtml(action) + "</div>" +
+          "<button id=\"report-action-toggle\" type=\"button\" class=\"shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold " + (state.actionDone ? "bg-emerald-500 text-white" : "bg-indigo-100 text-indigo-700 dark:bg-indigo-800 dark:text-indigo-100") + "\">" + (state.actionDone ? "완료됨" : "완료 체크") + "</button>" +
+          "</div>" +
+        "</div>"
       : "";
 
-    return "<section class=\"rounded-2xl border border-slate-200 bg-white p-4 shadow-sm\"><h3 class=\"text-base font-bold text-slate-900\">요약</h3><ul class=\"mt-3 space-y-2 text-sm text-slate-700\">" + itemHtml + "</ul>" + actionHtml + "</section>";
+    return "<section class=\"rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 p-4 shadow-sm\"><h3 class=\"text-base font-bold text-slate-900 dark:text-slate-100\">요약</h3><ul class=\"mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-200\">" + itemHtml + "</ul>" + actionHtml + "</section>";
   }
 
   function parseRecommendations(lines) {
@@ -162,12 +195,12 @@
     var blocks = parseRecommendations(lines);
     if (!blocks.length) return "";
     var cards = blocks.map(function (item) {
-      var reasonHtml = item.reason ? "<p class=\"mt-2 text-xs text-slate-600\"><strong>추천 이유</strong> " + escapeHtml(item.reason) + "</p>" : "";
-      var guideHtml = item.guide ? "<p class=\"mt-1 text-xs text-emerald-700\"><strong>실행 가이드</strong> " + escapeHtml(item.guide) + "</p>" : "";
-      return "<article class=\"rounded-xl border border-slate-200 bg-white p-3\"><p class=\"text-sm font-semibold text-slate-900\">" + escapeHtml(item.title) + "</p>" + reasonHtml + guideHtml + "</article>";
+      var reasonHtml = item.reason ? "<p class=\"mt-2 text-xs text-slate-600 dark:text-slate-300\"><strong>추천 이유</strong> " + escapeHtml(item.reason) + "</p>" : "";
+      var guideHtml = item.guide ? "<p class=\"mt-1 text-xs text-emerald-700 dark:text-emerald-300\"><strong>실행 가이드</strong> " + escapeHtml(item.guide) + "</p>" : "";
+      return "<article class=\"rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 p-3\"><p class=\"text-sm font-semibold text-slate-900 dark:text-slate-100\">" + escapeHtml(item.title) + "</p>" + reasonHtml + guideHtml + "</article>";
     }).join("");
 
-    return "<section class=\"rounded-2xl border border-slate-200 bg-slate-50 p-4\"><h3 class=\"text-base font-bold text-slate-900\">맞춤 추천</h3><div class=\"mt-3 grid gap-3\">" + cards + "</div></section>";
+    return "<section class=\"rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30 p-4\"><h3 class=\"text-base font-bold text-slate-900 dark:text-slate-100\">맞춤 추천</h3><div class=\"mt-3 grid gap-3\">" + cards + "</div></section>";
   }
 
   function parseDayPlans(lines) {
@@ -196,11 +229,20 @@
   function renderDayPlans(lines) {
     var days = parseDayPlans(lines);
     if (!days.length) return "";
+    var state = getProgressState();
     var cards = days.map(function (d) {
       var checkpoint = d.checkpoint || "오늘 계획 이행 여부를 체크하세요.";
-      return "<article class=\"rounded-xl border border-emerald-200 bg-white p-3\"><p class=\"text-sm font-bold text-emerald-700\">" + escapeHtml(d.day) + "</p><p class=\"mt-1 text-sm text-slate-800\">" + escapeHtml(d.plan) + "</p><p class=\"mt-2 text-xs text-slate-600\"><strong>체크포인트</strong> " + escapeHtml(checkpoint) + "</p></article>";
+      var checked = !!state.daysDone[d.day];
+      return "<article class=\"rounded-xl border " + (checked ? "border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 dark:border-emerald-700" : "border-emerald-200 bg-white dark:bg-slate-900/40 dark:border-slate-700") + " p-3\">" +
+        "<div class=\"flex items-center justify-between gap-2\">" +
+        "<p class=\"text-sm font-bold text-emerald-700 dark:text-emerald-300\">" + escapeHtml(d.day) + "</p>" +
+        "<label class=\"inline-flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300\"><input class=\"report-day-check rounded border-slate-300 text-emerald-600 focus:ring-emerald-500\" type=\"checkbox\" data-day=\"" + escapeHtml(d.day) + "\" " + (checked ? "checked" : "") + ">완료</label>" +
+        "</div>" +
+        "<p class=\"mt-1 text-sm text-slate-800 dark:text-slate-200\">" + escapeHtml(d.plan) + "</p>" +
+        "<p class=\"mt-2 text-xs text-slate-600 dark:text-slate-300\"><strong>체크포인트</strong> " + escapeHtml(checkpoint) + "</p>" +
+      "</article>";
     }).join("");
-    return "<section class=\"rounded-2xl border border-emerald-200 bg-emerald-50 p-4\"><h3 class=\"text-base font-bold text-slate-900\">7일 플랜</h3><div class=\"mt-3 grid gap-3 sm:grid-cols-2\">" + cards + "</div></section>";
+    return "<section class=\"rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 p-4\"><h3 class=\"text-base font-bold text-slate-900 dark:text-slate-100\">7일 플랜</h3><div class=\"mt-3 grid gap-3 sm:grid-cols-2\">" + cards + "</div></section>";
   }
 
   function renderWarnings(lines) {
@@ -209,15 +251,62 @@
     var list = items.map(function (line) {
       return "<li class=\"flex items-start gap-2\"><span class=\"mt-2 w-1.5 h-1.5 rounded-full bg-rose-400\"></span><span>" + escapeHtml(line) + "</span></li>";
     }).join("");
-    return "<section class=\"rounded-2xl border border-rose-200 bg-rose-50 p-4\"><h3 class=\"text-base font-bold text-slate-900\">주의사항</h3><ul class=\"mt-3 space-y-2 text-sm text-slate-700\">" + list + "</ul></section>";
+    return "<section class=\"rounded-2xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/20 p-4\"><h3 class=\"text-base font-bold text-slate-900 dark:text-slate-100\">주의사항</h3><ul class=\"mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-200\">" + list + "</ul></section>";
+  }
+
+  function buildMotivationPanel(totalDays) {
+    var state = getProgressState();
+    var doneCount = Object.keys(state.daysDone || {}).filter(function (k) { return state.daysDone[k]; }).length;
+    var ratio = totalDays > 0 ? Math.min(100, Math.round((doneCount / totalDays) * 100)) : 0;
+    return [
+      "<section class=\"rounded-2xl border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-900/40 p-4\">",
+      "<div class=\"flex items-start justify-between gap-3\">",
+      "<div><p class=\"text-xs font-semibold text-indigo-600 dark:text-indigo-300\">이번 주 실행 대시보드</p><h3 class=\"mt-1 text-lg font-bold text-slate-900 dark:text-slate-100\">작게 시작해서 7일 루틴으로 완성하세요</h3></div>",
+      "<div class=\"rounded-xl bg-indigo-50 dark:bg-indigo-900/40 px-3 py-2 text-right\"><p class=\"text-[11px] text-indigo-700 dark:text-indigo-300\">주간 진행률</p><p id=\"report-plan-score\" class=\"text-lg font-extrabold text-indigo-700 dark:text-indigo-200\">" + ratio + "%</p></div>",
+      "</div>",
+      "<div class=\"mt-3 h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden\"><div id=\"report-plan-progress\" class=\"h-full bg-gradient-to-r from-emerald-500 to-indigo-500\" style=\"width:" + ratio + "%\"></div></div>",
+      "<div class=\"mt-3 grid gap-2 sm:grid-cols-3\">",
+      "<div class=\"rounded-xl border border-slate-200 dark:border-slate-700 p-3\"><p class=\"text-xs text-slate-500 dark:text-slate-300\">오늘 액션</p><p id=\"report-action-score\" class=\"mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100\">" + (state.actionDone ? "완료" : "미완료") + "</p></div>",
+      "<div class=\"rounded-xl border border-slate-200 dark:border-slate-700 p-3\"><p class=\"text-xs text-slate-500 dark:text-slate-300\">완료한 Day</p><p id=\"report-days-done\" class=\"mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100\">" + doneCount + " / " + totalDays + "</p></div>",
+      "<div class=\"rounded-xl border border-slate-200 dark:border-slate-700 p-3\"><p class=\"text-xs text-slate-500 dark:text-slate-300\">다음 목표</p><p class=\"mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100\">" + (doneCount < totalDays ? "Day" + (doneCount + 1) + " 체크" : "이번 주 완료") + "</p></div>",
+      "</div>",
+      "</section>"
+    ].join("");
+  }
+
+  function bindInteractiveReportUi() {
+    var actionBtn = document.getElementById("report-action-toggle");
+    if (actionBtn) {
+      actionBtn.addEventListener("click", function () {
+        var state = getProgressState();
+        state.actionDone = !state.actionDone;
+        setProgressState(state);
+        renderReport(resultContext.reportText, resultContext.model);
+      });
+    }
+
+    var checks = document.querySelectorAll(".report-day-check");
+    checks.forEach(function (check) {
+      check.addEventListener("change", function (event) {
+        var target = event.target;
+        var day = target && target.getAttribute("data-day");
+        if (!day) return;
+        var state = getProgressState();
+        state.daysDone[day] = !!target.checked;
+        setProgressState(state);
+        renderReport(resultContext.reportText, resultContext.model);
+      });
+    });
   }
 
   function buildFriendlyReportHtml(content) {
     var sections = parseSections(content);
     var summaryHtml = renderSummary(sections["요약"] || []);
     var recoHtml = renderRecommendations(sections["맞춤 추천"] || []);
+    var dayPlans = parseDayPlans(sections["7일 플랜"] || []);
     var planHtml = renderDayPlans(sections["7일 플랜"] || []);
     var warnHtml = renderWarnings(sections["주의사항"] || []);
+    var motivationHtml = buildMotivationPanel(dayPlans.length || 7);
 
     if (!summaryHtml && !recoHtml && !planHtml && !warnHtml) {
       return "<pre class=\"whitespace-pre-wrap break-words text-sm leading-relaxed font-sans\">" + escapeHtml(content) + "</pre>";
@@ -225,11 +314,12 @@
 
     return [
       "<div class=\"mb-4 rounded-xl bg-gradient-to-r from-indigo-500 to-sky-500 p-[1px]\">",
-      "<div class=\"rounded-xl bg-white px-4 py-3\">",
-      "<p class=\"text-sm font-semibold text-slate-900\">좋은 리포트는 실행할 때 가치가 생깁니다.</p>",
-      "<p class=\"mt-1 text-xs text-slate-600\">오늘 액션 1개부터 시작하고, 7일 플랜 체크포인트를 매일 확인해보세요.</p>",
+      "<div class=\"rounded-xl bg-white dark:bg-slate-900/70 px-4 py-3\">",
+      "<p class=\"text-sm font-semibold text-slate-900 dark:text-slate-100\">좋은 리포트는 실행할 때 가치가 생깁니다.</p>",
+      "<p class=\"mt-1 text-xs text-slate-600 dark:text-slate-300\">오늘 액션 1개부터 시작하고, 체크를 쌓아 7일 루틴을 완성해보세요.</p>",
       "</div></div>",
       "<div class=\"space-y-4\">",
+      motivationHtml,
       summaryHtml,
       recoHtml,
       planHtml,
@@ -244,6 +334,7 @@
     box.innerHTML = buildFriendlyReportHtml(content);
     resultContext.reportText = String(content || "");
     resultContext.model = String(model || "");
+    bindInteractiveReportUi();
   }
 
   function renderFallbackPreview() {

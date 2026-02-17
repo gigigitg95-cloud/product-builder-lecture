@@ -120,6 +120,7 @@
 - 리포트 결과 페이지에서 `저장하기`를 PDF 다운로드로 지원
 - 리포트 결과 로드 직후 결제 이메일로 리포트 즉시 발송 요청(중복 발송 방지) 지원
 - 결제 성공 시 전용 결과 페이지(`report-result`)에서 OpenAI 리포트 본문을 즉시 확인 가능
+- 리포트 결과 페이지를 실행 중심 대시보드 UI로 개편(오늘 액션 완료 체크, Day별 체크, 주간 진행률 시각화)
 - 공통 푸터 `서비스` 섹션에서 `식단 짜기` 링크로 리포트 입력/결제/결과 플로우를 바로 진입 가능
 - `order_id` 누락 checkout도 `checkout_id` fallback 처리로 리포트 조회/재전송 가능
 - 결과 리포트는 Polar 결제 시 입력한 이메일(`order.customer_email`)로 전송
@@ -266,7 +267,7 @@
 │   ├── polar-worker-checkout.js # 결제 버튼/결제결과/진행상태/리포트 재전송 연동
 │   ├── premium-report-intake.js # 리포트 입력 저장/결제 페이지 전달
 │   ├── privacy.js               # 개인정보처리방침 스크립트
-│   ├── report-result.js         # 결제 후 리포트 결과(공유/PDF 저장/이메일 발송) 로직
+│   ├── report-result.js         # 결제 후 리포트 결과(공유/PDF 저장/이메일 발송 + 실행 대시보드/체크 UI) 로직
 │   ├── terms.js                 # 이용약관 스크립트
 │   └── translations.js          # 18개 언어 번역 데이터
 ├── workers
@@ -323,6 +324,14 @@
 - `[요약]/[맞춤 추천]/[7일 플랜]/[주의사항]` 섹션별 출력 규칙을 엄격화하고 `실행 가이드`를 의무화.
 - 생성 결과의 품질 검증(분량/섹션/Day1~Day7/추천 이유/체크포인트/실행 가이드) 로직을 추가.
 - OpenAI 응답 품질이 기준 미달일 때 제공되는 fallback 리포트를 실무형 7일 계획 형태로 고도화.
+
+#### 리포트 결과 페이지 실행 대시보드 UX 개편
+
+**요약**
+- `js/report-result.js`를 실행 중심 UI로 재구성해 단순 텍스트 나열 대신 요약/추천/7일 플랜/주의사항을 카드형으로 표시.
+- 오늘 액션 완료 토글, Day별 체크박스, 주간 진행률(%) 카드/바를 추가해 사용자 동기와 이행률을 시각화.
+- 체크 상태를 로컬 스토리지에 저장해 새로고침 후에도 사용자가 진행 현황을 이어서 관리 가능하도록 개선.
+- `pages/report-result.html`의 레이아웃 폭을 확장하고 스크립트 캐시 버전을 갱신해 최신 UI를 즉시 반영.
 
 </details>
 
@@ -592,17 +601,8 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	js/app.js
-M	js/footer-loader.js
 M	js/report-result.js
-M	pages/footer.html
-M	pages/payment.html
-M	pages/report-intake.html
 M	pages/report-result.html
-M	scripts/update-readme.js
-M	scripts/validate-readme-for-commit.js
-M	workers/polar-checkout-worker/src/index.ts
-M	workers/polar-checkout-worker/wrangler.toml
 ```
 
 <!-- README:AUTO-END -->
