@@ -260,45 +260,138 @@ function buildPremiumProfileSummary(profile: PremiumProfile): string {
   return lines.join("\n");
 }
 
+function splitProfileKeywords(value: string): string[] {
+  return String(value || "")
+    .split(/[,\n/|]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function buildPreferredSummary(profile: PremiumProfile): string {
+  const preferred = splitProfileKeywords(profile.preferredCategories);
+  return preferred.length > 0 ? preferred.slice(0, 3).join(", ") : "균형식";
+}
+
+function buildGoalAction(goal: string): string {
+  const normalizedGoal = String(goal || "").toLowerCase();
+  if (/(감량|다이어트|체중\s*감량)/.test(normalizedGoal)) {
+    return "오늘 저녁부터 밥 양을 평소의 2/3로 줄이고 채소 반찬 1가지를 추가하세요.";
+  }
+  if (/(증량|벌크|근육|체중\s*증가)/.test(normalizedGoal)) {
+    return "오늘부터 매 끼니 단백질 식품 1개(달걀/두부/닭가슴살 등)를 고정 추가하세요.";
+  }
+  if (/(혈당|당|당뇨)/.test(normalizedGoal)) {
+    return "오늘부터 음료는 무가당으로 바꾸고 식사 후 10분 걷기를 바로 시작하세요.";
+  }
+  return "오늘부터 하루 3끼 중 2끼는 단백질+채소를 먼저 먹는 순서로 식사하세요.";
+}
+
 function buildFallbackPremiumReport(order: PolarOrder): string {
   const email = normalizeEmail(order.customer_email) || "고객";
   const profile = extractPremiumProfile(order);
-  return [
+  const preferredSummary = buildPreferredSummary(profile);
+  const safetyKeywords = [...splitProfileKeywords(profile.allergies), ...splitProfileKeywords(profile.avoidIngredients)];
+  const safetyNote = safetyKeywords.length > 0 ? safetyKeywords.slice(0, 6).join(", ") : "없음/미입력";
+  const todayAction = buildGoalAction(profile.goal);
+  const dayPlans = [
+    {
+      day: "Day1",
+      plan: "아침(달걀/두부 + 과일), 점심(단백질 1 + 채소 2 + 탄수화물 1), 저녁(국물 적은 단백질+채소 중심)",
+      checkpoint: "저녁 과식을 막기 위해 오후 간식(견과/요거트 중 1개)을 사전 준비",
+    },
+    {
+      day: "Day2",
+      plan: "전날과 동일한 틀 유지 + 저녁 탄수화물은 점심의 1/2 분량으로 조정",
+      checkpoint: "하루 수분 6~8컵 달성 여부 체크",
+    },
+    {
+      day: "Day3",
+      plan: `선호 카테고리(${preferredSummary}) 중 1개를 점심에 반영하고 저녁은 담백 메뉴로 마감`,
+      checkpoint: "식사 후 포만감/허기 시간을 기록해 다음 날 양 조절 근거 확보",
+    },
+    {
+      day: "Day4",
+      plan: "아침 단백질 고정 + 점심은 채소 비중 확대 + 저녁은 가공식품 최소화",
+      checkpoint: "야식 충동이 있으면 물 1컵 후 10분 대기 규칙 적용",
+    },
+    {
+      day: "Day5",
+      plan: "외식/배달 1회 허용하되 메인 메뉴 1개 + 채소 사이드 1개를 함께 주문",
+      checkpoint: "소스/드레싱은 절반만 사용",
+    },
+    {
+      day: "Day6",
+      plan: "주말 식단 흔들림 방지를 위해 집에서 2끼 직접 구성(단백질+채소 기준)",
+      checkpoint: "다음 주 자주 먹을 재료 5개를 장보기 리스트로 정리",
+    },
+    {
+      day: "Day7",
+      plan: "이번 주 식단에서 유지 가능한 메뉴 3개를 확정하고 다음 주 반복 계획 수립",
+      checkpoint: "체중/컨디션/소화상태 중 1가지를 기준 지표로 선택",
+    },
+  ];
+
+  const lines = [
     "프리미엄 메뉴 리포트",
     "",
     "[요약]",
     `- 고객 이메일: ${email}`,
-    `주문번호: ${order.id || "-"}`,
-    `- 목표: ${profile.goal || "미입력"}`,
-    `- 선호 카테고리: ${profile.preferredCategories || "미입력"}`,
+    `- 주문번호: ${order.id || "-"}`,
+    `- 핵심 목표: ${profile.goal || "미입력(체중/건강 목표를 1문장으로 설정 권장)"}`,
+    `- 오늘 실행 액션: ${todayAction}`,
     "",
     "[맞춤 추천]",
-    "1) 단백질 중심 메인 + 채소 반찬 2가지 구성을 기본으로 시작하세요.",
-    "2) 기피 재료/알레르기는 반드시 제외한 재료로 대체하세요.",
-    "3) 선호 카테고리를 주 3회 이상 반영해 식단 지속성을 높이세요.",
+    `1) 한 끼 기본 공식을 고정하세요: 단백질 1 + 채소 2 + 탄수화물 1`,
+    "- 추천 이유: 식사 구성을 표준화하면 칼로리 계산 없이도 과식을 줄이고 영양 불균형을 예방할 수 있습니다.",
+    "- 실행 가이드: 매 끼니 단백질 1손바닥 + 채소 2주먹 + 탄수화물 1주먹 비율로 7일 유지",
+    `2) 알레르기/기피 재료(${safetyNote})는 구매 단계부터 완전 제외하세요.`,
+    "- 추천 이유: 조리 단계보다 구매 단계에서 차단해야 교차오염/실수 가능성을 줄일 수 있습니다.",
+    "- 실행 가이드: 장보기 앱/메모에 금지 재료를 고정 기록하고 제품 라벨을 매회 10초 확인",
+    `3) 선호 카테고리(${preferredSummary})를 주 3회 이내로 배치해 식단 이탈을 줄이세요.`,
+    "- 추천 이유: 선호 메뉴를 계획적으로 넣으면 지속성이 높아지고 폭식 보상 패턴을 예방할 수 있습니다.",
+    "- 실행 가이드: 주간 식단표에 선호 메뉴를 Day2, Day4, Day6 점심 슬롯으로 미리 배치",
+    "4) 간식은 무작정 제한하지 말고 단백질/식이섬유 간식 1회를 고정하세요.",
+    "- 추천 이유: 공복 시간을 줄이면 다음 끼니 과식 가능성이 낮아집니다.",
+    "- 실행 가이드: 오후 3~5시 사이 간식 1회(그릭요거트/삶은달걀/견과류 중 택1)만 허용",
+    "5) 주 1회는 장보기/전처리(씻기, 소분, 냉장보관) 시간을 예약하세요.",
+    "- 추천 이유: 실행 장벽을 낮추면 좋은 식단이 의지보다 시스템으로 유지됩니다.",
+    "- 실행 가이드: 일요일 40분을 고정해 채소 손질과 단백질 식재료 소분을 완료",
     "",
     "[7일 플랜]",
-    "- Day1-2: 담백한 메뉴로 시작해 식단 적응",
-    "- Day3-4: 선호 카테고리 메뉴를 포함해 만족도 확보",
-    "- Day5: 외식/배달 1회 허용, 양 조절 중심",
-    "- Day6: 단백질/채소 비중 강화",
-    "- Day7: 다음 주 식단을 위한 재료 사전 준비",
-    "",
-    "[주의사항]",
-    "- 알레르기 정보가 있다면 해당 성분 교차오염 가능성까지 확인하세요.",
-  ].join("\n");
+  ];
+  for (const dayPlan of dayPlans) {
+    lines.push(`- ${dayPlan.day}: ${dayPlan.plan}`);
+    lines.push(`  체크포인트: ${dayPlan.checkpoint}`);
+  }
+  lines.push("");
+  lines.push("[주의사항]");
+  lines.push("- 본 리포트는 일반적인 식단 가이드입니다. 기존 질환/복용약이 있으면 의료진 또는 영양 전문가와 함께 조정하세요.");
+  lines.push("- 알레르기 성분은 원재료명/제조공정 문구까지 확인하고, 외식 시 동일 조리도구 사용 여부를 먼저 문의하세요.");
+  return lines.join("\n");
 }
 
-function ensureStructuredPremiumReport(content: string, order: PolarOrder): string {
-  const trimmed = String(content || "").trim();
-  if (!trimmed) return buildFallbackPremiumReport(order);
+function isPremiumReportQualityAcceptable(content: string): boolean {
+  const normalized = String(content || "").trim();
+  if (!normalized) return false;
+  if (normalized.length < 650) return false;
 
   const requiredSections = ["[요약]", "[맞춤 추천]", "[7일 플랜]", "[주의사항]"];
-  const missing = requiredSections.some((section) => !trimmed.includes(section));
-  if (missing) {
-    return buildFallbackPremiumReport(order);
-  }
-  return trimmed;
+  if (requiredSections.some((section) => !normalized.includes(section))) return false;
+
+  const dayMatches = normalized.match(/Day[1-7]/g) || [];
+  const uniqueDays = new Set(dayMatches);
+  if (uniqueDays.size < 7) return false;
+
+  const reasonCount = (normalized.match(/추천 이유:/g) || []).length;
+  if (reasonCount < 5) return false;
+
+  const executionGuideCount = (normalized.match(/실행 가이드:/g) || []).length;
+  if (executionGuideCount < 5) return false;
+
+  const checkpointCount = (normalized.match(/체크포인트:/g) || []).length;
+  if (checkpointCount < 7) return false;
+
+  return true;
 }
 
 async function generatePremiumReport(order: PolarOrder, env: Env): Promise<{ content: string; model: string }> {
@@ -311,13 +404,20 @@ async function generatePremiumReport(order: PolarOrder, env: Env): Promise<{ con
 
   const userMessage = [
     "아래 결제 주문/개인화 정보 기준으로 한국어 프리미엄 식단 리포트를 작성해줘.",
-    "반드시 아래 섹션 제목을 그대로 사용해 출력:",
-    "1) [요약] (3~4줄, 현재 상태 + 핵심 목표 + 오늘 바로 실행할 1개 액션 포함)",
-    "2) [맞춤 추천] (5개, 각 항목에 '추천 이유:' 1줄 포함)",
-    "3) [7일 플랜] (Day1~Day7 형태, 매일 1줄 식단/행동 계획 + 1줄 체크포인트)",
-    "4) [주의사항] (1~2줄)",
-    "출력은 과장 없는 실용적인 문장으로 작성하고, 알레르기/기피 재료를 절대 추천하지 마.",
-    "가격/의학적 치료 효능/과장된 확신 표현은 금지하고, 실행 가능한 분량으로 간결하게 써.",
+    "유료 고객용 보고서이므로 일반 블로그 톤이 아니라 실무형 영양 코칭 문체로 작성해.",
+    "반드시 아래 섹션 제목을 정확히 지켜서 출력:",
+    "1) [요약]: 4줄. 현재 상태/핵심 목표/실행 우선순위/오늘 실행 액션 1개를 포함.",
+    "2) [맞춤 추천]: 정확히 5개. 각 항목은 다음 형식을 지켜.",
+    "   - n) 추천 내용 1줄",
+    "   - 추천 이유: 근거 1줄",
+    "   - 실행 가이드: 분량/횟수/타이밍 중 최소 1개 숫자 포함 1줄",
+    "3) [7일 플랜]: Day1~Day7 모두 작성.",
+    "   - 각 Day는 '식단/행동 계획' 1줄 + '체크포인트:' 1줄로 구성.",
+    "4) [주의사항]: 2줄. 알레르기/기피 재료 회피 + 의료 안전 문구 포함.",
+    "절대 지킬 것:",
+    "- 알레르기/기피 재료는 추천 금지",
+    "- 과장/치료 단정/광고성 표현 금지",
+    "- 모호한 표현 대신 실행 가능한 지시 사용",
     "",
     `order_id: ${order.id || ""}`,
     `customer_email: ${normalizeEmail(order.customer_email)}`,
@@ -330,8 +430,8 @@ async function generatePremiumReport(order: PolarOrder, env: Env): Promise<{ con
     `raw_metadata: ${safeStringify(order.metadata || {})}`,
   ].join("\n");
 
-  const maxOutputTokensRaw = Number.parseInt(String(env.PREMIUM_REPORT_MAX_TOKENS || "900"), 10);
-  const maxOutputTokens = Number.isFinite(maxOutputTokensRaw) && maxOutputTokensRaw > 0 ? maxOutputTokensRaw : 900;
+  const maxOutputTokensRaw = Number.parseInt(String(env.PREMIUM_REPORT_MAX_TOKENS || "1200"), 10);
+  const maxOutputTokens = Number.isFinite(maxOutputTokensRaw) && maxOutputTokensRaw > 0 ? maxOutputTokensRaw : 1200;
 
   const response = await fetch(OPENAI_RESPONSES_API, {
     method: "POST",
@@ -346,7 +446,7 @@ async function generatePremiumReport(order: PolarOrder, env: Env): Promise<{ con
         {
           role: "system",
           content:
-            "You are a Korean nutrition and meal-planning assistant for paid customers. Keep recommendations specific, safe, and easy to execute.",
+            "You are a Korean premium nutrition planning assistant for paying customers. Produce concise but professional reports with concrete, safe, and personalized actions. Use only Korean.",
         },
         {
           role: "user",
@@ -362,7 +462,8 @@ async function generatePremiumReport(order: PolarOrder, env: Env): Promise<{ con
   }
 
   const data = (await response.json().catch(() => null)) as unknown;
-  const content = ensureStructuredPremiumReport(extractOpenAIOutputText(data), order);
+  const rawContent = extractOpenAIOutputText(data);
+  const content = isPremiumReportQualityAcceptable(rawContent) ? rawContent.trim() : buildFallbackPremiumReport(order);
   if (!content) {
     throw new Error("openai_generate_failed empty_output_text");
   }

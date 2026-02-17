@@ -120,6 +120,7 @@
 - 결제 성공 시 전용 결과 페이지(`report-result`)에서 OpenAI 리포트 본문을 즉시 확인 가능
 - `order_id` 누락 checkout도 `checkout_id` fallback 처리로 리포트 조회/재전송 가능
 - 결과 리포트는 Polar 결제 시 입력한 이메일(`order.customer_email`)로 전송
+- OpenAI 리포트 생성 시 전문가 상담 리포트 톤으로 프롬프트를 고도화하고, 품질 기준(섹션/Day1~Day7/추천 이유/실행 가이드/체크포인트) 미달 시 고급 fallback 리포트로 자동 대체
 - Cloudflare Worker 기반 결제 API/웹훅/조건부 자동환불/프리미엄 리포트 생성/재전송 구조 지원
 
 ---
@@ -268,7 +269,7 @@
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
-│       │   └── index.ts                 # checkout/status/webhook + preview/resend API (checkout fallback 포함)
+│       │   └── index.ts                 # checkout/status/webhook + preview/resend API (프롬프트 고도화/리포트 품질 가드 포함)
 │       ├── .gitignore               # Worker 로컬 산출물 제외
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
@@ -300,6 +301,14 @@
 ---
 
 ## 업데이트 기록
+
+### 2026-02-17 (프리미엄 식단 리포트 전문성 강화)
+
+**요약**
+- `workers/polar-checkout-worker/src/index.ts`의 OpenAI 프롬프트를 전문가 상담 리포트 톤으로 강화.
+- `[요약]/[맞춤 추천]/[7일 플랜]/[주의사항]` 섹션별 출력 규칙을 엄격화하고 `실행 가이드`를 의무화.
+- 생성 결과의 품질 검증(분량/섹션/Day1~Day7/추천 이유/체크포인트/실행 가이드) 로직을 추가.
+- OpenAI 응답 품질이 기준 미달일 때 제공되는 fallback 리포트를 실무형 7일 계획 형태로 고도화.
 
 ### 2026-02-16 (checkout_id fallback 처리 보강)
 
