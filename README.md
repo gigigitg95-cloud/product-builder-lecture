@@ -133,6 +133,7 @@
 - 사이드바 로그인/마이페이지 버튼 우측에 로그인 사용자 아이디(`@아이디`) 표시
 - 로그인 페이지(`auth`)와 회원가입 페이지(`signup`)를 분리해 가입/로그인 흐름 분리
 - 로그인 페이지에서 이메일/Google 로그인 지원, 로그인 성공 시 메인페이지로 복귀
+- Google OAuth 콜백은 `auth.html`에서 처리 후 메인으로 이동하도록 구성하고, OAuth 에러 파라미터를 로그인 화면 상태 메시지로 표시
 - 회원가입 페이지는 이메일 회원가입 전용으로 운영
 - Google OAuth는 Supabase Auth + Google Cloud Console Redirect URI(`...supabase.co/auth/v1/callback`) 기준으로 운영
 - 사용자별 프로필(목표/알레르기/기피 재료/선호 카테고리) 저장/조회 지원
@@ -141,6 +142,7 @@
 - Supabase URL/키는 HTML 하드코딩 대신 Cloudflare Worker `/runtime-config`를 통해 런타임 주입
 - Worker CORS에 `authorization` 헤더를 허용해 회원 탈퇴 API 호출 브라우저 preflight를 지원
 - 회원 탈퇴 API에서 `SUPABASE_SERVICE_ROLE_KEY`가 publishable/anon 키로 오입력된 경우 즉시 설정 오류를 반환해 원인 진단을 명확화
+- 회원 탈퇴 API는 `service_role` 키가 비JWT(`sb_secret_...`)인 환경도 처리하도록 `Authorization` JWT 헤더를 분기 적용
 - 런타임 설정/사이드바 인증 스크립트 캐시버스터를 갱신해 로그인 상태 반영 지연을 방지
 - 회원가입 시 인증 메일 발송/중복 가입 여부를 사용자 상태 메시지로 명확히 안내
 - 운영 시 민감/임시 텍스트 파일은 저장소에 두지 않고 Worker Secret/환경변수로 관리
@@ -283,7 +285,7 @@
 │   │   └── terms.json               # 이용약관 구조화 데이터
 │   ├── 404.js                   # 404 페이지 스크립트
 │   ├── app.js                   # 메인 앱 로직 (추천/슬롯/공유/게시판/테마/사이드바 로그인 상태)
-│   ├── auth-page.js             # 로그인 페이지 로직(이메일/Google 로그인, 성공 시 메인 이동)
+│   ├── auth-page.js             # 로그인 페이지 로직(이메일/Google 로그인, OAuth 콜백 에러 표시, 성공 시 메인 이동)
 │   ├── contact-polar-checkout.js # 제휴 문의 페이지 즉시 Polar checkout 연동
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
 │   ├── footer-loader.js         # 공통 Footer 로더
@@ -300,7 +302,7 @@
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
-│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config/delete-account API (+ auth header/CORS/서비스 롤 키 검증/탈퇴 보강)
+│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config/delete-account API (+ auth header/CORS/서비스 롤 키 검증/비JWT 키 호환/탈퇴 보강)
 │       ├── .gitignore               # Worker 로컬 산출물 제외
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
@@ -650,6 +652,8 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
+M	js/auth-page.js
+M	pages/auth.html
 M	workers/polar-checkout-worker/src/index.ts
 ```
 

@@ -4,6 +4,18 @@
   let supabaseClient = null;
   let currentUser = null;
 
+  function readOAuthErrorFromUrl() {
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      const err = params.get("error") || params.get("error_code");
+      const desc = params.get("error_description");
+      if (!err && !desc) return "";
+      return [err, desc].filter(Boolean).join(": ");
+    } catch {
+      return "";
+    }
+  }
+
   function setText(id, text) {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
@@ -71,7 +83,7 @@
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/index.html`,
+        redirectTo: `${window.location.origin}/pages/auth.html`,
         queryParams: {
           prompt: "select_account",
         },
@@ -124,6 +136,9 @@
   async function syncUserState(user) {
     currentUser = user || null;
     updateUI(currentUser);
+    if (currentUser) {
+      window.location.href = "/index.html";
+    }
   }
 
   async function initAuthPage() {
@@ -133,6 +148,10 @@
 
     bindEvents();
     updateUI(null);
+    const oauthError = readOAuthErrorFromUrl();
+    if (oauthError) {
+      setText("auth-page-status", `Google 로그인 실패: ${oauthError}`);
+    }
     if (!initSupabase()) return;
 
     const { data } = await supabaseClient.auth.getUser();

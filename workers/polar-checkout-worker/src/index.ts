@@ -203,6 +203,12 @@ function normalizeEmail(value?: string | null): string {
   return String(value || "").trim();
 }
 
+function isJwtLikeToken(value: string): boolean {
+  const token = String(value || "").trim();
+  if (!token) return false;
+  return token.split(".").length === 3;
+}
+
 function isPlausibleEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -879,11 +885,13 @@ async function deleteAccount(request: Request, env: Env): Promise<Response> {
     return jsonResponse({ error: "Unable to resolve user id" }, { status: 400, headers: corsHeaders });
   }
 
+  const adminAuthHeader = isJwtLikeToken(serviceRoleKey) ? serviceRoleKey : token;
+
   const authDeleteRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
     method: "DELETE",
     headers: {
-      apikey: supabaseAnonKey,
-      authorization: `Bearer ${serviceRoleKey}`,
+      apikey: serviceRoleKey,
+      authorization: `Bearer ${adminAuthHeader}`,
       "content-type": "application/json",
     },
   });
@@ -897,8 +905,8 @@ async function deleteAccount(request: Request, env: Env): Promise<Response> {
   await fetch(`${supabaseUrl}/rest/v1/user_profiles?id=eq.${encodeURIComponent(userId)}`, {
     method: "DELETE",
     headers: {
-      apikey: supabaseAnonKey,
-      authorization: `Bearer ${serviceRoleKey}`,
+      apikey: serviceRoleKey,
+      authorization: `Bearer ${adminAuthHeader}`,
       prefer: "return=minimal",
     },
   }).catch(() => null);
