@@ -142,7 +142,7 @@
 - Supabase URL/키는 HTML 하드코딩 대신 Cloudflare Worker `/runtime-config`를 통해 런타임 주입
 - Worker CORS에 `authorization` 헤더를 허용해 회원 탈퇴 API 호출 브라우저 preflight를 지원
 - 회원 탈퇴 API에서 `SUPABASE_SERVICE_ROLE_KEY`가 publishable/anon 키로 오입력된 경우 즉시 설정 오류를 반환해 원인 진단을 명확화
-- 회원 탈퇴 API는 `service_role` 키가 비JWT(`sb_secret_...`)인 환경도 처리하도록 `Authorization` JWT 헤더를 분기 적용
+- 회원 탈퇴 API는 `service_role` 키가 비JWT(`sb_secret_...`)인 경우 관리자 호출에 `Authorization`을 생략하고 `apikey`만 사용하도록 분기
 - 런타임 설정/사이드바 인증 스크립트 캐시버스터를 갱신해 로그인 상태 반영 지연을 방지
 - 회원가입 시 인증 메일 발송/중복 가입 여부를 사용자 상태 메시지로 명확히 안내
 - 운영 시 민감/임시 텍스트 파일은 저장소에 두지 않고 Worker Secret/환경변수로 관리
@@ -302,7 +302,7 @@
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
-│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config/delete-account API (+ auth header/CORS/서비스 롤 키 검증/비JWT 키 호환/탈퇴 보강)
+│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config/delete-account API (+ auth header/CORS/서비스 롤 키 검증/비JWT 키 Authorization 생략/탈퇴 보강)
 │       ├── .gitignore               # Worker 로컬 산출물 제외
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
@@ -652,8 +652,6 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	js/auth-page.js
-M	pages/auth.html
 M	workers/polar-checkout-worker/src/index.ts
 ```
 

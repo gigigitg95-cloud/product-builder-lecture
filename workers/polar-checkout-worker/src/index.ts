@@ -885,15 +885,19 @@ async function deleteAccount(request: Request, env: Env): Promise<Response> {
     return jsonResponse({ error: "Unable to resolve user id" }, { status: 400, headers: corsHeaders });
   }
 
-  const adminAuthHeader = isJwtLikeToken(serviceRoleKey) ? serviceRoleKey : token;
+  const adminHeaders: Record<string, string> = {
+    apikey: serviceRoleKey,
+    "content-type": "application/json",
+  };
+  // Legacy JWT service_role keys can be used as Bearer tokens.
+  // New sb_secret_* keys are provided via apikey and must not be parsed as JWT.
+  if (isJwtLikeToken(serviceRoleKey)) {
+    adminHeaders.authorization = `Bearer ${serviceRoleKey}`;
+  }
 
   const authDeleteRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
     method: "DELETE",
-    headers: {
-      apikey: serviceRoleKey,
-      authorization: `Bearer ${adminAuthHeader}`,
-      "content-type": "application/json",
-    },
+    headers: adminHeaders,
   });
   if (!authDeleteRes.ok) {
     const detail = await authDeleteRes.text().catch(() => "");
@@ -902,13 +906,17 @@ async function deleteAccount(request: Request, env: Env): Promise<Response> {
 
   // user_profiles has FK (id -> auth.users.id) with ON DELETE CASCADE.
   // Best-effort cleanup for non-cascading edge cases only.
+  const profileDeleteHeaders: Record<string, string> = {
+    apikey: serviceRoleKey,
+    prefer: "return=minimal",
+  };
+  if (isJwtLikeToken(serviceRoleKey)) {
+    profileDeleteHeaders.authorization = `Bearer ${serviceRoleKey}`;
+  }
+
   await fetch(`${supabaseUrl}/rest/v1/user_profiles?id=eq.${encodeURIComponent(userId)}`, {
     method: "DELETE",
-    headers: {
-      apikey: serviceRoleKey,
-      authorization: `Bearer ${adminAuthHeader}`,
-      prefer: "return=minimal",
-    },
+    headers: profileDeleteHeaders,
   }).catch(() => null);
 
   return jsonResponse({ success: true }, { status: 200, headers: corsHeaders });
