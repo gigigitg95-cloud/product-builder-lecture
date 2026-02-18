@@ -127,6 +127,11 @@
 - OpenAI 리포트 생성 시 전문가 상담 리포트 톤으로 프롬프트를 고도화하고, 품질 기준(섹션/Day1~Day7/추천 이유/실행 가이드/체크포인트) 미달 시 고급 fallback 리포트로 자동 대체
 - Cloudflare Worker 기반 결제 API/웹훅/조건부 자동환불/프리미엄 리포트 생성/재전송 구조 지원
 
+### 18. 회원가입/로그인 (Supabase Auth)
+- 이메일 회원가입/로그인 및 Google OAuth 로그인 지원
+- 사용자별 프로필(목표/알레르기/기피 재료/선호 카테고리) 저장/조회 지원
+- Supabase RLS 정책으로 본인 프로필만 접근 가능
+
 ---
 
 ## 다국어 지원 (18개 언어)
@@ -174,7 +179,7 @@
 | Frontend | HTML5, CSS3, Vanilla JavaScript (빌드 도구 없음) |
 | Hosting | Firebase Hosting |
 | API Worker | Cloudflare Workers (Checkout / Webhook / Payment Status) |
-| Database | Firebase Firestore (커뮤니티 게시판) |
+| Database | Firebase Firestore (커뮤니티 게시판), Supabase Postgres/Auth (회원 인증/프로필) |
 | 이미지 API | Pexels API |
 | 언어 감지 | ipapi.co (IP Geolocation) |
 | 문의 양식 | Formspree |
@@ -191,6 +196,7 @@
 | Microsoft Clarity (vcn4lfwfx8) | 사용자 행동 분석 (히트맵, 세션 리플레이) |
 | Pexels API | 음식 이미지 제공 |
 | Firebase Firestore | 커뮤니티 게시판 데이터 저장 |
+| Supabase Auth/Data API | 회원가입/로그인 및 사용자 프로필 저장 |
 | Formspree | 제휴 문의 이메일 전송 |
 | Polar API | 결제 세션 생성, 결제/환불 이벤트 처리 |
 | Resend API | 결제 결과 및 프리미엄 리포트 이메일 발송 |
@@ -226,7 +232,7 @@
 ├── 404.html                 # 404 에러 페이지
 ├── pages
 │   ├── about.html               # 서비스 소개
-│   ├── auth.html                # 회원 인증(준비/확장 중)
+│   ├── auth.html                # Supabase 기반 회원가입/로그인/프로필
 │   ├── bulletin.html            # 커뮤니티 게시판 include
 │   ├── contact.html             # 제휴 문의 페이지
 │   ├── cookies.html             # 쿠키 정책
@@ -281,7 +287,8 @@
 │       └── wrangler.toml            # Worker 라우트/변수 설정(프리미엄 리포트 모델/토큰 변수 포함)
 ├── docs
 │   ├── cloudflare-workers-polar-setup.md # Workers/Polar 결제 설정 가이드
-│   └── dom-contract.json        # DOM 계약 정의 파일
+│   ├── dom-contract.json        # DOM 계약 정의 파일
+│   └── supabase-auth-setup.md
 ├── scripts
 │   ├── check-dom-contract.js    # DOM 계약 검증 스크립트
 │   ├── inject-jsonld.js         # 빌드 시 JSON-LD inline 주입 (npm run build)
@@ -307,7 +314,7 @@
 ## 업데이트 기록
 
 <details>
-<summary><strong>2026-02-17</strong> - 리포트 결과 PDF 저장 + 즉시 이메일 발송 외 1건</summary>
+<summary><strong>2026-02-18</strong> - 리포트 결과 PDF 저장 + 즉시 이메일 발송 외 1건</summary>
 
 #### 리포트 결과 PDF 저장 + 즉시 이메일 발송
 
@@ -601,8 +608,10 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	js/report-result.js
-M	pages/report-result.html
+A	docs/supabase-auth-setup.md
+A	js/auth-page.js
+A	pages/auth.html
+A	supabase/migrations/20260218090000_create_user_profiles.sql
 ```
 
 <!-- README:AUTO-END -->
