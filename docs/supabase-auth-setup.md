@@ -51,23 +51,22 @@ Supabase Dashboard -> Authentication에서 아래를 설정합니다.
    - Authorized redirect URIs:
      - `https://<YOUR_PROJECT_REF>.supabase.co/auth/v1/callback`
 
-## 5) 프론트엔드 설정값 입력
+## 5) Cloudflare Workers에서 런타임 설정 제공
 
-`pages/auth.html`의 meta 태그에 값을 입력합니다.
+프론트엔드에 키를 하드코딩하지 않고 Worker `/runtime-config`에서 내려줍니다.
 
-```html
-<meta name="supabase-url" content="https://YOUR_PROJECT_REF.supabase.co"/>
-<meta name="supabase-anon-key" content="YOUR_SUPABASE_ANON_KEY"/>
+Worker 환경변수 설정:
+
+```bash
+npx wrangler secret put SUPABASE_URL
+npx wrangler secret put SUPABASE_ANON_KEY
 ```
 
-또는 페이지 로드 전에 전역 변수로 주입해도 됩니다.
+이 프로젝트의 `js/runtime-config.js`는 페이지 로드 시 `https://api.ninanoo.com/runtime-config`를 호출해
+`window.SUPABASE_URL`, `window.SUPABASE_ANON_KEY`를 설정합니다.
 
-```html
-<script>
-  window.SUPABASE_URL = "https://YOUR_PROJECT_REF.supabase.co";
-  window.SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-</script>
-```
+`SUPABASE_ANON_KEY`는 publishable/anon 키만 사용합니다.  
+`service_role` 키는 프론트엔드/런타임 응답에 절대 포함하지 않습니다.
 
 ## 6) 로컬 확인 포인트
 

@@ -1251,12 +1251,8 @@ let sidebarSupabaseClient = null;
 let sidebarSupabaseUser = null;
 
 function getSupabaseClientConfig() {
-    const urlMeta = document.querySelector('meta[name="supabase-url"]');
-    const keyMeta = document.querySelector('meta[name="supabase-anon-key"]');
-    const publishableMeta = document.querySelector('meta[name="supabase-publishable-key"]');
-
-    const url = (window.SUPABASE_URL || urlMeta?.content || '').trim();
-    const anonKey = (window.SUPABASE_ANON_KEY || keyMeta?.content || publishableMeta?.content || '').trim();
+    const url = String(window.SUPABASE_URL || '').trim();
+    const anonKey = String(window.SUPABASE_ANON_KEY || '').trim();
 
     return { url, anonKey };
 }
@@ -1295,6 +1291,10 @@ function updateSidebarAuthCta(user = sidebarSupabaseUser) {
 }
 
 async function initSidebarAuth() {
+    if (window.__runtimeConfigReady && typeof window.__runtimeConfigReady.then === 'function') {
+        await window.__runtimeConfigReady.catch(() => null);
+    }
+
     if (!window.supabase || typeof window.supabase.createClient !== 'function') {
         updateSidebarAuthCta(null);
         return;

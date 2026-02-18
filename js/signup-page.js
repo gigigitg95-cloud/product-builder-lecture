@@ -14,12 +14,9 @@
   }
 
   function getSupabaseConfig() {
-    const urlMeta = document.querySelector('meta[name="supabase-url"]');
-    const keyMeta = document.querySelector('meta[name="supabase-anon-key"]');
-    const publishableMeta = document.querySelector('meta[name="supabase-publishable-key"]');
     return {
-      url: String(window.SUPABASE_URL || urlMeta?.content || "").trim(),
-      anonKey: String(window.SUPABASE_ANON_KEY || keyMeta?.content || publishableMeta?.content || "").trim(),
+      url: String(window.SUPABASE_URL || "").trim(),
+      anonKey: String(window.SUPABASE_ANON_KEY || "").trim(),
     };
   }
 
@@ -83,7 +80,10 @@
     document.getElementById("signup-page-submit-btn")?.addEventListener("click", signUpWithEmail);
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+    if (window.__runtimeConfigReady && typeof window.__runtimeConfigReady.then === "function") {
+      await window.__runtimeConfigReady.catch(() => null);
+    }
     bindEvents();
     initSupabase();
   });

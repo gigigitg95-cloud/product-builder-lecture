@@ -19,6 +19,8 @@ interface Env {
   PREMIUM_REPORT_ENABLED?: string;
   PREMIUM_REPORT_PRODUCT_IDS?: string;
   PREMIUM_REPORT_MAX_TOKENS?: string;
+  SUPABASE_URL?: string;
+  SUPABASE_ANON_KEY?: string;
 }
 
 type CheckoutRequest = {
@@ -781,6 +783,37 @@ async function createCheckout(request: Request, env: Env): Promise<Response> {
   );
 }
 
+async function getRuntimeConfig(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  const origin = request.headers.get("origin");
+  const corsHeaders = resolveCorsHeaders(origin, env);
+
+  if (!isOriginAllowed(origin, env)) {
+    return jsonResponse({ error: "Origin not allowed" }, { status: 403, headers: corsHeaders });
+  }
+  if (!isHostAllowed(url.hostname, env)) {
+    return jsonResponse({ error: "Host not allowed" }, { status: 403, headers: corsHeaders });
+  }
+
+  const supabaseUrl = String(env.SUPABASE_URL || "").trim();
+  const supabaseAnonKey = String(env.SUPABASE_ANON_KEY || "").trim();
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return jsonResponse(
+      { error: "Server misconfigured: missing SUPABASE_URL or SUPABASE_ANON_KEY" },
+      { status: 500, headers: corsHeaders }
+    );
+  }
+
+  return jsonResponse(
+    {
+      supabaseUrl,
+      supabaseAnonKey,
+    },
+    { status: 200, headers: corsHeaders }
+  );
+}
+
 async function getPaymentStatus(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
   const origin = request.headers.get("origin");
@@ -1192,6 +1225,10 @@ export default {
         },
         { status: 200, headers: corsHeaders }
       );
+    }
+
+    if (request.method === "GET" && (url.pathname === "/runtime-config" || url.pathname === "/api/runtime-config")) {
+      return getRuntimeConfig(request, env);
     }
 
     if (request.method === "POST" && (url.pathname === "/create-checkout" || url.pathname === "/api/create-checkout")) {

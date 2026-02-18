@@ -20,19 +20,12 @@
   }
 
   function getSupabaseConfig() {
-    const urlMeta = document.querySelector('meta[name="supabase-url"]');
-    const keyMeta = document.querySelector('meta[name="supabase-anon-key"]');
-    const publishableKeyMeta = document.querySelector('meta[name="supabase-publishable-key"]');
-
-    const urlFromMeta = urlMeta ? String(urlMeta.content || "").trim() : "";
-    const keyFromMeta = keyMeta ? String(keyMeta.content || "").trim() : "";
-    const keyFromPublishableMeta = publishableKeyMeta ? String(publishableKeyMeta.content || "").trim() : "";
     const urlFromGlobal = typeof window.SUPABASE_URL === "string" ? window.SUPABASE_URL.trim() : "";
     const keyFromGlobal = typeof window.SUPABASE_ANON_KEY === "string" ? window.SUPABASE_ANON_KEY.trim() : "";
 
     return {
-      url: urlFromGlobal || urlFromMeta,
-      anonKey: keyFromGlobal || keyFromMeta || keyFromPublishableMeta,
+      url: urlFromGlobal,
+      anonKey: keyFromGlobal,
     };
   }
 
@@ -134,6 +127,10 @@
   }
 
   async function initAuthPage() {
+    if (window.__runtimeConfigReady && typeof window.__runtimeConfigReady.then === "function") {
+      await window.__runtimeConfigReady.catch(() => null);
+    }
+
     bindEvents();
     updateUI(null);
     if (!initSupabase()) return;

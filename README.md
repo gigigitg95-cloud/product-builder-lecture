@@ -135,6 +135,7 @@
 - Google OAuth는 Supabase Auth + Google Cloud Console Redirect URI(`...supabase.co/auth/v1/callback`) 기준으로 운영
 - 사용자별 프로필(목표/알레르기/기피 재료/선호 카테고리) 저장/조회 지원
 - Supabase RLS 정책으로 본인 프로필만 접근 가능
+- Supabase URL/키는 HTML 하드코딩 대신 Cloudflare Worker `/runtime-config`를 통해 런타임 주입
 
 ---
 
@@ -284,13 +285,14 @@
 │   ├── premium-report-intake.js # 리포트 입력 저장/결제 페이지 전달
 │   ├── privacy.js               # 개인정보처리방침 스크립트
 │   ├── report-result.js         # 결제 후 리포트 결과(공유/PDF 저장/이메일 발송 + 실행 대시보드/체크 UI) 로직
+│   ├── runtime-config.js        # Worker 런타임 설정(SUPABASE_URL/ANON_KEY) 로더
 │   ├── signup-page.js           # 회원가입 페이지 로직(이메일 가입 전용)
 │   ├── terms.js                 # 이용약관 스크립트
 │   └── translations.js          # 18개 언어 번역 데이터
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
-│       │   └── index.ts                 # checkout/status/webhook + preview/resend API (프롬프트 고도화/리포트 품질 가드 포함)
+│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config API
 │       ├── .gitignore               # Worker 로컬 산출물 제외
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
@@ -336,6 +338,8 @@
 - `pages/signup.html`, `js/signup-page.js`를 추가해 회원가입 전용 페이지를 분리하고, `pages/mypage.html`, `js/mypage.js`를 추가해 회원 정보 확인/수정 페이지를 구현.
 - 로그인 페이지 성공 후 메인페이지 이동으로 로그인 완료 흐름을 단순화하고, 사이드바 로그인 상태 버튼 라벨을 `마이페이지`로 고정.
 - 회원가입 페이지에서 소셜 가입 버튼을 제거하고 이메일 가입 전용 흐름으로 정리.
+- Supabase URL/키 하드코딩 메타를 제거하고 `js/runtime-config.js` + Worker `/runtime-config` 응답으로 런타임 주입 구조로 전환.
+- Worker 환경변수(`SUPABASE_URL`, `SUPABASE_ANON_KEY`)와 문서(`supabase-auth-setup`, `cloudflare-workers-polar-setup`)를 동기화.
 
 </details>
 
@@ -634,8 +638,18 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
+M	docs/cloudflare-workers-polar-setup.md
 M	docs/supabase-auth-setup.md
+M	index.html
+M	js/app.js
 M	js/auth-page.js
+M	js/mypage.js
+A	js/runtime-config.js
+M	js/signup-page.js
+M	pages/auth.html
+M	pages/mypage.html
+M	pages/signup.html
+M	workers/polar-checkout-worker/src/index.ts
 ```
 
 <!-- README:AUTO-END -->
