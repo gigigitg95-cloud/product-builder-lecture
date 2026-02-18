@@ -134,6 +134,7 @@
 - 회원가입 페이지는 이메일 회원가입 전용으로 운영
 - Google OAuth는 Supabase Auth + Google Cloud Console Redirect URI(`...supabase.co/auth/v1/callback`) 기준으로 운영
 - 사용자별 프로필(목표/알레르기/기피 재료/선호 카테고리) 저장/조회 지원
+- 마이페이지에서 내 정보 확인, 비밀번호 재설정 메일 발송, 회원 탈퇴 지원
 - Supabase RLS 정책으로 본인 프로필만 접근 가능
 - Supabase URL/키는 HTML 하드코딩 대신 Cloudflare Worker `/runtime-config`를 통해 런타임 주입
 
@@ -175,7 +176,7 @@
 | 결제 | `/pages/payment.html` | 입력 정보 확인, Polar Checkout 진입, 결제 결과/공유/저장 |
 | 로그인 | `/pages/auth.html` | 이메일/Google 로그인, 회원가입 페이지 이동 |
 | 회원가입 | `/pages/signup.html` | 이메일 회원가입 전용 페이지 |
-| 마이페이지 | `/pages/mypage.html` | 로그인 회원 아이디 확인 및 프로필 저장/조회 |
+| 마이페이지 | `/pages/mypage.html` | 내 정보/프로필 저장/비밀번호 재설정/회원 탈퇴 |
 | 리포트 결과 | `/pages/report-result.html` | 결제 완료 후 OpenAI 리포트 즉시 확인/공유/저장/재전송 |
 
 ---
@@ -248,7 +249,7 @@
 │   ├── footer.html              # 공통 Footer 템플릿
 │   ├── guide.html               # 음식 가이드
 │   ├── help.html                # 도움말 센터
-│   ├── mypage.html              # 로그인 회원 프로필 관리 페이지
+│   ├── mypage.html              # 내 정보/프로필/비밀번호 재설정/회원 탈퇴 페이지
 │   ├── payment.html             # Polar 결제 화면
 │   ├── privacy.html             # 개인정보처리방침
 │   ├── refund.html              # 환불 정책
@@ -280,7 +281,7 @@
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
 │   ├── footer-loader.js         # 공통 Footer 로더
 │   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
-│   ├── mypage.js                # 마이페이지 프로필 저장/조회/로그아웃 로직
+│   ├── mypage.js                # 마이페이지 프로필 저장/내정보/비밀번호 재설정/회원 탈퇴 로직
 │   ├── polar-worker-checkout.js # 결제 버튼/결제결과/진행상태/리포트 재전송 연동
 │   ├── premium-report-intake.js # 리포트 입력 저장/결제 페이지 전달
 │   ├── privacy.js               # 개인정보처리방침 스크립트
@@ -292,7 +293,7 @@
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
-│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config API
+│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config/delete-account API
 │       ├── .gitignore               # Worker 로컬 산출물 제외
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
@@ -340,6 +341,8 @@
 - 회원가입 페이지에서 소셜 가입 버튼을 제거하고 이메일 가입 전용 흐름으로 정리.
 - Supabase URL/키 하드코딩 메타를 제거하고 `js/runtime-config.js` + Worker `/runtime-config` 응답으로 런타임 주입 구조로 전환.
 - Worker 환경변수(`SUPABASE_URL`, `SUPABASE_ANON_KEY`)와 문서(`supabase-auth-setup`, `cloudflare-workers-polar-setup`)를 동기화.
+- 마이페이지에 `내 정보` 섹션(이메일/로그인 방식/가입일), `비밀번호 재설정` 메일 발송, `회원 탈퇴` 기능을 추가.
+- Worker `POST /delete-account` API를 추가해 토큰 검증 후 `user_profiles` 및 Supabase Auth 유저 삭제를 지원.
 
 </details>
 
@@ -639,16 +642,9 @@
 ```text
 M	README.md
 M	docs/cloudflare-workers-polar-setup.md
-M	docs/supabase-auth-setup.md
-M	index.html
-M	js/app.js
-M	js/auth-page.js
 M	js/mypage.js
-A	js/runtime-config.js
-M	js/signup-page.js
-M	pages/auth.html
+M	js/runtime-config.js
 M	pages/mypage.html
-M	pages/signup.html
 M	workers/polar-checkout-worker/src/index.ts
 ```
 

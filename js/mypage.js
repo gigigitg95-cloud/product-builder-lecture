@@ -3,6 +3,19 @@
 
   let supabaseClient = null;
   let currentUser = null;
+  const DELETE_CONFIRM_TEXT = "회원 탈퇴";
+
+  function resolveAccountApiUrl(path) {
+    var normalizedPath = path.startsWith("/") ? path : "/" + path;
+    if (typeof window.POLAR_CHECKOUT_API_URL === "string" && window.POLAR_CHECKOUT_API_URL.trim()) {
+      return window.POLAR_CHECKOUT_API_URL.trim().replace(/\/$/, "") + normalizedPath;
+    }
+    var host = String(window.location.hostname || "");
+    if (host === "localhost" || host === "127.0.0.1") {
+      return "http://127.0.0.1:8787" + normalizedPath;
+    }
+    return "https://api.ninanoo.com" + normalizedPath;
+  }
 
   function setText(id, text) {
     const el = document.getElementById(id);
@@ -50,6 +63,20 @@
     const email = user?.email || "";
     if (!email) return "";
     return email.split("@")[0] || email;
+  }
+
+  function formatDateTime(iso) {
+    if (!iso) return "-";
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return iso;
+    return date.toLocaleString("ko-KR");
+  }
+
+  function renderAccountInfo(user) {
+    const provider = user?.app_metadata?.provider || user?.identities?.[0]?.provider || "-";
+    setText("mypage-email", `이메일: ${user?.email || "-"}`);
+    setText("mypage-provider", `로그인 방식: ${provider}`);
+    setText("mypage-created-at", `가입일: ${formatDateTime(user?.created_at)}`);
   }
 
   async function ensureProfileRow(user) {
@@ -108,10 +135,67 @@
     window.location.href = "/pages/auth.html";
   }
 
+  async function sendPasswordResetEmail() {
+    if (!supabaseClient || !currentUser?.email) return;
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(currentUser.email, {
+      redirectTo: `${window.location.origin}/pages/auth.html`,
+    });
+    if (error) {
+      console.error("Failed to send reset email", error);
+      setText("mypage-status", `비밀번호 재설정 메일 발송 실패: ${error.message}`);
+      return;
+    }
+    setText("mypage-status", "비밀번호 재설정 메일을 발송했습니다.");
+  }
+
+  async function deleteAccount() {
+    if (!supabaseClient || !currentUser) return;
+    const confirmText = getInputValue("mypage-delete-confirm");
+    if (confirmText !== DELETE_CONFIRM_TEXT) {
+      setText("mypage-status", "입력값이 일치하지 않습니다. '회원 탈퇴'를 정확히 입력하세요.");
+      return;
+    }
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+    if (!accessToken) {
+      setText("mypage-status", "세션이 만료되었습니다. 다시 로그인 후 시도하세요.");
+      return;
+    }
+
+    const response = await fetch(resolveAccountApiUrl("/delete-account"), {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ confirm: true }),
+    }).catch(() => null);
+
+    if (!response || !response.ok) {
+      let detail = "";
+      try {
+        const payload = response ? await response.json() : null;
+        detail = payload?.error || "";
+      } catch {
+        detail = "";
+      }
+      setText("mypage-status", `회원 탈퇴 실패${detail ? `: ${detail}` : ""}`);
+      return;
+    }
+
+    await supabaseClient.auth.signOut().catch(() => null);
+    setText("mypage-status", "회원 탈퇴가 완료되었습니다.");
+    window.location.href = "/index.html";
+  }
+
   function renderSignedOut() {
     setText("mypage-status", "로그인이 필요합니다.");
     setText("mypage-member-id", "");
     setVisible("mypage-profile-form", false);
+    setVisible("mypage-account-info", false);
+    setVisible("mypage-password-reset", false);
+    setVisible("mypage-delete-account", false);
     setVisible("mypage-login-link", true);
     fillProfileForm(null);
   }
@@ -121,7 +205,11 @@
     setText("mypage-status", "회원 정보를 확인하고 수정할 수 있습니다.");
     setText("mypage-member-id", `회원 아이디: ${memberId}`);
     setVisible("mypage-profile-form", true);
+    setVisible("mypage-account-info", true);
+    setVisible("mypage-password-reset", true);
+    setVisible("mypage-delete-account", true);
     setVisible("mypage-login-link", false);
+    renderAccountInfo(user);
   }
 
   async function syncUserState(user) {
@@ -158,6 +246,8 @@
   function bindEvents() {
     document.getElementById("mypage-save-btn")?.addEventListener("click", saveProfile);
     document.getElementById("mypage-signout-btn")?.addEventListener("click", signOut);
+    document.getElementById("mypage-reset-password-btn")?.addEventListener("click", sendPasswordResetEmail);
+    document.getElementById("mypage-delete-account-btn")?.addEventListener("click", deleteAccount);
   }
 
   async function initMyPage() {

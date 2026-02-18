@@ -21,6 +21,7 @@ interface Env {
   PREMIUM_REPORT_MAX_TOKENS?: string;
   SUPABASE_URL?: string;
   SUPABASE_ANON_KEY?: string;
+  SUPABASE_SERVICE_ROLE_KEY?: string;
 }
 
 type CheckoutRequest = {
@@ -48,6 +49,7 @@ type ResendReportRequest = {
 };
 
 type PremiumReportPreviewRequest = ResendReportRequest;
+type DeleteAccountRequest = { confirm?: boolean };
 
 type PolarOrder = {
   id?: string;
@@ -785,12 +787,13 @@ async function createCheckout(request: Request, env: Env): Promise<Response> {
 
 async function getRuntimeConfig(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
-  const origin = request.headers.get("origin");
-  const corsHeaders = resolveCorsHeaders(origin, env);
+  const corsHeaders: HeadersInit = {
+    "access-control-allow-origin": "*",
+    "access-control-allow-methods": "GET, OPTIONS",
+    "access-control-allow-headers": "content-type",
+    "access-control-max-age": "86400",
+  };
 
-  if (!isOriginAllowed(origin, env)) {
-    return jsonResponse({ error: "Origin not allowed" }, { status: 403, headers: corsHeaders });
-  }
   if (!isHostAllowed(url.hostname, env)) {
     return jsonResponse({ error: "Host not allowed" }, { status: 403, headers: corsHeaders });
   }
@@ -812,6 +815,91 @@ async function getRuntimeConfig(request: Request, env: Env): Promise<Response> {
     },
     { status: 200, headers: corsHeaders }
   );
+}
+
+async function deleteAccount(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  const origin = request.headers.get("origin");
+  const corsHeaders = resolveCorsHeaders(origin, env);
+
+  if (!isOriginAllowed(origin, env)) {
+    return jsonResponse({ error: "Origin not allowed" }, { status: 403, headers: corsHeaders });
+  }
+  if (!isHostAllowed(url.hostname, env)) {
+    return jsonResponse({ error: "Host not allowed" }, { status: 403, headers: corsHeaders });
+  }
+
+  const supabaseUrl = String(env.SUPABASE_URL || "").trim();
+  const supabaseAnonKey = String(env.SUPABASE_ANON_KEY || "").trim();
+  const serviceRoleKey = String(env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+  if (!supabaseUrl || !supabaseAnonKey || !serviceRoleKey) {
+    return jsonResponse(
+      { error: "Server misconfigured: missing SUPABASE_URL/SUPABASE_ANON_KEY/SUPABASE_SERVICE_ROLE_KEY" },
+      { status: 500, headers: corsHeaders }
+    );
+  }
+
+  let body: DeleteAccountRequest = {};
+  try {
+    body = (await request.json()) as DeleteAccountRequest;
+  } catch {
+    body = {};
+  }
+  if (!body.confirm) {
+    return jsonResponse({ error: "confirm is required" }, { status: 400, headers: corsHeaders });
+  }
+
+  const authHeader = request.headers.get("authorization") || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  if (!token) {
+    return jsonResponse({ error: "Missing bearer token" }, { status: 401, headers: corsHeaders });
+  }
+
+  const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+    method: "GET",
+    headers: {
+      apikey: supabaseAnonKey,
+      authorization: `Bearer ${token}`,
+    },
+  });
+  if (!userRes.ok) {
+    const detail = await userRes.text().catch(() => "");
+    return jsonResponse({ error: "Invalid session token", detail }, { status: 401, headers: corsHeaders });
+  }
+
+  const userData = (await userRes.json().catch(() => null)) as { id?: string } | null;
+  const userId = String(userData?.id || "").trim();
+  if (!userId) {
+    return jsonResponse({ error: "Unable to resolve user id" }, { status: 400, headers: corsHeaders });
+  }
+
+  const profileDeleteRes = await fetch(`${supabaseUrl}/rest/v1/user_profiles?id=eq.${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+    headers: {
+      apikey: serviceRoleKey,
+      authorization: `Bearer ${serviceRoleKey}`,
+      prefer: "return=minimal",
+    },
+  });
+  if (!profileDeleteRes.ok) {
+    const detail = await profileDeleteRes.text().catch(() => "");
+    return jsonResponse({ error: "Failed to delete user profile", detail }, { status: 502, headers: corsHeaders });
+  }
+
+  const authDeleteRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+    headers: {
+      apikey: serviceRoleKey,
+      authorization: `Bearer ${serviceRoleKey}`,
+      "content-type": "application/json",
+    },
+  });
+  if (!authDeleteRes.ok) {
+    const detail = await authDeleteRes.text().catch(() => "");
+    return jsonResponse({ error: "Failed to delete auth user", detail }, { status: 502, headers: corsHeaders });
+  }
+
+  return jsonResponse({ success: true }, { status: 200, headers: corsHeaders });
 }
 
 async function getPaymentStatus(request: Request, env: Env): Promise<Response> {
@@ -1241,6 +1329,10 @@ export default {
 
     if (request.method === "POST" && (url.pathname === "/resend-report" || url.pathname === "/api/resend-report")) {
       return resendPremiumReport(request, env, ctx);
+    }
+
+    if (request.method === "POST" && (url.pathname === "/delete-account" || url.pathname === "/api/delete-account")) {
+      return deleteAccount(request, env);
     }
 
     if (

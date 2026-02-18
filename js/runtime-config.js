@@ -1,38 +1,55 @@
 (function (global) {
   "use strict";
 
-  function resolveRuntimeConfigApiUrl() {
+  function resolveRuntimeConfigApiUrls() {
+    var urls = [];
+    var seen = Object.create(null);
+
+    function add(url) {
+      if (!url || seen[url]) return;
+      seen[url] = true;
+      urls.push(url);
+    }
+
     if (typeof global.RUNTIME_CONFIG_API_URL === "string" && global.RUNTIME_CONFIG_API_URL.trim()) {
-      return global.RUNTIME_CONFIG_API_URL.trim();
+      add(global.RUNTIME_CONFIG_API_URL.trim());
     }
 
     var host = String(global.location && global.location.hostname ? global.location.hostname : "");
-    if (host === "ninanoo.com" || host === "www.ninanoo.com") {
-      return "https://api.ninanoo.com/runtime-config";
-    }
     if (host === "localhost" || host === "127.0.0.1") {
-      return "http://127.0.0.1:8787/runtime-config";
+      add("http://127.0.0.1:8787/runtime-config");
     }
-    return "/api/runtime-config";
+
+    add("/api/runtime-config");
+    add("https://api.ninanoo.com/runtime-config");
+    return urls;
   }
 
   async function loadRuntimeConfig() {
-    try {
-      var apiUrl = resolveRuntimeConfigApiUrl();
-      var response = await fetch(apiUrl, {
-        method: "GET",
-        headers: { "content-type": "application/json" },
-      });
-      if (!response.ok) throw new Error("runtime config fetch failed: " + response.status);
+    var urls = resolveRuntimeConfigApiUrls();
+    var lastError = null;
 
-      var data = await response.json();
-      global.SUPABASE_URL = String(data && data.supabaseUrl ? data.supabaseUrl : "").trim();
-      global.SUPABASE_ANON_KEY = String(data && data.supabaseAnonKey ? data.supabaseAnonKey : "").trim();
-    } catch (error) {
-      console.error("Failed to load runtime config", error);
-      global.SUPABASE_URL = String(global.SUPABASE_URL || "").trim();
-      global.SUPABASE_ANON_KEY = String(global.SUPABASE_ANON_KEY || "").trim();
+    for (var i = 0; i < urls.length; i += 1) {
+      var apiUrl = urls[i];
+      try {
+        var response = await fetch(apiUrl, { method: "GET" });
+        if (!response.ok) throw new Error("runtime config fetch failed: " + response.status);
+        var data = await response.json();
+        var url = String(data && data.supabaseUrl ? data.supabaseUrl : "").trim();
+        var key = String(data && data.supabaseAnonKey ? data.supabaseAnonKey : "").trim();
+        if (!url || !key) throw new Error("runtime config payload is empty");
+
+        global.SUPABASE_URL = url;
+        global.SUPABASE_ANON_KEY = key;
+        return;
+      } catch (error) {
+        lastError = error;
+      }
     }
+
+    console.error("Failed to load runtime config", lastError);
+    global.SUPABASE_URL = String(global.SUPABASE_URL || "").trim();
+    global.SUPABASE_ANON_KEY = String(global.SUPABASE_ANON_KEY || "").trim();
   }
 
   global.__runtimeConfigReady = loadRuntimeConfig();

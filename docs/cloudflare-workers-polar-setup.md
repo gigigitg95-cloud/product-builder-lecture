@@ -41,6 +41,7 @@ npx wrangler secret put RESEND_API_KEY
 npx wrangler secret put OPENAI_API_KEY
 npx wrangler secret put SUPABASE_URL
 npx wrangler secret put SUPABASE_ANON_KEY
+npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 ```
 
 - `POLAR_OAT_TOKEN`: Polar Organization Access Token
@@ -49,6 +50,7 @@ npx wrangler secret put SUPABASE_ANON_KEY
 - `OPENAI_API_KEY`: OpenAI API Key (`sk-...`)
 - `SUPABASE_URL`: Supabase Project URL (`https://<project-ref>.supabase.co`)
 - `SUPABASE_ANON_KEY`: Supabase publishable/anon key (`sb_publishable_...`)
+- `SUPABASE_SERVICE_ROLE_KEY`: Supabase service role key (`eyJ...`)
 
 ## 5) 환경값 확인 (`wrangler.toml`)
 
@@ -112,6 +114,7 @@ npx wrangler deploy
 ## 9) 엔드포인트 목록
 
 - `GET /runtime-config`: 프론트 런타임 설정(SUPABASE_URL, SUPABASE_ANON_KEY) 제공
+- `POST /delete-account`: 현재 로그인 사용자 계정/프로필 삭제
 - `POST /create-checkout`: 결제 세션 생성
 - `GET /payment-status?order_id=<ORDER_ID>`: 결제 상태 확인
 - `POST /webhooks/polar`: Polar webhook 수신 + 조건부 자동환불
