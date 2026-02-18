@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>회원가입/로그인 - MenuRec</title>
-<meta name="description" content="MenuRec 회원가입/로그인 페이지입니다. Supabase Auth로 이메일 회원가입/로그인과 Google 로그인을 지원합니다."/>
+<title>로그인 - MenuRec</title>
+<meta name="description" content="MenuRec 로그인 페이지입니다. 이메일 로그인 또는 Google 로그인을 지원합니다."/>
 <link rel="canonical" href="https://ninanoo.com/pages/auth.html"/>
 <link rel="icon" type="image/svg+xml" href="/images/favicon.svg"/>
 <link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
@@ -57,44 +57,30 @@
 </header>
 
 <main class="flex-1 py-12 px-4 sm:px-6">
-  <section class="max-w-3xl mx-auto">
+  <section class="max-w-xl mx-auto">
     <div class="rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-xl">
-      <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white">회원가입 / 로그인</h1>
+      <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white">로그인</h1>
       <p id="auth-page-status" class="mt-3 text-sm text-slate-600 dark:text-slate-300">이메일 또는 Google로 로그인하세요.</p>
-      <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Supabase 설정값은 `meta[name="supabase-url"]`, `meta[name="supabase-anon-key"]`에 입력하세요.</p>
 
       <div id="auth-page-signin-actions" class="mt-5 space-y-3">
         <input id="auth-page-email" type="email" autocomplete="email" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm" placeholder="이메일"/>
-        <input id="auth-page-password" type="password" autocomplete="current-password" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm" placeholder="비밀번호 (6자 이상)"/>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button id="auth-page-signup-btn" type="button" class="rounded-xl bg-gradient-to-r from-brand-purple to-brand-pink px-4 py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity">이메일 회원가입</button>
-          <button id="auth-page-signin-btn" type="button" class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold hover:border-brand-purple hover:text-brand-purple transition-colors">이메일 로그인</button>
-        </div>
+        <input id="auth-page-password" type="password" autocomplete="current-password" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm" placeholder="비밀번호"/>
+        <button id="auth-page-signin-btn" type="button" class="w-full rounded-xl bg-gradient-to-r from-brand-purple to-brand-pink px-4 py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity">이메일 로그인</button>
         <button id="auth-page-google-btn" type="button" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold hover:border-brand-purple hover:text-brand-purple transition-colors">Google로 로그인</button>
       </div>
 
-      <button id="auth-page-signout-btn" type="button" class="mt-4 hidden w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold hover:border-rose-400 hover:text-rose-500 transition-colors">로그아웃</button>
-
-      <div id="auth-page-profile-form" class="mt-6 hidden space-y-3">
-        <h2 class="text-lg font-bold text-slate-900 dark:text-white">프로필 설정</h2>
-        <select id="auth-page-goal" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm">
-          <option value="">식단 목표 선택</option>
-          <option value="maintain">유지</option>
-          <option value="diet">감량</option>
-          <option value="bulk">증량</option>
-          <option value="health">건강관리</option>
-        </select>
-        <input id="auth-page-allergies" type="text" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm" placeholder="알레르기(쉼표 구분)"/>
-        <input id="auth-page-dislikes" type="text" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm" placeholder="기피 재료(쉼표 구분)"/>
-        <input id="auth-page-categories" type="text" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm" placeholder="선호 카테고리(쉼표 구분)"/>
-        <button id="auth-page-save-btn" type="button" class="w-full rounded-xl bg-gradient-to-r from-brand-purple to-brand-pink px-4 py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity">프로필 저장</button>
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <a href="/pages/signup.html" class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-center text-sm font-semibold hover:border-brand-purple hover:text-brand-purple transition-colors">회원가입 하러가기</a>
+        <a id="auth-page-mypage-link" href="/pages/mypage.html" class="hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-center text-sm font-semibold hover:border-brand-purple hover:text-brand-purple transition-colors">마이페이지</a>
       </div>
+
+      <button id="auth-page-signout-btn" type="button" class="mt-4 hidden w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold hover:border-rose-400 hover:text-rose-500 transition-colors">로그아웃</button>
     </div>
   </section>
 </main>
 
 <div id="site-footer" data-footer-current="auth"></div>
 <script defer src="/js/footer-loader.js"></script>
-<script defer src="/js/auth-page.js?v=20260218a"></script>
+<script defer src="/js/auth-page.js?v=20260218b"></script>
 </body>
 </html>

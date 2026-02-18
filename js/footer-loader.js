@@ -12,6 +12,8 @@
     terms: '/pages/terms.html',
     refund: '/pages/refund.html',
     auth: '/pages/auth.html',
+    signup: '/pages/signup.html',
+    mypage: '/pages/mypage.html',
     cookies: '/pages/cookies.html',
     contact: '/pages/contact.html',
     faq: '/pages/faq.html',

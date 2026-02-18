@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>회원가입 - MenuRec</title>
+<meta name="description" content="MenuRec 회원가입 페이지입니다. 이메일 회원가입 또는 Google 계정 가입을 지원합니다."/>
+<link rel="canonical" href="https://ninanoo.com/pages/signup.html"/>
+<link rel="icon" type="image/svg+xml" href="/images/favicon.svg"/>
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+<meta name="supabase-url" content="https://rtiovpipptydylhxggdw.supabase.co"/>
+<meta name="supabase-anon-key" content="sb_publishable_ocqHzGIAU7JkNAalx-7ynw_CZZa3ZTQ"/>
+<script src="/js/footer-tailwind-safelist.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'Plus Jakarta Sans', 'sans-serif'] },
+        colors: {
+          brand: {
+            purple: '#8b5cf6',
+            pink: '#ec4899',
+            light: '#f8fafc',
+            dark: '#1f2937',
+            cardDark: '#374151'
+          }
+        }
+      }
+    }
+  };
+</script>
+<script>
+  (function () {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved ? saved === 'dark' : prefersDark;
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  })();
+</script>
+</head>
+<body class="bg-brand-light dark:bg-brand-dark min-h-screen flex flex-col text-slate-800 dark:text-slate-100">
+<header class="sticky top-0 z-40 bg-white/80 dark:bg-brand-cardDark/85 backdrop-blur-md border-b border-slate-100 dark:border-slate-700">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <a class="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-brand-purple transition-colors font-medium" href="/pages/auth.html">
+      <span class="material-symbols-outlined text-xl">arrow_back</span>
+      <span>로그인으로 돌아가기</span>
+    </a>
+    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-purple to-brand-pink">MenuRec Sign Up</span>
+  </div>
+</header>
+
+<main class="flex-1 py-12 px-4 sm:px-6">
+  <section class="max-w-xl mx-auto">
+    <div class="rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-xl">
+      <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white">회원가입</h1>
+      <p id="signup-page-status" class="mt-3 text-sm text-slate-600 dark:text-slate-300">이메일로 계정을 생성하세요.</p>
+
+      <div class="mt-5 space-y-3">
+        <input id="signup-page-email" type="email" autocomplete="email" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm" placeholder="이메일"/>
+        <input id="signup-page-password" type="password" autocomplete="new-password" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm" placeholder="비밀번호 (6자 이상)"/>
+        <input id="signup-page-password-confirm" type="password" autocomplete="new-password" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm" placeholder="비밀번호 확인"/>
+        <button id="signup-page-submit-btn" type="button" class="w-full rounded-xl bg-gradient-to-r from-brand-purple to-brand-pink px-4 py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity">이메일 회원가입</button>
+        <button id="signup-page-google-btn" type="button" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold hover:border-brand-purple hover:text-brand-purple transition-colors">Google로 가입</button>
+      </div>
+
+      <a href="/pages/auth.html" class="mt-4 block rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-center text-sm font-semibold hover:border-brand-purple hover:text-brand-purple transition-colors">이미 계정이 있어요 (로그인)</a>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer" data-footer-current="auth"></div>
+<script defer src="/js/footer-loader.js"></script>
+<script defer src="/js/signup-page.js?v=20260218a"></script>
+</body>
+</html>

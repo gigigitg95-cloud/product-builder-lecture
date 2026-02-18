@@ -128,6 +128,8 @@
 - Cloudflare Worker 기반 결제 API/웹훅/조건부 자동환불/프리미엄 리포트 생성/재전송 구조 지원
 
 ### 18. 회원가입/로그인 (Supabase Auth)
+- 사이드바 하단(언어 선택 상단) 로그인 버튼 제공, 로그인 시 회원 아이디/마이페이지 링크로 전환
+- 로그인 페이지(`auth`)와 회원가입 페이지(`signup`)를 분리해 가입/로그인 흐름 분리
 - 이메일 회원가입/로그인 및 Google OAuth 로그인 지원
 - 사용자별 프로필(목표/알레르기/기피 재료/선호 카테고리) 저장/조회 지원
 - Supabase RLS 정책으로 본인 프로필만 접근 가능
@@ -168,6 +170,9 @@
 | 제휴 문의 | `/pages/contact.html` | 제휴 문의 접수 및 결제 화면 진입 |
 | 리포트 입력 | `/pages/report-intake.html` | 결제 전 개인화 정보 입력 |
 | 결제 | `/pages/payment.html` | 입력 정보 확인, Polar Checkout 진입, 결제 결과/공유/저장 |
+| 로그인 | `/pages/auth.html` | 이메일/Google 로그인, 회원가입 페이지 이동 |
+| 회원가입 | `/pages/signup.html` | 이메일/Google 회원가입 전용 페이지 |
+| 마이페이지 | `/pages/mypage.html` | 로그인 회원 아이디 확인 및 프로필 저장/조회 |
 | 리포트 결과 | `/pages/report-result.html` | 결제 완료 후 OpenAI 리포트 즉시 확인/공유/저장/재전송 |
 
 ---
@@ -232,7 +237,7 @@
 ├── 404.html                 # 404 에러 페이지
 ├── pages
 │   ├── about.html               # 서비스 소개
-│   ├── auth.html                # Supabase 기반 회원가입/로그인/프로필
+│   ├── auth.html                # Supabase 기반 로그인 페이지
 │   ├── bulletin.html            # 커뮤니티 게시판 include
 │   ├── contact.html             # 제휴 문의 페이지
 │   ├── cookies.html             # 쿠키 정책
@@ -240,11 +245,13 @@
 │   ├── footer.html              # 공통 Footer 템플릿
 │   ├── guide.html               # 음식 가이드
 │   ├── help.html                # 도움말 센터
+│   ├── mypage.html              # 로그인 회원 프로필 관리 페이지
 │   ├── payment.html             # Polar 결제 화면
 │   ├── privacy.html             # 개인정보처리방침
 │   ├── refund.html              # 환불 정책
 │   ├── report-intake.html       # 결제 전 프리미엄 리포트 입력
 │   ├── report-result.html       # 결제 후 프리미엄 리포트 결과 확인
+│   ├── signup.html              # Supabase 기반 회원가입 페이지
 │   └── terms.html               # 이용약관
 ├── css
 │   ├── 404.css                  # 404 페이지 스타일
@@ -265,15 +272,17 @@
 │   │   └── terms.json               # 이용약관 구조화 데이터
 │   ├── 404.js                   # 404 페이지 스크립트
 │   ├── app.js                   # 메인 앱 로직 (추천/슬롯/공유/게시판/테마)
-│   ├── auth-page.js             # 회원 인증 페이지 로직
+│   ├── auth-page.js             # 로그인 페이지 로직
 │   ├── contact-polar-checkout.js # 제휴 문의 페이지 즉시 Polar checkout 연동
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
 │   ├── footer-loader.js         # 공통 Footer 로더
 │   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
+│   ├── mypage.js                # 마이페이지 프로필 저장/조회/로그아웃 로직
 │   ├── polar-worker-checkout.js # 결제 버튼/결제결과/진행상태/리포트 재전송 연동
 │   ├── premium-report-intake.js # 리포트 입력 저장/결제 페이지 전달
 │   ├── privacy.js               # 개인정보처리방침 스크립트
 │   ├── report-result.js         # 결제 후 리포트 결과(공유/PDF 저장/이메일 발송 + 실행 대시보드/체크 UI) 로직
+│   ├── signup-page.js           # 회원가입 페이지 로직
 │   ├── terms.js                 # 이용약관 스크립트
 │   └── translations.js          # 18개 언어 번역 데이터
 ├── workers
@@ -314,13 +323,15 @@
 ## 업데이트 기록
 
 <details>
-<summary><strong>2026-02-18</strong> - Supabase 회원가입/로그인 구현</summary>
+<summary><strong>2026-02-18</strong> - Supabase 회원가입/로그인 구현 + 사이드바 로그인/마이페이지 연동</summary>
 
 **요약**
 - `pages/auth.html`을 Supabase Auth 기반 화면으로 개편하고 이메일 회원가입/로그인 + Google OAuth 버튼을 추가.
 - `js/auth-page.js`를 Supabase 클라이언트 로직으로 교체해 세션 처리와 프로필 저장/조회 기능을 연동.
 - `supabase/migrations/20260218090000_create_user_profiles.sql`에 `user_profiles` 테이블, RLS 정책, 신규 유저 프로필 자동 생성 트리거를 추가.
 - `docs/supabase-auth-setup.md`에 `supabase link`, `supabase db push` 포함 배포 절차를 문서화.
+- `index.html`, `js/app.js`에 사이드바 로그인 CTA를 추가해 로그인 전에는 `로그인`, 로그인 후에는 `회원 아이디 -> 마이페이지`로 전환되도록 반영.
+- `pages/signup.html`, `js/signup-page.js`를 추가해 회원가입 전용 페이지를 분리하고, `pages/mypage.html`, `js/mypage.js`를 추가해 회원 정보 확인/수정 페이지를 구현.
 
 </details>
 
@@ -619,6 +630,15 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
+M	index.html
+M	js/app.js
+M	js/auth-page.js
+M	js/footer-loader.js
+A	js/mypage.js
+A	js/signup-page.js
+M	pages/auth.html
+A	pages/mypage.html
+A	pages/signup.html
 ```
 
 <!-- README:AUTO-END -->

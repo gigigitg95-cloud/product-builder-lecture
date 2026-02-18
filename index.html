@@ -45,6 +45,8 @@
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     <link rel="apple-touch-icon" href="/images/favicon.svg">
+    <meta name="supabase-url" content="https://rtiovpipptydylhxggdw.supabase.co">
+    <meta name="supabase-anon-key" content="sb_publishable_ocqHzGIAU7JkNAalx-7ynw_CZZa3ZTQ">
 
     <!-- Preconnect for Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -107,6 +109,7 @@
     <!-- Firebase SDK -->
     <script defer src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- Google AdSense -->
     <meta name="google-adsense-account" content="ca-pub-7066264300961815">
@@ -354,6 +357,10 @@
 
             <!-- Footer: Language + Theme -->
             <div class="p-4 border-t border-gray-200 dark:border-gray-700 sidebar-footer">
+                <a id="sidebar-auth-link" class="sidebar-nav-item mb-3 flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group w-full text-left transition-colors" href="/pages/auth.html" title="로그인">
+                    <span class="material-icons-outlined text-[20px]" id="sidebar-auth-icon">login</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-auth-label">로그인</span>
+                </a>
                 <div id="sidebar-controls" class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-2 w-full">
                         <div class="language-selector relative flex-1">
@@ -467,6 +474,12 @@
                             </div>
                             <div id="mobile-language-list" class="max-h-48 overflow-y-auto space-y-0.5"></div>
                         </div>
+                    </div>
+                    <div class="px-4 pb-2">
+                        <a id="mobile-sidebar-auth-link" class="mobile-nav-btn flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-left" href="/pages/auth.html" onclick="document.getElementById('mobile-sidebar').style.display='none';">
+                            <span class="material-icons-outlined" id="mobile-sidebar-auth-icon">login</span>
+                            <span id="mobile-sidebar-auth-label">로그인</span>
+                        </a>
                     </div>
                     <!-- Controls -->
                     <div class="p-4 flex items-center justify-between gap-2">

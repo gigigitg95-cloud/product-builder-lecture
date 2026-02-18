@@ -1247,6 +1247,90 @@ function initMemberAuth() {
     });
 }
 
+let sidebarSupabaseClient = null;
+let sidebarSupabaseUser = null;
+
+function getSupabaseClientConfig() {
+    const urlMeta = document.querySelector('meta[name="supabase-url"]');
+    const keyMeta = document.querySelector('meta[name="supabase-anon-key"]');
+    const publishableMeta = document.querySelector('meta[name="supabase-publishable-key"]');
+
+    const url = (window.SUPABASE_URL || urlMeta?.content || '').trim();
+    const anonKey = (window.SUPABASE_ANON_KEY || keyMeta?.content || publishableMeta?.content || '').trim();
+
+    return { url, anonKey };
+}
+
+function getSidebarAuthCopy() {
+    if (currentLanguage === 'Korean') {
+        return { login: '로그인', mypage: '마이페이지' };
+    }
+    return { login: 'Log In', mypage: 'My Page' };
+}
+
+function getMemberIdText(user) {
+    const email = user?.email || '';
+    if (!email) return user?.id || 'member';
+    const localPart = email.split('@')[0] || '';
+    return localPart || email;
+}
+
+function updateSidebarAuthCta(user = sidebarSupabaseUser) {
+    const desktopLink = document.getElementById('sidebar-auth-link');
+    const desktopLabel = document.getElementById('sidebar-auth-label');
+    const desktopIcon = document.getElementById('sidebar-auth-icon');
+    const mobileLink = document.getElementById('mobile-sidebar-auth-link');
+    const mobileLabel = document.getElementById('mobile-sidebar-auth-label');
+    const mobileIcon = document.getElementById('mobile-sidebar-auth-icon');
+
+    const copy = getSidebarAuthCopy();
+    const signedIn = !!user;
+    const label = signedIn ? getMemberIdText(user) : copy.login;
+    const href = signedIn ? '/pages/mypage.html' : '/pages/auth.html';
+    const title = signedIn ? copy.mypage : copy.login;
+    const icon = signedIn ? 'person' : 'login';
+
+    if (desktopLink) {
+        desktopLink.href = href;
+        desktopLink.title = title;
+    }
+    if (mobileLink) mobileLink.href = href;
+    if (desktopLabel) desktopLabel.textContent = label;
+    if (mobileLabel) mobileLabel.textContent = label;
+    if (desktopIcon) desktopIcon.textContent = icon;
+    if (mobileIcon) mobileIcon.textContent = icon;
+}
+
+async function initSidebarAuth() {
+    if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+        updateSidebarAuthCta(null);
+        return;
+    }
+
+    const { url, anonKey } = getSupabaseClientConfig();
+    if (!url || !anonKey) {
+        updateSidebarAuthCta(null);
+        return;
+    }
+
+    sidebarSupabaseClient = window.supabase.createClient(url, anonKey, {
+        auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: true
+        }
+    });
+
+    const { data } = await sidebarSupabaseClient.auth.getUser();
+    sidebarSupabaseUser = data?.user || null;
+    updateSidebarAuthCta(sidebarSupabaseUser);
+
+    sidebarSupabaseClient.auth.onAuthStateChange((_event, session) => {
+        sidebarSupabaseUser = session?.user || null;
+        updateSidebarAuthCta(sidebarSupabaseUser);
+    });
+}
+
 // Bulletin Board functionality
 let bulletinForm = null;
 let bulletinNickname = null;
@@ -2981,25 +3065,25 @@ const sidebarData = {
         slot: 'Slot Machine', recommend: "Today's Pick", bulletin: 'Community Board',
         discover: 'Discover', situation: 'By Situation', seasonal: 'Seasonal / Weather',
         popular: 'Popular Top 10', delivery: 'Delivery Guide',
-        tools: 'Tools', calorie: 'Calorie Guide', faq: 'FAQ', planner: 'Meal Planner', contact: 'Partnership'
+        tools: 'Tools', calorie: 'Calorie Guide', faq: 'FAQ', planner: 'Meal Planner', contact: 'Partnership', authLogin: 'Log In'
     },
     'Korean': {
         slot: '슬롯머신', recommend: '오늘의 추천 메뉴', bulletin: '커뮤니티 게시판',
         discover: 'Discover', situation: '상황별 추천', seasonal: '계절/날씨별 메뉴',
         popular: '인기 메뉴 Top 10', delivery: '배달 메뉴 가이드',
-        tools: 'Tools', calorie: '칼로리 가이드', faq: '자주 묻는 질문', planner: '식단 짜기', contact: '제휴 문의'
+        tools: 'Tools', calorie: '칼로리 가이드', faq: '자주 묻는 질문', planner: '식단 짜기', contact: '제휴 문의', authLogin: '로그인'
     },
     'Japanese': {
         slot: 'スロットマシン', recommend: '今日のおすすめ', bulletin: 'コミュニティ掲示板',
         discover: 'Discover', situation: 'シーン別おすすめ', seasonal: '季節・天気別メニュー',
         popular: '人気メニューTop 10', delivery: 'デリバリーガイド',
-        tools: 'Tools', calorie: 'カロリーガイド', faq: 'よくある質問', planner: '食事プラン', contact: '提携お問い合わせ'
+        tools: 'Tools', calorie: 'カロリーガイド', faq: 'よくある質問', planner: '食事プラン', contact: '提携お問い合わせ', authLogin: 'ログイン'
     },
     'Mandarin Chinese': {
         slot: '老虎机', recommend: '今日推荐', bulletin: '社区留言板',
         discover: 'Discover', situation: '场景推荐', seasonal: '季节/天气菜单',
         popular: '热门菜单 Top 10', delivery: '外卖指南',
-        tools: 'Tools', calorie: '卡路里指南', faq: '常见问题', planner: '饮食计划', contact: '合作咨询'
+        tools: 'Tools', calorie: '卡路里指南', faq: '常见问题', planner: '饮食计划', contact: '合作咨询', authLogin: '登录'
     }
 };
 
@@ -3012,6 +3096,14 @@ function updateSidebarTranslations() {
         const mobile = document.getElementById('mobile-sidebar-' + key);
         if (mobile) mobile.textContent = lang[key];
     });
+    if (!sidebarSupabaseUser) {
+        const desktopAuthLabel = document.getElementById('sidebar-auth-label');
+        const mobileAuthLabel = document.getElementById('mobile-sidebar-auth-label');
+        if (desktopAuthLabel) desktopAuthLabel.textContent = lang.authLogin || 'Log In';
+        if (mobileAuthLabel) mobileAuthLabel.textContent = lang.authLogin || 'Log In';
+    } else {
+        updateSidebarAuthCta(sidebarSupabaseUser);
+    }
 }
 
 // ============ GAME TAB TRANSLATIONS ============
@@ -3186,6 +3278,7 @@ async function loadBulletinInclude() {
     await initLanguageSelector();
 
     initMemberAuth();
+    await initSidebarAuth();
     initShareButtons();
     await loadBulletinInclude();
 })();
