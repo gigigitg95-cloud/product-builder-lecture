@@ -47,8 +47,14 @@
       return;
     }
 
+    const identities = Array.isArray(data?.user?.identities) ? data.user.identities : [];
+    if (data?.user && identities.length === 0) {
+      setStatus("이미 가입된 이메일입니다. 로그인 페이지에서 로그인하거나 비밀번호 재설정을 이용하세요.");
+      return;
+    }
+
     if (!data.session) {
-      setStatus("회원가입 완료. 이메일 인증 후 로그인하세요.");
+      setStatus("회원가입 완료. 인증 이메일을 발송했습니다. 메일함/스팸함에서 확인 후 인증을 완료하세요.");
       return;
     }
 

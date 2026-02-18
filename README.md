@@ -140,6 +140,7 @@
 - Supabase URL/키는 HTML 하드코딩 대신 Cloudflare Worker `/runtime-config`를 통해 런타임 주입
 - Worker CORS에 `authorization` 헤더를 허용해 회원 탈퇴 API 호출 브라우저 preflight를 지원
 - 런타임 설정/사이드바 인증 스크립트 캐시버스터를 갱신해 로그인 상태 반영 지연을 방지
+- 회원가입 시 인증 메일 발송/중복 가입 여부를 사용자 상태 메시지로 명확히 안내
 - 운영 시 민감/임시 텍스트 파일은 저장소에 두지 않고 Worker Secret/환경변수로 관리
 
 ---
@@ -285,13 +286,13 @@
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
 │   ├── footer-loader.js         # 공통 Footer 로더
 │   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
-│   ├── mypage.js                # 마이페이지 프로필 저장/내정보/비밀번호 재설정/회원 탈퇴 로직(상세 에러 표시 포함)
+│   ├── mypage.js                # 마이페이지 프로필 저장/내정보/비밀번호 재설정/회원 탈퇴 로직(상세 에러/탈퇴 API 처리)
 │   ├── polar-worker-checkout.js # 결제 버튼/결제결과/진행상태/리포트 재전송 연동
 │   ├── premium-report-intake.js # 리포트 입력 저장/결제 페이지 전달
 │   ├── privacy.js               # 개인정보처리방침 스크립트
 │   ├── report-result.js         # 결제 후 리포트 결과(공유/PDF 저장/이메일 발송 + 실행 대시보드/체크 UI) 로직
 │   ├── runtime-config.js        # Worker 런타임 설정(SUPABASE_URL/ANON_KEY) 로더
-│   ├── signup-page.js           # 회원가입 페이지 로직(이메일 가입 전용)
+│   ├── signup-page.js           # 회원가입 페이지 로직(인증메일/중복 가입 안내 포함)
 │   ├── terms.js                 # 이용약관 스크립트
 │   └── translations.js          # 18개 언어 번역 데이터
 ├── workers
@@ -649,6 +650,8 @@
 M	README.md
 M	index.html
 M	js/mypage.js
+M	js/runtime-config.js
+M	js/signup-page.js
 M	pages/auth.html
 M	pages/mypage.html
 M	pages/signup.html

@@ -245,7 +245,6 @@
 
   function bindEvents() {
     document.getElementById("mypage-save-btn")?.addEventListener("click", saveProfile);
-    document.getElementById("mypage-signout-btn")?.addEventListener("click", signOut);
     document.getElementById("mypage-reset-password-btn")?.addEventListener("click", sendPasswordResetEmail);
     document.getElementById("mypage-delete-account-btn")?.addEventListener("click", deleteAccount);
   }

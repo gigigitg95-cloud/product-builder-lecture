@@ -16,6 +16,11 @@
     }
 
     var host = String(global.location && global.location.hostname ? global.location.hostname : "");
+    if (host === "ninanoo.com" || host === "www.ninanoo.com") {
+      add("https://api.ninanoo.com/runtime-config");
+      return urls;
+    }
+
     if (host === "localhost" || host === "127.0.0.1") {
       add("http://127.0.0.1:8787/runtime-config");
     }
