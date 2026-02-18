@@ -176,7 +176,7 @@
       let detail = "";
       try {
         const payload = response ? await response.json() : null;
-        detail = payload?.error || "";
+        detail = [payload?.error, payload?.detail].filter(Boolean).join(" | ");
       } catch {
         detail = "";
       }

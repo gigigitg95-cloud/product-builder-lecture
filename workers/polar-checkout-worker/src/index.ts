@@ -876,7 +876,7 @@ async function deleteAccount(request: Request, env: Env): Promise<Response> {
   const authDeleteRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
     method: "DELETE",
     headers: {
-      apikey: serviceRoleKey,
+      apikey: supabaseAnonKey,
       authorization: `Bearer ${serviceRoleKey}`,
       "content-type": "application/json",
     },

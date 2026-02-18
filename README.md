@@ -139,6 +139,7 @@
 - Supabase RLS 정책으로 본인 프로필만 접근 가능
 - Supabase URL/키는 HTML 하드코딩 대신 Cloudflare Worker `/runtime-config`를 통해 런타임 주입
 - Worker CORS에 `authorization` 헤더를 허용해 회원 탈퇴 API 호출 브라우저 preflight를 지원
+- 런타임 설정/사이드바 인증 스크립트 캐시버스터를 갱신해 로그인 상태 반영 지연을 방지
 - 운영 시 민감/임시 텍스트 파일은 저장소에 두지 않고 Worker Secret/환경변수로 관리
 
 ---
@@ -284,7 +285,7 @@
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
 │   ├── footer-loader.js         # 공통 Footer 로더
 │   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
-│   ├── mypage.js                # 마이페이지 프로필 저장/내정보/비밀번호 재설정/회원 탈퇴 로직
+│   ├── mypage.js                # 마이페이지 프로필 저장/내정보/비밀번호 재설정/회원 탈퇴 로직(상세 에러 표시 포함)
 │   ├── polar-worker-checkout.js # 결제 버튼/결제결과/진행상태/리포트 재전송 연동
 │   ├── premium-report-intake.js # 리포트 입력 저장/결제 페이지 전달
 │   ├── privacy.js               # 개인정보처리방침 스크립트
@@ -296,7 +297,7 @@
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
-│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config/delete-account API (+ auth header CORS/탈퇴 보강)
+│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config/delete-account API (+ auth header/CORS/탈퇴 보강)
 │       ├── .gitignore               # Worker 로컬 산출물 제외
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
@@ -647,7 +648,10 @@
 ```text
 M	README.md
 M	index.html
-M	js/app.js
+M	js/mypage.js
+M	pages/auth.html
+M	pages/mypage.html
+M	pages/signup.html
 M	workers/polar-checkout-worker/src/index.ts
 ```
 
