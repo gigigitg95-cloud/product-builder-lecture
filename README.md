@@ -314,15 +314,18 @@
 ## 업데이트 기록
 
 <details>
-<summary><strong>2026-02-18</strong> - Supabase 회원가입/로그인 구현 외 3건</summary>
-
-#### Supabase 회원가입/로그인 구현
+<summary><strong>2026-02-18</strong> - Supabase 회원가입/로그인 구현</summary>
 
 **요약**
 - `pages/auth.html`을 Supabase Auth 기반 화면으로 개편하고 이메일 회원가입/로그인 + Google OAuth 버튼을 추가.
 - `js/auth-page.js`를 Supabase 클라이언트 로직으로 교체해 세션 처리와 프로필 저장/조회 기능을 연동.
 - `supabase/migrations/20260218090000_create_user_profiles.sql`에 `user_profiles` 테이블, RLS 정책, 신규 유저 프로필 자동 생성 트리거를 추가.
 - `docs/supabase-auth-setup.md`에 `supabase link`, `supabase db push` 포함 배포 절차를 문서화.
+
+</details>
+
+<details>
+<summary><strong>2026-02-17</strong> - 리포트 결과 PDF 저장 + 즉시 이메일 발송 외 2건</summary>
 
 #### 리포트 결과 PDF 저장 + 즉시 이메일 발송
 
