@@ -38,10 +38,18 @@ npx supabase db push
 Supabase Dashboard -> Authentication에서 아래를 설정합니다.
 
 1. `Email` 활성화
-2. `Google` 활성화 (선택)
-3. Redirect URL 추가
-   - `http://localhost:xxxx/pages/auth.html` (로컬 개발 주소)
-   - `https://ninanoo.com/pages/auth.html` (운영 주소)
+2. `Google` 활성화
+3. URL Configuration
+   - Site URL: `https://ninanoo.com`
+   - Redirect URLs:
+     - `http://localhost:xxxx/index.html`
+     - `https://ninanoo.com/index.html`
+4. Google Cloud Console OAuth Client 설정
+   - Authorized JavaScript origins:
+     - `https://ninanoo.com`
+     - `http://localhost:xxxx`
+   - Authorized redirect URIs:
+     - `https://<YOUR_PROJECT_REF>.supabase.co/auth/v1/callback`
 
 ## 5) 프론트엔드 설정값 입력
 
@@ -67,3 +75,4 @@ Supabase Dashboard -> Authentication에서 아래를 설정합니다.
 - 인증 완료 후 이메일 로그인 가능한지
 - Google 로그인 후 `user_profiles` row가 생성되는지
 - 로그인 후 프로필 저장/재조회가 정상 동작하는지
+- Google 로그인 성공 후 `/index.html`로 복귀되는지

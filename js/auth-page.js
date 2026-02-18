@@ -77,7 +77,12 @@
 
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/index.html` },
+      options: {
+        redirectTo: `${window.location.origin}/index.html`,
+        queryParams: {
+          prompt: "select_account",
+        },
+      },
     });
 
     if (error) {

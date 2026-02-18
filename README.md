@@ -132,6 +132,7 @@
 - 로그인 페이지(`auth`)와 회원가입 페이지(`signup`)를 분리해 가입/로그인 흐름 분리
 - 로그인 페이지에서 이메일/Google 로그인 지원, 로그인 성공 시 메인페이지로 복귀
 - 회원가입 페이지는 이메일 회원가입 전용으로 운영
+- Google OAuth는 Supabase Auth + Google Cloud Console Redirect URI(`...supabase.co/auth/v1/callback`) 기준으로 운영
 - 사용자별 프로필(목표/알레르기/기피 재료/선호 카테고리) 저장/조회 지원
 - Supabase RLS 정책으로 본인 프로필만 접근 가능
 
@@ -273,7 +274,7 @@
 │   │   └── terms.json               # 이용약관 구조화 데이터
 │   ├── 404.js                   # 404 페이지 스크립트
 │   ├── app.js                   # 메인 앱 로직 (추천/슬롯/공유/게시판/테마)
-│   ├── auth-page.js             # 로그인 페이지 로직(성공 시 메인 이동)
+│   ├── auth-page.js             # 로그인 페이지 로직(이메일/Google 로그인, 성공 시 메인 이동)
 │   ├── contact-polar-checkout.js # 제휴 문의 페이지 즉시 Polar checkout 연동
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
 │   ├── footer-loader.js         # 공통 Footer 로더
@@ -633,10 +634,8 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	js/app.js
+M	docs/supabase-auth-setup.md
 M	js/auth-page.js
-M	js/signup-page.js
-M	pages/signup.html
 ```
 
 <!-- README:AUTO-END -->
