@@ -137,6 +137,7 @@
 - 마이페이지에서 내 정보 확인, 비밀번호 재설정 메일 발송, 회원 탈퇴 지원
 - Supabase RLS 정책으로 본인 프로필만 접근 가능
 - Supabase URL/키는 HTML 하드코딩 대신 Cloudflare Worker `/runtime-config`를 통해 런타임 주입
+- 운영 시 민감/임시 텍스트 파일은 저장소에 두지 않고 Worker Secret/환경변수로 관리
 
 ---
 
@@ -298,7 +299,7 @@
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
 │       ├── tsconfig.json            # Worker 타입스크립트 설정
-│       └── wrangler.toml            # Worker 라우트/변수 설정(프리미엄 리포트 모델/토큰 변수 포함)
+│       └── wrangler.toml            # Worker 라우트/변수 설정(프리미엄 리포트 모델/토큰 변수 + 런타임 설정 포함)
 ├── docs
 │   ├── cloudflare-workers-polar-setup.md # Workers/Polar 결제 설정 가이드
 │   ├── dom-contract.json        # DOM 계약 정의 파일
@@ -641,11 +642,7 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	docs/cloudflare-workers-polar-setup.md
-M	js/mypage.js
-M	js/runtime-config.js
-M	pages/mypage.html
-M	workers/polar-checkout-worker/src/index.ts
+D	polar.txt
 ```
 
 <!-- README:AUTO-END -->
