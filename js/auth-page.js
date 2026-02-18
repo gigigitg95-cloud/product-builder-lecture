@@ -67,7 +67,9 @@
     if (error) {
       console.error("Sign-in failed", error);
       setText("auth-page-status", `로그인 실패: ${error.message}`);
+      return;
     }
+    window.location.href = "/index.html";
   }
 
   async function signInWithGoogle() {
@@ -75,7 +77,7 @@
 
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/pages/auth.html` },
+      options: { redirectTo: `${window.location.origin}/index.html` },
     });
 
     if (error) {

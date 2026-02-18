@@ -58,18 +58,6 @@
     window.location.href = "/pages/mypage.html";
   }
 
-  async function signUpWithGoogle() {
-    if (!supabaseClient) return;
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/pages/mypage.html` },
-    });
-    if (error) {
-      console.error("Google sign-up failed", error);
-      setStatus(`Google 가입 실패: ${error.message}`);
-    }
-  }
-
   function initSupabase() {
     if (!window.supabase || typeof window.supabase.createClient !== "function") {
       setStatus("Supabase SDK를 불러오지 못했습니다.");
@@ -93,7 +81,6 @@
 
   function bindEvents() {
     document.getElementById("signup-page-submit-btn")?.addEventListener("click", signUpWithEmail);
-    document.getElementById("signup-page-google-btn")?.addEventListener("click", signUpWithGoogle);
   }
 
   document.addEventListener("DOMContentLoaded", () => {

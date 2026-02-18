@@ -1268,13 +1268,6 @@ function getSidebarAuthCopy() {
     return { login: 'Log In', mypage: 'My Page' };
 }
 
-function getMemberIdText(user) {
-    const email = user?.email || '';
-    if (!email) return user?.id || 'member';
-    const localPart = email.split('@')[0] || '';
-    return localPart || email;
-}
-
 function updateSidebarAuthCta(user = sidebarSupabaseUser) {
     const desktopLink = document.getElementById('sidebar-auth-link');
     const desktopLabel = document.getElementById('sidebar-auth-label');
@@ -1285,7 +1278,7 @@ function updateSidebarAuthCta(user = sidebarSupabaseUser) {
 
     const copy = getSidebarAuthCopy();
     const signedIn = !!user;
-    const label = signedIn ? getMemberIdText(user) : copy.login;
+    const label = signedIn ? copy.mypage : copy.login;
     const href = signedIn ? '/pages/mypage.html' : '/pages/auth.html';
     const title = signedIn ? copy.mypage : copy.login;
     const icon = signedIn ? 'person' : 'login';
