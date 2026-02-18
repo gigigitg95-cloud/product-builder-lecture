@@ -129,6 +129,7 @@
 
 ### 18. 회원가입/로그인 (Supabase Auth)
 - 사이드바 하단(언어 선택 상단) 로그인 버튼 제공, 로그인 상태에서는 `마이페이지` 버튼으로 전환
+- 로그인 상태에서 사이드바(데스크톱/모바일)에 `로그아웃` 버튼을 노출하고 즉시 세션 종료 지원
 - 사이드바 로그인/마이페이지 버튼 우측에 로그인 사용자 아이디(`@아이디`) 표시
 - 로그인 페이지(`auth`)와 회원가입 페이지(`signup`)를 분리해 가입/로그인 흐름 분리
 - 로그인 페이지에서 이메일/Google 로그인 지원, 로그인 성공 시 메인페이지로 복귀
@@ -242,7 +243,7 @@
 ## 프로젝트 구조
 
 ```
-├── index.html               # 메인 페이지(사이드바 식단 짜기 진입 포함)
+├── index.html               # 메인 페이지(사이드바 로그인/마이페이지/로그아웃, 식단 짜기 진입 포함)
 ├── 404.html                 # 404 에러 페이지
 ├── pages
 │   ├── about.html               # 서비스 소개
@@ -649,13 +650,7 @@
 ```text
 M	README.md
 M	index.html
-M	js/mypage.js
-M	js/runtime-config.js
-M	js/signup-page.js
-M	pages/auth.html
-M	pages/mypage.html
-M	pages/signup.html
-M	workers/polar-checkout-worker/src/index.ts
+M	js/app.js
 ```
 
 <!-- README:AUTO-END -->

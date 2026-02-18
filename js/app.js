@@ -1249,6 +1249,7 @@ function initMemberAuth() {
 
 let sidebarSupabaseClient = null;
 let sidebarSupabaseUser = null;
+let sidebarAuthUiInitialized = false;
 
 function getSupabaseClientConfig() {
     const url = String(window.SUPABASE_URL || '').trim();
@@ -1259,9 +1260,9 @@ function getSupabaseClientConfig() {
 
 function getSidebarAuthCopy() {
     if (currentLanguage === 'Korean') {
-        return { login: '로그인', mypage: '마이페이지' };
+        return { login: '로그인', mypage: '마이페이지', signOut: '로그아웃' };
     }
-    return { login: 'Log In', mypage: 'My Page' };
+    return { login: 'Log In', mypage: 'My Page', signOut: 'Sign Out' };
 }
 
 function getSidebarMemberId(user) {
@@ -1276,10 +1277,14 @@ function updateSidebarAuthCta(user = sidebarSupabaseUser) {
     const desktopLabel = document.getElementById('sidebar-auth-label');
     const desktopIcon = document.getElementById('sidebar-auth-icon');
     const desktopUserId = document.getElementById('sidebar-auth-userid');
+    const desktopSignOutBtn = document.getElementById('sidebar-signout-btn');
+    const desktopSignOutLabel = desktopSignOutBtn?.querySelector('.sidebar-text');
     const mobileLink = document.getElementById('mobile-sidebar-auth-link');
     const mobileLabel = document.getElementById('mobile-sidebar-auth-label');
     const mobileIcon = document.getElementById('mobile-sidebar-auth-icon');
     const mobileUserId = document.getElementById('mobile-sidebar-auth-userid');
+    const mobileSignOutBtn = document.getElementById('mobile-sidebar-signout-btn');
+    const mobileSignOutLabel = document.getElementById('mobile-sidebar-signout-label');
 
     const copy = getSidebarAuthCopy();
     const signedIn = !!user;
@@ -1306,9 +1311,45 @@ function updateSidebarAuthCta(user = sidebarSupabaseUser) {
         mobileUserId.textContent = memberId ? '@' + memberId : '';
         mobileUserId.classList.toggle('hidden', !memberId);
     }
+    if (desktopSignOutLabel) desktopSignOutLabel.textContent = copy.signOut;
+    if (mobileSignOutLabel) mobileSignOutLabel.textContent = copy.signOut;
+    if (desktopSignOutBtn) desktopSignOutBtn.classList.toggle('hidden', !signedIn);
+    if (mobileSignOutBtn) mobileSignOutBtn.classList.toggle('hidden', !signedIn);
+}
+
+async function signOutSidebarMember() {
+    if (!sidebarSupabaseClient) return;
+    const { error } = await sidebarSupabaseClient.auth.signOut();
+    if (error) {
+        console.error('Sidebar sign-out failed', error);
+        return;
+    }
+
+    sidebarSupabaseUser = null;
+    updateSidebarAuthCta(null);
+
+    const mobileSidebar = document.getElementById('mobile-sidebar');
+    if (mobileSidebar) mobileSidebar.style.display = 'none';
+}
+
+function bindSidebarAuthEvents() {
+    if (sidebarAuthUiInitialized) return;
+    sidebarAuthUiInitialized = true;
+
+    const onSignOut = (event) => {
+        event.preventDefault();
+        signOutSidebarMember().catch((error) => {
+            console.error('Sidebar sign-out failed', error);
+        });
+    };
+
+    document.getElementById('sidebar-signout-btn')?.addEventListener('click', onSignOut);
+    document.getElementById('mobile-sidebar-signout-btn')?.addEventListener('click', onSignOut);
 }
 
 async function initSidebarAuth() {
+    bindSidebarAuthEvents();
+
     if (window.__runtimeConfigReady && typeof window.__runtimeConfigReady.then === 'function') {
         await window.__runtimeConfigReady.catch(() => null);
     }
