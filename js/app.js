@@ -1264,17 +1264,27 @@ function getSidebarAuthCopy() {
     return { login: 'Log In', mypage: 'My Page' };
 }
 
+function getSidebarMemberId(user) {
+    const email = String(user?.email || '').trim();
+    if (email && email.includes('@')) return email.split('@')[0];
+    if (email) return email;
+    return String(user?.id || '').slice(0, 8);
+}
+
 function updateSidebarAuthCta(user = sidebarSupabaseUser) {
     const desktopLink = document.getElementById('sidebar-auth-link');
     const desktopLabel = document.getElementById('sidebar-auth-label');
     const desktopIcon = document.getElementById('sidebar-auth-icon');
+    const desktopUserId = document.getElementById('sidebar-auth-userid');
     const mobileLink = document.getElementById('mobile-sidebar-auth-link');
     const mobileLabel = document.getElementById('mobile-sidebar-auth-label');
     const mobileIcon = document.getElementById('mobile-sidebar-auth-icon');
+    const mobileUserId = document.getElementById('mobile-sidebar-auth-userid');
 
     const copy = getSidebarAuthCopy();
     const signedIn = !!user;
     const label = signedIn ? copy.mypage : copy.login;
+    const memberId = signedIn ? getSidebarMemberId(user) : '';
     const href = signedIn ? '/pages/mypage.html' : '/pages/auth.html';
     const title = signedIn ? copy.mypage : copy.login;
     const icon = signedIn ? 'person' : 'login';
@@ -1288,6 +1298,14 @@ function updateSidebarAuthCta(user = sidebarSupabaseUser) {
     if (mobileLabel) mobileLabel.textContent = label;
     if (desktopIcon) desktopIcon.textContent = icon;
     if (mobileIcon) mobileIcon.textContent = icon;
+    if (desktopUserId) {
+        desktopUserId.textContent = memberId ? '@' + memberId : '';
+        desktopUserId.classList.toggle('hidden', !memberId);
+    }
+    if (mobileUserId) {
+        mobileUserId.textContent = memberId ? '@' + memberId : '';
+        mobileUserId.classList.toggle('hidden', !memberId);
+    }
 }
 
 async function initSidebarAuth() {
@@ -1314,13 +1332,29 @@ async function initSidebarAuth() {
         }
     });
 
-    const { data } = await sidebarSupabaseClient.auth.getUser();
-    sidebarSupabaseUser = data?.user || null;
-    updateSidebarAuthCta(sidebarSupabaseUser);
+    const syncSidebarAuthState = async () => {
+        const { data: sessionData } = await sidebarSupabaseClient.auth.getSession();
+        const sessionUser = sessionData?.session?.user || null;
+        if (sessionUser) {
+            sidebarSupabaseUser = sessionUser;
+            updateSidebarAuthCta(sidebarSupabaseUser);
+            return;
+        }
+
+        const { data: userData } = await sidebarSupabaseClient.auth.getUser();
+        sidebarSupabaseUser = userData?.user || null;
+        updateSidebarAuthCta(sidebarSupabaseUser);
+    };
+
+    await syncSidebarAuthState();
 
     sidebarSupabaseClient.auth.onAuthStateChange((_event, session) => {
         sidebarSupabaseUser = session?.user || null;
         updateSidebarAuthCta(sidebarSupabaseUser);
+    });
+
+    window.addEventListener('focus', () => {
+        syncSidebarAuthState().catch(() => null);
     });
 }
 

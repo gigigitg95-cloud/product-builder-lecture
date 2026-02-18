@@ -873,19 +873,6 @@ async function deleteAccount(request: Request, env: Env): Promise<Response> {
     return jsonResponse({ error: "Unable to resolve user id" }, { status: 400, headers: corsHeaders });
   }
 
-  const profileDeleteRes = await fetch(`${supabaseUrl}/rest/v1/user_profiles?id=eq.${encodeURIComponent(userId)}`, {
-    method: "DELETE",
-    headers: {
-      apikey: serviceRoleKey,
-      authorization: `Bearer ${serviceRoleKey}`,
-      prefer: "return=minimal",
-    },
-  });
-  if (!profileDeleteRes.ok) {
-    const detail = await profileDeleteRes.text().catch(() => "");
-    return jsonResponse({ error: "Failed to delete user profile", detail }, { status: 502, headers: corsHeaders });
-  }
-
   const authDeleteRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
     method: "DELETE",
     headers: {
@@ -898,6 +885,17 @@ async function deleteAccount(request: Request, env: Env): Promise<Response> {
     const detail = await authDeleteRes.text().catch(() => "");
     return jsonResponse({ error: "Failed to delete auth user", detail }, { status: 502, headers: corsHeaders });
   }
+
+  // user_profiles has FK (id -> auth.users.id) with ON DELETE CASCADE.
+  // Best-effort cleanup for non-cascading edge cases only.
+  await fetch(`${supabaseUrl}/rest/v1/user_profiles?id=eq.${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+    headers: {
+      apikey: serviceRoleKey,
+      authorization: `Bearer ${serviceRoleKey}`,
+      prefer: "return=minimal",
+    },
+  }).catch(() => null);
 
   return jsonResponse({ success: true }, { status: 200, headers: corsHeaders });
 }

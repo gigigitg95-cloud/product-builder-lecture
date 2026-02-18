@@ -129,6 +129,7 @@
 
 ### 18. 회원가입/로그인 (Supabase Auth)
 - 사이드바 하단(언어 선택 상단) 로그인 버튼 제공, 로그인 상태에서는 `마이페이지` 버튼으로 전환
+- 사이드바 로그인/마이페이지 버튼 우측에 로그인 사용자 아이디(`@아이디`) 표시
 - 로그인 페이지(`auth`)와 회원가입 페이지(`signup`)를 분리해 가입/로그인 흐름 분리
 - 로그인 페이지에서 이메일/Google 로그인 지원, 로그인 성공 시 메인페이지로 복귀
 - 회원가입 페이지는 이메일 회원가입 전용으로 운영
@@ -277,7 +278,7 @@
 │   │   ├── refund.json
 │   │   └── terms.json               # 이용약관 구조화 데이터
 │   ├── 404.js                   # 404 페이지 스크립트
-│   ├── app.js                   # 메인 앱 로직 (추천/슬롯/공유/게시판/테마)
+│   ├── app.js                   # 메인 앱 로직 (추천/슬롯/공유/게시판/테마/사이드바 로그인 상태)
 │   ├── auth-page.js             # 로그인 페이지 로직(이메일/Google 로그인, 성공 시 메인 이동)
 │   ├── contact-polar-checkout.js # 제휴 문의 페이지 즉시 Polar checkout 연동
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
@@ -295,7 +296,7 @@
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
-│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config/delete-account API (+ auth header CORS)
+│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config/delete-account API (+ auth header CORS/탈퇴 보강)
 │       ├── .gitignore               # Worker 로컬 산출물 제외
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
@@ -345,6 +346,8 @@
 - Worker 환경변수(`SUPABASE_URL`, `SUPABASE_ANON_KEY`)와 문서(`supabase-auth-setup`, `cloudflare-workers-polar-setup`)를 동기화.
 - 마이페이지에 `내 정보` 섹션(이메일/로그인 방식/가입일), `비밀번호 재설정` 메일 발송, `회원 탈퇴` 기능을 추가.
 - Worker `POST /delete-account` API를 추가해 토큰 검증 후 `user_profiles` 및 Supabase Auth 유저 삭제를 지원.
+- 사이드바 로그인/마이페이지 CTA 우측에 로그인 사용자 아이디를 함께 표시하도록 UI/상태 갱신 로직을 보강.
+- 회원 탈퇴 시 `user_profiles` 선삭제 실패로 중단되지 않도록 Auth 유저 삭제 우선 + profile best-effort 정리로 안정화.
 
 </details>
 
@@ -643,6 +646,8 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
+M	index.html
+M	js/app.js
 M	workers/polar-checkout-worker/src/index.ts
 ```
 
