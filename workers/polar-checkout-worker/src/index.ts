@@ -838,6 +838,12 @@ async function deleteAccount(request: Request, env: Env): Promise<Response> {
       { status: 500, headers: corsHeaders }
     );
   }
+  if (serviceRoleKey === supabaseAnonKey || serviceRoleKey.startsWith("sb_publishable_")) {
+    return jsonResponse(
+      { error: "Server misconfigured: SUPABASE_SERVICE_ROLE_KEY must be a service role (secret) key, not publishable/anon key" },
+      { status: 500, headers: corsHeaders }
+    );
+  }
 
   let body: DeleteAccountRequest = {};
   try {
@@ -876,7 +882,7 @@ async function deleteAccount(request: Request, env: Env): Promise<Response> {
   const authDeleteRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
     method: "DELETE",
     headers: {
-      apikey: serviceRoleKey,
+      apikey: supabaseAnonKey,
       authorization: `Bearer ${serviceRoleKey}`,
       "content-type": "application/json",
     },
@@ -891,7 +897,7 @@ async function deleteAccount(request: Request, env: Env): Promise<Response> {
   await fetch(`${supabaseUrl}/rest/v1/user_profiles?id=eq.${encodeURIComponent(userId)}`, {
     method: "DELETE",
     headers: {
-      apikey: serviceRoleKey,
+      apikey: supabaseAnonKey,
       authorization: `Bearer ${serviceRoleKey}`,
       prefer: "return=minimal",
     },
