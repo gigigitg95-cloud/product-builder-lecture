@@ -137,6 +137,7 @@
 - 마이페이지에서 내 정보 확인, 비밀번호 재설정 메일 발송, 회원 탈퇴 지원
 - Supabase RLS 정책으로 본인 프로필만 접근 가능
 - Supabase URL/키는 HTML 하드코딩 대신 Cloudflare Worker `/runtime-config`를 통해 런타임 주입
+- Worker CORS에 `authorization` 헤더를 허용해 회원 탈퇴 API 호출 브라우저 preflight를 지원
 - 운영 시 민감/임시 텍스트 파일은 저장소에 두지 않고 Worker Secret/환경변수로 관리
 
 ---
@@ -294,7 +295,7 @@
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
-│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config/delete-account API
+│       │   └── index.ts                 # checkout/status/webhook + preview/resend/runtime-config/delete-account API (+ auth header CORS)
 │       ├── .gitignore               # Worker 로컬 산출물 제외
 │       ├── package-lock.json        # Worker 잠금 파일
 │       ├── package.json             # Worker 의존성/스크립트
@@ -642,7 +643,7 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-D	polar.txt
+M	workers/polar-checkout-worker/src/index.ts
 ```
 
 <!-- README:AUTO-END -->

@@ -167,7 +167,7 @@ function resolveCorsHeaders(origin: string | null, env: Env): HeadersInit {
   return {
     "access-control-allow-origin": allowOrigin,
     "access-control-allow-methods": "GET, POST, OPTIONS",
-    "access-control-allow-headers": "content-type",
+    "access-control-allow-headers": "content-type, authorization",
     "access-control-max-age": "86400",
     vary: "origin",
   };
