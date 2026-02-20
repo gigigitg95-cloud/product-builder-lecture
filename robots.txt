@@ -1,5 +1,5 @@
 # robots.txt for Dinner Menu Recommendation
-# https://product-builder-lecture-8pr.pages.dev/
+# https://ninanoo.com/
 
 # Allow all search engine crawlers
 User-agent: *
@@ -50,4 +50,4 @@ Disallow: /.well-known/
 Disallow: /firebase-debug.log
 
 # Sitemap location
-Sitemap: https://product-builder-lecture-8pr.pages.dev/sitemap.xml
+Sitemap: https://ninanoo.com/sitemap.xml

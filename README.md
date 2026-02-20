@@ -153,6 +153,12 @@
 - 배포/운영 문서(`docs/*`)와 체크리스트(`scripts/deploy-checklist.sh`, `scripts/firebase-deploy-only.sh`)를 보강해 배포 안전성과 인수인계 품질을 강화
 - README 커밋 검증 훅에서 `업데이트 기록` 과거 날짜 항목의 수정/삭제/순서 변경을 차단하고 당일 항목 추가/갱신만 허용하도록 자동화 규칙을 강화
 
+### 20. SEO/도메인 정합성 강화
+- `canonical`, `og:url`, JSON-LD URL을 `https://ninanoo.com` 기준으로 통일
+- `robots.txt`의 사이트맵 경로를 `https://ninanoo.com/sitemap.xml`로 고정
+- `_redirects`에 `https://www.ninanoo.com/* -> https://ninanoo.com/:splat (301)` 규칙을 추가해 도메인 신호를 단일화
+- `sitemap.xml`을 실제 공개 페이지 기준으로 재구성하고 `noindex`/부분 페이지를 제외
+
 ---
 
 ## 다국어 지원 (18개 언어)
@@ -252,7 +258,7 @@
 ## 프로젝트 구조
 
 ```
-├── index.html               # 메인 페이지(사이드바 로그인/마이페이지/로그아웃, 식단 짜기 진입 포함)
+├── index.html               # 메인 페이지(사이드바 로그인/마이페이지/로그아웃, 식단 짜기 진입 + canonical ninanoo.com 반영)
 ├── 404.html                 # 404 에러 페이지
 ├── pages
 │   ├── about.html               # 서비스 소개
@@ -378,6 +384,8 @@
 - `docs/*` 운영 문서(아키텍처, 파일 오너십, 체크리스트, 인수인계)를 대폭 보강하고 배포 스크립트(`scripts/deploy-checklist.sh`, `scripts/firebase-deploy-only.sh`)를 추가.
 - Polar Worker 및 리포트/결제/회원 관련 페이지·스크립트 전반을 최신 플로우 기준으로 동기화.
 - `scripts/validate-readme-for-commit.js`에 과거 날짜 업데이트 기록 불변성 검증을 추가해, 과거 항목 수정/삭제/순서 변경 없이 당일 항목만 작성하도록 커밋 단계에서 자동 강제.
+- `index.html`, `pages/*.html`, `js/ld/*.json`의 `canonical/og:url/구조화 데이터 URL`을 `https://ninanoo.com` 기준으로 정렬.
+- `robots.txt`, `sitemap.xml`, `_redirects`를 운영 도메인 기준으로 재정비하고 `www -> apex` 301 규칙을 추가.
 
 </details>
 
@@ -697,7 +705,23 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	scripts/validate-readme-for-commit.js
+M	_redirects
+M	index.html
+M	js/ld/about.json
+M	js/ld/guide.json
+M	js/ld/index.json
+M	js/ld/privacy.json
+M	js/ld/terms.json
+M	pages/contact.html
+M	pages/cookies.html
+M	pages/faq.html
+M	pages/guide.html
+M	pages/help.html
+M	pages/payment.html
+M	pages/privacy.html
+M	pages/terms.html
+M	robots.txt
+M	sitemap.xml
 ```
 
 <!-- README:AUTO-END -->

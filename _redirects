@@ -1,4 +1,5 @@
 # Cloudflare Pages redirects
+https://www.ninanoo.com/* https://ninanoo.com/:splat 301
 /about.html /pages/about.html 301
 /guide.html /pages/guide.html 301
 /privacy.html /pages/privacy.html 301

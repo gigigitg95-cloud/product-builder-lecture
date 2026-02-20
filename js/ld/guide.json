@@ -7,13 +7,13 @@
                 "@type": "ListItem",
                 "position": 1,
                 "name": "홈",
-                "item": "https://product-builder-lecture-8pr.pages.dev/"
+                "item": "https://ninanoo.com/"
             },
             {
                 "@type": "ListItem",
                 "position": 2,
                 "name": "음식 가이드",
-                "item": "https://product-builder-lecture-8pr.pages.dev/pages/guide.html"
+                "item": "https://ninanoo.com/pages/guide.html"
             }
         ]
     },
@@ -29,7 +29,7 @@
         "publisher": {
             "@type": "Organization",
             "name": "Menu Recommendation",
-            "url": "https://product-builder-lecture-8pr.pages.dev/"
+            "url": "https://ninanoo.com/"
         },
         "datePublished": "2026-02-09",
         "dateModified": "2026-02-09"
