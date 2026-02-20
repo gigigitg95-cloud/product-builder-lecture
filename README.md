@@ -369,7 +369,18 @@
 ## 업데이트 기록
 
 <details>
-<summary><strong>2026-02-20</strong> - Supabase 회원가입/로그인 구현 + 사이드바 로그인/마이페이지 연동</summary>
+<summary><strong>2026-02-20</strong> - 개인화 도구 확장 + 분석/운영 문서 및 배포 체크리스트 정비</summary>
+
+**요약**
+- `food-enhance`, `light-meal-plan`, `profile-styler` 페이지/스크립트를 추가해 개인화 추천 도구를 확장.
+- `js/analytics.js`, `scripts/analytics-smoke-check.sh`를 추가하고 관련 QA 문서를 정비해 이벤트 수집 점검 흐름을 표준화.
+- `docs/*` 운영 문서(아키텍처, 파일 오너십, 체크리스트, 인수인계)를 대폭 보강하고 배포 스크립트(`scripts/deploy-checklist.sh`, `scripts/firebase-deploy-only.sh`)를 추가.
+- Polar Worker 및 리포트/결제/회원 관련 페이지·스크립트 전반을 최신 플로우 기준으로 동기화.
+
+</details>
+
+<details>
+<summary><strong>2026-02-18</strong> - Supabase 회원가입/로그인 구현 + 사이드바 로그인/마이페이지 연동</summary>
 
 **요약**
 - `pages/auth.html`을 Supabase Auth 기반 화면으로 개편하고 이메일 회원가입/로그인 + Google OAuth 버튼을 추가.
@@ -684,57 +695,6 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
-M	css/style.css
-A	docs/ANALYTICS_EVENTS.md
-A	docs/ARCHITECTURE_MAP.md
-A	docs/BACKLOG_FILE_BREAKDOWN.md
-A	docs/EXPERIMENTS.md
-A	docs/FILE_OWNERSHIP.md
-A	docs/HANDOFF_2026-02-18.md
-A	docs/PREMIUM_REPORT_METADATA_MAPPING.md
-A	docs/analytics-qa-checklist.md
-M	docs/cloudflare-workers-polar-setup.md
-A	docs/community-admin-todo.md
-A	docs/community-firestore-ops-checklist.md
-A	docs/firebase-deploy-checklist.md
-A	docs/profile-styler-api.md
-A	docs/profile-sync-qa-checklist.md
-M	firestore.rules
-M	index.html
-A	js/analytics.js
-M	js/app.js
-M	js/auth-page.js
-A	js/faq-page.js
-A	js/feature-flags.js
-A	js/food-enhance.js
-M	js/footer-loader.js
-A	js/light-meal-plan.js
-M	js/mypage.js
-M	js/polar-worker-checkout.js
-M	js/premium-report-intake.js
-A	js/profile-styler.js
-M	js/report-result.js
-M	js/runtime-config.js
-M	js/signup-page.js
-M	js/translations.js
-A	js/user-profile-store.js
-M	pages/auth.html
-M	pages/bulletin.html
-M	pages/faq.html
-A	pages/food-enhance.html
-M	pages/footer.html
-A	pages/light-meal-plan.html
-M	pages/mypage.html
-M	pages/payment.html
-A	pages/profile-styler.html
-M	pages/report-intake.html
-M	pages/report-result.html
-M	pages/signup.html
-A	scripts/analytics-smoke-check.sh
-A	scripts/deploy-checklist.sh
-A	scripts/firebase-deploy-only.sh
-A	scripts/profile-sync-smoke-check.sh
-M	workers/polar-checkout-worker/src/index.ts
 ```
 
 <!-- README:AUTO-END -->
