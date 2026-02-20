@@ -150,6 +150,64 @@ function ensureRequiredSectionsActuallyUpdated(content) {
   }
 }
 
+function getTodayDateString() {
+  const today = new Date();
+  const yyyy = String(today.getFullYear());
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function parseUpdateDetailsEntries(sectionText) {
+  const entries = [];
+  const detailsPattern = /<details>[\s\S]*?<\/details>/gm;
+  const blocks = sectionText.match(detailsPattern) || [];
+
+  for (const block of blocks) {
+    const summaryMatch = block.match(/<summary><strong>(\d{4}-\d{2}-\d{2})<\/strong>\s*-\s*([^<\n]+)<\/summary>/m);
+    if (!summaryMatch) continue;
+    entries.push({
+      date: String(summaryMatch[1] || "").trim(),
+      title: String(summaryMatch[2] || "").trim(),
+      block: block.trim(),
+    });
+  }
+
+  return entries;
+}
+
+function ensurePastUpdateEntriesPreserved(content, headContent) {
+  const currentUpdates = getSectionBlock(content, "업데이트 기록");
+  const headUpdates = getSectionBlock(headContent, "업데이트 기록");
+  if (!currentUpdates || !headUpdates) return;
+
+  const currentEntries = parseUpdateDetailsEntries(currentUpdates);
+  const headEntries = parseUpdateDetailsEntries(headUpdates);
+  if (headEntries.length === 0) return;
+
+  const today = getTodayDateString();
+  const beforeHistory = headEntries
+    .filter((entry) => entry.date !== today)
+    .map((entry) => `${entry.date}::${entry.title}`);
+  const afterHistory = currentEntries
+    .filter((entry) => entry.date !== today)
+    .map((entry) => `${entry.date}::${entry.title}`);
+
+  if (beforeHistory.length !== afterHistory.length) {
+    fail(
+      "past update log entries were added/removed. Keep previous-date entries unchanged and add/update only today's entry."
+    );
+  }
+
+  for (let i = 0; i < beforeHistory.length; i += 1) {
+    if (beforeHistory[i] !== afterHistory[i]) {
+      fail(
+        "past update log summaries were modified or reordered. Do not edit/delete/merge previous-date entries; add a new entry for today."
+      );
+    }
+  }
+}
+
 function main() {
   const mode = process.argv.includes("--mode=push") ? "push" : "commit";
   const repoRoot = run("git rev-parse --show-toplevel");
@@ -169,6 +227,7 @@ function main() {
   if (mode === "commit") {
     ensureReadmeStagedForCommit();
     ensureRequiredSectionsActuallyUpdated(content);
+    ensurePastUpdateEntriesPreserved(content, readHeadReadme());
   }
 
   console.log(`README ${mode} check passed.`);

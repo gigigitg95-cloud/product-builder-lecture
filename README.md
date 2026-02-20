@@ -151,6 +151,7 @@
 - `식사 유형 보정(food-enhance)`, `간편 식단(light-meal-plan)`, `프로필 스타일러(profile-styler)` 페이지를 추가해 개인화 입력/추천 흐름을 확장
 - `js/analytics.js` 기반 이벤트 수집, QA 체크리스트/스모크 스크립트(`scripts/analytics-smoke-check.sh`)를 추가해 운영 점검 절차를 표준화
 - 배포/운영 문서(`docs/*`)와 체크리스트(`scripts/deploy-checklist.sh`, `scripts/firebase-deploy-only.sh`)를 보강해 배포 안전성과 인수인계 품질을 강화
+- README 커밋 검증 훅에서 `업데이트 기록` 과거 날짜 항목의 수정/삭제/순서 변경을 차단하고 당일 항목 추가/갱신만 허용하도록 자동화 규칙을 강화
 
 ---
 
@@ -348,7 +349,7 @@
 │   ├── inject-jsonld.js         # 빌드 시 JSON-LD inline 주입 (npm run build)
 │   ├── profile-sync-smoke-check.sh # 프로필 자동반영(runtime-config/페이지 include) 스모크 체크
 │   ├── update-readme.js         # README 구조 동기화 + 업데이트 기록 동일 날짜 병합/접기형(details) 변환
-│   └── validate-readme-for-commit.js # README 커밋/푸시 게이트 검증(접기형 업데이트 기록 포함)
+│   └── validate-readme-for-commit.js # README 커밋/푸시 게이트 검증(접기형 업데이트 기록 + 과거 날짜 항목 불변성 검사)
 ├── firebase.json            # Firebase Hosting 설정
 ├── package.json             # Worker 의존성/스크립트
 └── README.md
@@ -376,6 +377,7 @@
 - `js/analytics.js`, `scripts/analytics-smoke-check.sh`를 추가하고 관련 QA 문서를 정비해 이벤트 수집 점검 흐름을 표준화.
 - `docs/*` 운영 문서(아키텍처, 파일 오너십, 체크리스트, 인수인계)를 대폭 보강하고 배포 스크립트(`scripts/deploy-checklist.sh`, `scripts/firebase-deploy-only.sh`)를 추가.
 - Polar Worker 및 리포트/결제/회원 관련 페이지·스크립트 전반을 최신 플로우 기준으로 동기화.
+- `scripts/validate-readme-for-commit.js`에 과거 날짜 업데이트 기록 불변성 검증을 추가해, 과거 항목 수정/삭제/순서 변경 없이 당일 항목만 작성하도록 커밋 단계에서 자동 강제.
 
 </details>
 
@@ -695,6 +697,7 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
+M	scripts/validate-readme-for-commit.js
 ```
 
 <!-- README:AUTO-END -->
