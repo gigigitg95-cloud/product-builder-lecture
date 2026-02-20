@@ -3,6 +3,7 @@
 
   let supabaseClient = null;
   let currentUser = null;
+  const LOGIN_TRACK_KEY_PREFIX = "ninanoo.analytics.loginTracked:";
 
   function readOAuthErrorFromUrl() {
     try {
@@ -41,6 +42,23 @@
     };
   }
 
+  function trackAnalytics(eventName, props) {
+    if (!window.NinanooAnalytics || typeof window.NinanooAnalytics.track !== "function") return;
+    window.NinanooAnalytics.track(eventName, props || {});
+  }
+
+  function trackLoginSuccessOnce(user, method) {
+    const uid = String(user?.id || "").trim();
+    if (!uid) return;
+    const key = LOGIN_TRACK_KEY_PREFIX + uid;
+    if (window.sessionStorage.getItem(key) === "1") return;
+    window.sessionStorage.setItem(key, "1");
+    const userIdHash = window.NinanooAnalytics && typeof window.NinanooAnalytics.identify === "function"
+      ? window.NinanooAnalytics.identify(uid)
+      : "";
+    trackAnalytics("login_success", { method: method || "supabase", userIdHash: userIdHash });
+  }
+
   function updateUI(user) {
     const signedIn = !!user;
     if (!signedIn) {
@@ -68,12 +86,13 @@
       return;
     }
 
-    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) {
       console.error("Sign-in failed", error);
       setText("auth-page-status", `로그인 실패: ${error.message}`);
       return;
     }
+    trackLoginSuccessOnce(data?.user || null, "email_password");
     window.location.href = "/index.html";
   }
 
@@ -137,6 +156,7 @@
     currentUser = user || null;
     updateUI(currentUser);
     if (currentUser) {
+      trackLoginSuccessOnce(currentUser, currentUser?.app_metadata?.provider || "oauth");
       window.location.href = "/index.html";
     }
   }

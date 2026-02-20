@@ -22,6 +22,17 @@ interface Env {
   SUPABASE_URL?: string;
   SUPABASE_ANON_KEY?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
+  FOOD_IMAGE_ENABLED?: string;
+  FOOD_IMAGE_MODEL?: string;
+  FOOD_IMAGE_MAX_MB?: string;
+  FOOD_IMAGE_RATE_LIMIT_PER_MIN?: string;
+  FOOD_IMAGE_FREE_MAX_PIXELS?: string;
+  FOOD_IMAGE_PREMIUM_PRODUCT_IDS?: string;
+  STYLER_ENABLED?: string;
+  STYLER_MODEL?: string;
+  STYLER_IMAGE_MODEL?: string;
+  STYLER_MAX_MB?: string;
+  STYLER_RATE_LIMIT_PER_MIN?: string;
 }
 
 type CheckoutRequest = {
@@ -50,6 +61,29 @@ type ResendReportRequest = {
 
 type PremiumReportPreviewRequest = ResendReportRequest;
 type DeleteAccountRequest = { confirm?: boolean };
+type FoodEnhanceTier = "free" | "pro";
+type FoodEnhancePreset = "bright" | "moody" | "detail" | "sns";
+type FoodEnhanceRequest = ResendReportRequest & {
+  imageBase64?: string;
+  mimeType?: string;
+  fileName?: string;
+  preset?: FoodEnhancePreset;
+  tier?: FoodEnhanceTier;
+  saveOptIn?: boolean;
+};
+type StylerPreset = "business" | "casual" | "street" | "minimal";
+type StylerRequest = {
+  imageBase64?: string;
+  mimeType?: string;
+  fileName?: string;
+  preset?: StylerPreset;
+  context?: string;
+};
+type OutfitCard = {
+  title: string;
+  items: string;
+  tip: string;
+};
 
 type PolarOrder = {
   id?: string;
@@ -68,7 +102,30 @@ const POLAR_API_SANDBOX = "https://sandbox-api.polar.sh/v1";
 const DEFAULT_PRODUCT_ID = "09ed8b9c-c328-4962-a12f-69923155d3c6";
 const RESEND_EMAIL_API = "https://api.resend.com/emails";
 const OPENAI_RESPONSES_API = "https://api.openai.com/v1/responses";
+const OPENAI_IMAGE_EDITS_API = "https://api.openai.com/v1/images/edits";
 const DEFAULT_OPENAI_MODEL = "gpt-4.1-mini";
+const DEFAULT_FOOD_IMAGE_MODEL = "gpt-image-1";
+const DEFAULT_STYLER_TEXT_MODEL = "gpt-4.1-mini";
+const DEFAULT_STYLER_IMAGE_MODEL = "gpt-image-1";
+const MAX_FOOD_IMAGE_SIZE_BYTES = 8 * 1024 * 1024;
+const MAX_STYLER_IMAGE_SIZE_BYTES = 8 * 1024 * 1024;
+const DEFAULT_FOOD_IMAGE_RATE_LIMIT_PER_MIN = 10;
+const DEFAULT_STYLER_RATE_LIMIT_PER_MIN = 8;
+const DEFAULT_FOOD_IMAGE_FREE_MAX_PIXELS = 1024;
+const FOOD_IMAGE_ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const STYLER_ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const FOOD_IMAGE_PRESET_PROMPTS: Record<FoodEnhancePreset, string> = {
+  bright:
+    "Enhance this food photo to look bright, fresh, and appetizing. Improve lighting, white balance, and color vividness while keeping ingredients realistic.",
+  moody:
+    "Enhance this food photo with a dark moody restaurant style. Keep shadows cinematic and texture rich, but preserve natural food color.",
+  detail:
+    "Enhance this food photo for maximum clarity and detail. Improve sharpness and texture of ingredients without overprocessing.",
+  sns:
+    "Enhance this food photo for social media. Stylish tone, balanced contrast, clean highlights, and appetizing colors while preserving realism.",
+};
+const foodImageRateLimitStore = new Map<string, { count: number; resetAt: number }>();
+const stylerRateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
 // 프롬프트를 직접 수정하려면 아래 2개 상수를 편집하세요.
 const PREMIUM_REPORT_SYSTEM_PROMPT =
@@ -211,6 +268,654 @@ function isJwtLikeToken(value: string): boolean {
 
 function isPlausibleEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function buildApiErrorBody(code: string, message: string, status: number, details?: unknown): Record<string, unknown> {
+  return {
+    ok: false,
+    error: {
+      code,
+      message,
+      status,
+      details: details ?? null,
+    },
+  };
+}
+
+function jsonApiError(
+  code: string,
+  message: string,
+  status: number,
+  headers?: HeadersInit,
+  details?: unknown
+): Response {
+  return jsonResponse(buildApiErrorBody(code, message, status, details), { status, headers });
+}
+
+function normalizeFoodPreset(value: unknown): FoodEnhancePreset {
+  const preset = String(value || "").trim().toLowerCase();
+  if (preset === "moody") return "moody";
+  if (preset === "detail") return "detail";
+  if (preset === "sns") return "sns";
+  return "bright";
+}
+
+function normalizeFoodTier(value: unknown): FoodEnhanceTier {
+  return String(value || "").trim().toLowerCase() === "pro" ? "pro" : "free";
+}
+
+function cleanBase64Payload(input: unknown): string {
+  const raw = String(input || "").trim();
+  if (!raw) return "";
+  const dataUrlMatch = raw.match(/^data:([a-zA-Z0-9/+.-]+);base64,(.+)$/);
+  return dataUrlMatch ? dataUrlMatch[2].trim() : raw;
+}
+
+function decodeBase64ToBytes(input: string): Uint8Array {
+  const normalized = String(input || "").replace(/\s+/g, "");
+  const binary = atob(normalized);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+function getFoodImageRateLimit(env: Env): number {
+  const raw = Number.parseInt(String(env.FOOD_IMAGE_RATE_LIMIT_PER_MIN || DEFAULT_FOOD_IMAGE_RATE_LIMIT_PER_MIN), 10);
+  if (!Number.isFinite(raw) || raw <= 0) return DEFAULT_FOOD_IMAGE_RATE_LIMIT_PER_MIN;
+  return raw;
+}
+
+function getFoodImageMaxBytes(env: Env): number {
+  const rawMb = Number.parseInt(String(env.FOOD_IMAGE_MAX_MB || ""), 10);
+  if (!Number.isFinite(rawMb) || rawMb <= 0) return MAX_FOOD_IMAGE_SIZE_BYTES;
+  return rawMb * 1024 * 1024;
+}
+
+function getFoodImageFreeMaxPixels(env: Env): number {
+  const raw = Number.parseInt(String(env.FOOD_IMAGE_FREE_MAX_PIXELS || DEFAULT_FOOD_IMAGE_FREE_MAX_PIXELS), 10);
+  if (!Number.isFinite(raw) || raw <= 0) return DEFAULT_FOOD_IMAGE_FREE_MAX_PIXELS;
+  return raw;
+}
+
+function consumeFoodImageRateLimit(
+  request: Request,
+  env: Env
+): { ok: boolean; limit: number; remaining: number; resetSec: number } {
+  const now = Date.now();
+  const minuteMs = 60_000;
+  const limit = getFoodImageRateLimit(env);
+  const ip =
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-forwarded-for") ||
+    "anonymous";
+  const key = `${ip}:food-image`;
+  const current = foodImageRateLimitStore.get(key);
+  if (!current || now >= current.resetAt) {
+    const entry = { count: 1, resetAt: now + minuteMs };
+    foodImageRateLimitStore.set(key, entry);
+    return { ok: true, limit, remaining: Math.max(0, limit - 1), resetSec: Math.ceil((entry.resetAt - now) / 1000) };
+  }
+  if (current.count >= limit) {
+    return { ok: false, limit, remaining: 0, resetSec: Math.ceil((current.resetAt - now) / 1000) };
+  }
+  current.count += 1;
+  foodImageRateLimitStore.set(key, current);
+  return { ok: true, limit, remaining: Math.max(0, limit - current.count), resetSec: Math.ceil((current.resetAt - now) / 1000) };
+}
+
+function getPremiumFoodImageProductIds(env: Env): string[] {
+  return splitCsv(env.FOOD_IMAGE_PREMIUM_PRODUCT_IDS || env.PREMIUM_REPORT_PRODUCT_IDS || env.DEFAULT_PRODUCT_ID || DEFAULT_PRODUCT_ID);
+}
+
+async function resolveFoodImageTier(
+  body: FoodEnhanceRequest,
+  env: Env
+): Promise<{ tier: FoodEnhanceTier; orderId: string; checkoutId: string; reason?: string }> {
+  const requestedTier = normalizeFoodTier(body.tier);
+  const orderId = String(body.orderId || body.order_id || "").trim();
+  const checkoutId = String(body.checkoutId || body.checkout_id || "").trim();
+  if (requestedTier !== "pro") {
+    return { tier: "free", orderId, checkoutId };
+  }
+  if (!env.POLAR_OAT_TOKEN) {
+    return { tier: "free", orderId, checkoutId, reason: "missing_polar_token" };
+  }
+  const resolved = await resolveOrderForResend(body, env);
+  if (!resolved.order) {
+    return { tier: "free", orderId, checkoutId, reason: resolved.reason || "order_not_found" };
+  }
+  const status = String(resolved.order.status || "").toLowerCase();
+  if (status !== "paid" && status !== "confirmed" && status !== "succeeded") {
+    return { tier: "free", orderId: String(resolved.order.id || orderId), checkoutId, reason: "order_not_paid" };
+  }
+  const allowedProducts = getPremiumFoodImageProductIds(env);
+  const purchased = extractOrderProductIds(resolved.order);
+  if (allowedProducts.length > 0 && !purchased.some((id) => allowedProducts.includes(id))) {
+    return { tier: "free", orderId: String(resolved.order.id || orderId), checkoutId, reason: "product_not_eligible" };
+  }
+  return { tier: "pro", orderId: String(resolved.order.id || orderId), checkoutId };
+}
+
+async function requestFoodImageEnhanceToOpenAI(params: {
+  env: Env;
+  bytes: Uint8Array;
+  mimeType: string;
+  fileName: string;
+  preset: FoodEnhancePreset;
+  tier: FoodEnhanceTier;
+}): Promise<{ imageBase64: string; model: string }> {
+  const apiKey = String(params.env.OPENAI_API_KEY || "").trim();
+  if (!apiKey) {
+    throw new Error("openai_key_missing");
+  }
+  const model = String(params.env.FOOD_IMAGE_MODEL || DEFAULT_FOOD_IMAGE_MODEL).trim() || DEFAULT_FOOD_IMAGE_MODEL;
+  const imageBytes = new Uint8Array(params.bytes.byteLength);
+  imageBytes.set(params.bytes);
+  const imageBlob = new Blob([imageBytes], { type: params.mimeType });
+  const form = new FormData();
+  form.append("model", model);
+  form.append("prompt", FOOD_IMAGE_PRESET_PROMPTS[params.preset]);
+  form.append("size", params.tier === "pro" ? "1536x1536" : "1024x1024");
+  form.append("quality", params.tier === "pro" ? "high" : "medium");
+  form.append("response_format", "b64_json");
+  form.append("image", imageBlob, params.fileName || "food-upload.png");
+
+  const response = await fetch(OPENAI_IMAGE_EDITS_API, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+    },
+    body: form,
+  });
+
+  const data = (await response.json().catch(() => null)) as { data?: Array<{ b64_json?: string }>; error?: { message?: string } } | null;
+  if (!response.ok) {
+    const detail = data?.error?.message || `openai_image_edit_failed status=${response.status}`;
+    throw new Error(detail);
+  }
+  const imageBase64 = String(data?.data?.[0]?.b64_json || "").trim();
+  if (!imageBase64) {
+    throw new Error("openai_image_edit_empty_output");
+  }
+  return { imageBase64, model };
+}
+
+async function handleFoodImageEnhance(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  const origin = request.headers.get("origin");
+  const corsHeaders = resolveCorsHeaders(origin, env);
+
+  if (!isOriginAllowed(origin, env)) {
+    return jsonApiError("forbidden_origin", "Origin not allowed", 403, corsHeaders);
+  }
+  if (!isHostAllowed(url.hostname, env)) {
+    return jsonApiError("forbidden_host", "Host not allowed", 403, corsHeaders);
+  }
+  if (!isTruthy(env.FOOD_IMAGE_ENABLED || "true")) {
+    return jsonApiError("feature_disabled", "Food image enhance is disabled", 503, corsHeaders);
+  }
+
+  const limiter = consumeFoodImageRateLimit(request, env);
+  if (!limiter.ok) {
+    return jsonApiError(
+      "rate_limited",
+      "요청이 많습니다. 잠시 후 다시 시도해 주세요.",
+      429,
+      {
+        ...corsHeaders,
+        "retry-after": String(limiter.resetSec),
+      },
+      { limit: limiter.limit, remaining: limiter.remaining, resetSec: limiter.resetSec }
+    );
+  }
+
+  let body: FoodEnhanceRequest = {};
+  try {
+    body = (await request.json()) as FoodEnhanceRequest;
+  } catch {
+    return jsonApiError("invalid_json", "Invalid JSON body", 400, corsHeaders);
+  }
+
+  const preset = normalizeFoodPreset(body.preset);
+  const mimeType = String(body.mimeType || "").trim().toLowerCase();
+  if (!FOOD_IMAGE_ALLOWED_MIME_TYPES.includes(mimeType)) {
+    return jsonApiError(
+      "unsupported_mime_type",
+      "지원하지 않는 파일 형식입니다. JPG, PNG, WEBP만 업로드할 수 있습니다.",
+      415,
+      corsHeaders,
+      { allowed: FOOD_IMAGE_ALLOWED_MIME_TYPES }
+    );
+  }
+
+  const imageBase64Payload = cleanBase64Payload(body.imageBase64);
+  if (!imageBase64Payload) {
+    return jsonApiError("missing_image", "imageBase64 is required", 400, corsHeaders);
+  }
+
+  let bytes: Uint8Array;
+  try {
+    bytes = decodeBase64ToBytes(imageBase64Payload);
+  } catch {
+    return jsonApiError("invalid_base64", "이미지 인코딩 형식을 확인해 주세요.", 400, corsHeaders);
+  }
+
+  const maxBytes = getFoodImageMaxBytes(env);
+  if (bytes.byteLength > maxBytes) {
+    return jsonApiError(
+      "file_too_large",
+      `파일 크기 제한을 초과했습니다. 최대 ${Math.floor(maxBytes / (1024 * 1024))}MB까지 지원합니다.`,
+      413,
+      corsHeaders,
+      { maxBytes, receivedBytes: bytes.byteLength }
+    );
+  }
+
+  const tierInfo = await resolveFoodImageTier(body, env);
+  const tier = tierInfo.tier;
+
+  let result: { imageBase64: string; model: string };
+  try {
+    result = await requestFoodImageEnhanceToOpenAI({
+      env,
+      bytes,
+      mimeType,
+      fileName: String(body.fileName || "food-upload"),
+      preset,
+      tier,
+    });
+  } catch (error) {
+    console.error("food_image_enhance_failed", {
+      message: error instanceof Error ? error.message : String(error),
+      preset,
+      tier,
+      size: bytes.byteLength,
+    });
+    return jsonApiError(
+      "enhance_failed",
+      "이미지 보정에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+      502,
+      corsHeaders,
+      { reason: error instanceof Error ? error.message : String(error) }
+    );
+  }
+
+  return jsonResponse(
+    {
+      ok: true,
+      tier,
+      tierReason: tierInfo.reason || null,
+      orderId: tierInfo.orderId || null,
+      checkoutId: tierInfo.checkoutId || null,
+      preset,
+      model: result.model,
+      mimeType: "image/png",
+      imageBase64: result.imageBase64,
+      watermarkRequired: tier !== "pro",
+      maxRenderPixels: tier === "pro" ? null : getFoodImageFreeMaxPixels(env),
+      stored: false,
+      rateLimit: {
+        limit: limiter.limit,
+        remaining: limiter.remaining,
+        resetSec: limiter.resetSec,
+      },
+      error: null,
+    },
+    { status: 200, headers: corsHeaders }
+  );
+}
+
+function normalizeStylerPreset(value: unknown): StylerPreset {
+  const preset = String(value || "").trim().toLowerCase();
+  if (preset === "casual") return "casual";
+  if (preset === "street") return "street";
+  if (preset === "minimal") return "minimal";
+  return "business";
+}
+
+function getStylerRateLimit(env: Env): number {
+  const raw = Number.parseInt(String(env.STYLER_RATE_LIMIT_PER_MIN || DEFAULT_STYLER_RATE_LIMIT_PER_MIN), 10);
+  if (!Number.isFinite(raw) || raw <= 0) return DEFAULT_STYLER_RATE_LIMIT_PER_MIN;
+  return raw;
+}
+
+function getStylerMaxBytes(env: Env): number {
+  const rawMb = Number.parseInt(String(env.STYLER_MAX_MB || ""), 10);
+  if (!Number.isFinite(rawMb) || rawMb <= 0) return MAX_STYLER_IMAGE_SIZE_BYTES;
+  return rawMb * 1024 * 1024;
+}
+
+function consumeStylerRateLimit(
+  request: Request,
+  env: Env
+): { ok: boolean; limit: number; remaining: number; resetSec: number } {
+  const now = Date.now();
+  const minuteMs = 60_000;
+  const limit = getStylerRateLimit(env);
+  const ip =
+    request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-forwarded-for") ||
+    "anonymous";
+  const key = `${ip}:styler`;
+  const current = stylerRateLimitStore.get(key);
+  if (!current || now >= current.resetAt) {
+    const entry = { count: 1, resetAt: now + minuteMs };
+    stylerRateLimitStore.set(key, entry);
+    return { ok: true, limit, remaining: Math.max(0, limit - 1), resetSec: Math.ceil((entry.resetAt - now) / 1000) };
+  }
+  if (current.count >= limit) {
+    return { ok: false, limit, remaining: 0, resetSec: Math.ceil((current.resetAt - now) / 1000) };
+  }
+  current.count += 1;
+  stylerRateLimitStore.set(key, current);
+  return { ok: true, limit, remaining: Math.max(0, limit - current.count), resetSec: Math.ceil((current.resetAt - now) / 1000) };
+}
+
+function sanitizeStylerContext(value: unknown): string {
+  return String(value || "").replace(/\s+/g, " ").trim().slice(0, 240);
+}
+
+function hasSexualContextHint(value: string): boolean {
+  return /(sexy|sexual|erotic|fetish|lingerie|19금|노출|성적|야한)/i.test(String(value || ""));
+}
+
+function hasMinorHint(value: string): boolean {
+  return /(미성년|고등학생|중학생|초등학생|teen|teenager|under\s?18|minor)/i.test(String(value || ""));
+}
+
+function getStylerPresetPrompt(preset: StylerPreset): string {
+  if (preset === "casual") {
+    return "Natural casual profile style: clean light, balanced skin tone, relaxed but polished mood.";
+  }
+  if (preset === "street") {
+    return "Street style profile look: modern contrast, urban color accents, confident but non-aggressive vibe.";
+  }
+  if (preset === "minimal") {
+    return "Minimal profile style: neutral tones, tidy composition, subtle contrast and clean background feel.";
+  }
+  return "Business profile style: professional, clear, trustworthy color tone and clean portrait finish.";
+}
+
+function getStylerFallbackCards(preset: StylerPreset): OutfitCard[] {
+  const common = [
+    { title: "코디 1", items: "상의 1 + 하의 1 + 신발 1", tip: "톤은 2가지 이내로 제한해 통일감을 만드세요." },
+    { title: "코디 2", items: "가벼운 아우터 + 기본 이너 + 단색 팬츠", tip: "사진에선 로고보다 실루엣이 더 잘 보입니다." },
+    { title: "코디 3", items: "질감이 다른 소재 2개 조합", tip: "매트/광택 소재를 섞으면 입체감이 좋아집니다." },
+    { title: "코디 4", items: "포인트 컬러 1개 + 나머지 뉴트럴", tip: "포인트 컬러는 가방/신발 같은 작은 면적에 두세요." },
+    { title: "코디 5", items: "기본 액세서리 1~2개", tip: "액세서리는 과하지 않게 한 포인트만 추천합니다." },
+  ];
+  if (preset === "business") {
+    common[0] = { title: "비즈니스 1", items: "셔츠/블라우스 + 슬랙스 + 로퍼", tip: "명도 대비를 주면 얼굴이 또렷해집니다." };
+  } else if (preset === "street") {
+    common[0] = { title: "스트릿 1", items: "오버핏 상의 + 와이드 팬츠 + 스니커즈", tip: "상하 비율은 1:1 또는 4:6이 안정적입니다." };
+  } else if (preset === "minimal") {
+    common[0] = { title: "미니멀 1", items: "무지 상의 + 스트레이트 팬츠 + 심플 슈즈", tip: "패턴을 줄이고 질감으로 차이를 만드세요." };
+  } else {
+    common[0] = { title: "캐주얼 1", items: "니트/스웨트 + 데님/치노 + 스니커즈", tip: "채도 낮은 색으로 부담 없는 인상을 만드세요." };
+  }
+  return common;
+}
+
+function parseOutfitCardsFromText(raw: string): OutfitCard[] {
+  let parsed: unknown = null;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    parsed = null;
+  }
+  if (!Array.isArray(parsed)) return [];
+  const cards: OutfitCard[] = [];
+  for (const item of parsed) {
+    if (!item || typeof item !== "object") continue;
+    const record = item as Record<string, unknown>;
+    const title = String(record.title || "").trim();
+    const items = String(record.items || "").trim();
+    const tip = String(record.tip || "").trim();
+    if (!title || !items || !tip) continue;
+    cards.push({ title: title.slice(0, 40), items: items.slice(0, 120), tip: tip.slice(0, 120) });
+    if (cards.length >= 5) break;
+  }
+  return cards;
+}
+
+async function requestStylerRecommendations(params: {
+  env: Env;
+  preset: StylerPreset;
+  context: string;
+}): Promise<{ cards: OutfitCard[]; model: string }> {
+  const apiKey = String(params.env.OPENAI_API_KEY || "").trim();
+  if (!apiKey) {
+    return { cards: getStylerFallbackCards(params.preset), model: "fallback:no_openai_key" };
+  }
+  const model = String(params.env.STYLER_MODEL || DEFAULT_STYLER_TEXT_MODEL).trim() || DEFAULT_STYLER_TEXT_MODEL;
+  const systemPrompt = [
+    "You are a safe global fashion assistant.",
+    "Never evaluate body shape, attractiveness, race, or age appearance.",
+    "No sexual context. No explicit content.",
+    "If minor is suspected, provide only general age-appropriate neutral outfit guidance.",
+    "Output Korean only.",
+    "Return ONLY JSON array with exactly 5 items.",
+    'Each item shape: {"title":"...","items":"...","tip":"..."}',
+  ].join(" ");
+  const userPrompt = [
+    `스타일 프리셋: ${params.preset}`,
+    `추가 컨텍스트: ${params.context || "없음"}`,
+    "프로필 사진 스타일링과 함께 제안할 코디 추천 5개를 JSON 배열로 만들어줘.",
+    "체형/외모 평가 문구 금지, 성적 맥락 금지.",
+    "아이템은 글로벌 사용자에게 무난한 표현으로 작성.",
+  ].join("\n");
+
+  const response = await fetch(OPENAI_RESPONSES_API, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      max_output_tokens: 600,
+      input: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    return { cards: getStylerFallbackCards(params.preset), model: "fallback:styler_text_request_failed" };
+  }
+  const data = (await response.json().catch(() => null)) as unknown;
+  const outputText = extractOpenAIOutputText(data);
+  const cards = parseOutfitCardsFromText(outputText);
+  if (cards.length < 5) {
+    return { cards: getStylerFallbackCards(params.preset), model: "fallback:styler_text_parse_failed" };
+  }
+  return { cards, model };
+}
+
+async function requestStylerImageEnhance(params: {
+  env: Env;
+  bytes: Uint8Array;
+  mimeType: string;
+  fileName: string;
+  preset: StylerPreset;
+}): Promise<{ imageBase64: string; model: string }> {
+  const apiKey = String(params.env.OPENAI_API_KEY || "").trim();
+  if (!apiKey) throw new Error("openai_key_missing");
+  const model = String(params.env.STYLER_IMAGE_MODEL || DEFAULT_STYLER_IMAGE_MODEL).trim() || DEFAULT_STYLER_IMAGE_MODEL;
+  const imageBytes = new Uint8Array(params.bytes.byteLength);
+  imageBytes.set(params.bytes);
+  const imageBlob = new Blob([imageBytes], { type: params.mimeType });
+  const prompt = [
+    "Edit this profile photo with a tasteful style grade.",
+    getStylerPresetPrompt(params.preset),
+    "Do not alter body shape, age appearance, race, or facial identity.",
+    "No sexualized transformation. Keep natural realism.",
+    "Portrait-friendly color and contrast only.",
+  ].join(" ");
+
+  const form = new FormData();
+  form.append("model", model);
+  form.append("prompt", prompt);
+  form.append("size", "1024x1024");
+  form.append("quality", "high");
+  form.append("response_format", "b64_json");
+  form.append("image", imageBlob, params.fileName || "styler-upload.png");
+
+  const response = await fetch(OPENAI_IMAGE_EDITS_API, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+    },
+    body: form,
+  });
+
+  const data = (await response.json().catch(() => null)) as { data?: Array<{ b64_json?: string }>; error?: { message?: string } } | null;
+  if (!response.ok) {
+    const detail = data?.error?.message || `openai_styler_image_failed status=${response.status}`;
+    throw new Error(detail);
+  }
+  const imageBase64 = String(data?.data?.[0]?.b64_json || "").trim();
+  if (!imageBase64) throw new Error("openai_styler_image_empty_output");
+  return { imageBase64, model };
+}
+
+async function handleProfileStyler(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  const origin = request.headers.get("origin");
+  const corsHeaders = resolveCorsHeaders(origin, env);
+
+  if (!isOriginAllowed(origin, env)) {
+    return jsonApiError("forbidden_origin", "Origin not allowed", 403, corsHeaders);
+  }
+  if (!isHostAllowed(url.hostname, env)) {
+    return jsonApiError("forbidden_host", "Host not allowed", 403, corsHeaders);
+  }
+  if (!isTruthy(env.STYLER_ENABLED || "true")) {
+    return jsonApiError("feature_disabled", "Styler feature is disabled", 503, corsHeaders);
+  }
+
+  const limiter = consumeStylerRateLimit(request, env);
+  if (!limiter.ok) {
+    return jsonApiError(
+      "rate_limited",
+      "요청이 많습니다. 잠시 후 다시 시도해 주세요.",
+      429,
+      { ...corsHeaders, "retry-after": String(limiter.resetSec) },
+      { limit: limiter.limit, remaining: limiter.remaining, resetSec: limiter.resetSec }
+    );
+  }
+
+  let body: StylerRequest = {};
+  try {
+    body = (await request.json()) as StylerRequest;
+  } catch {
+    return jsonApiError("invalid_json", "Invalid JSON body", 400, corsHeaders);
+  }
+
+  const preset = normalizeStylerPreset(body.preset);
+  const context = sanitizeStylerContext(body.context);
+  if (hasSexualContextHint(context)) {
+    return jsonApiError(
+      "policy_blocked",
+      "성적 맥락 요청은 지원하지 않습니다. 프로필/코디 목적의 안전한 요청으로 다시 시도해 주세요.",
+      400,
+      corsHeaders
+    );
+  }
+  if (hasMinorHint(context)) {
+    return jsonResponse(
+      {
+        ok: true,
+        advisoryOnly: true,
+        advisory:
+          "미성년자 의심 맥락에서는 외모 평가/성적 스타일링 없이 일반적이고 안전한 코디 가이드만 제공합니다.",
+        preset,
+        cards: getStylerFallbackCards(preset),
+        imageBase64: null,
+        imageModel: null,
+        textModel: "policy:minor_safe_fallback",
+        rateLimit: { limit: limiter.limit, remaining: limiter.remaining, resetSec: limiter.resetSec },
+      },
+      { status: 200, headers: corsHeaders }
+    );
+  }
+
+  const mimeType = String(body.mimeType || "").trim().toLowerCase();
+  if (!STYLER_ALLOWED_MIME_TYPES.includes(mimeType)) {
+    return jsonApiError(
+      "unsupported_mime_type",
+      "지원하지 않는 파일 형식입니다. JPG, PNG, WEBP만 업로드할 수 있습니다.",
+      415,
+      corsHeaders,
+      { allowed: STYLER_ALLOWED_MIME_TYPES }
+    );
+  }
+
+  const payload = cleanBase64Payload(body.imageBase64);
+  if (!payload) {
+    return jsonApiError("missing_image", "imageBase64 is required", 400, corsHeaders);
+  }
+
+  let bytes: Uint8Array;
+  try {
+    bytes = decodeBase64ToBytes(payload);
+  } catch {
+    return jsonApiError("invalid_base64", "이미지 인코딩 형식을 확인해 주세요.", 400, corsHeaders);
+  }
+
+  const maxBytes = getStylerMaxBytes(env);
+  if (bytes.byteLength > maxBytes) {
+    return jsonApiError(
+      "file_too_large",
+      `파일 크기 제한을 초과했습니다. 최대 ${Math.floor(maxBytes / (1024 * 1024))}MB까지 지원합니다.`,
+      413,
+      corsHeaders,
+      { maxBytes, receivedBytes: bytes.byteLength }
+    );
+  }
+
+  const [imageResult, textResult] = await Promise.all([
+    requestStylerImageEnhance({
+      env,
+      bytes,
+      mimeType,
+      fileName: String(body.fileName || "styler-upload"),
+      preset,
+    }).catch((error) => {
+      console.error("styler_image_failed", { message: error instanceof Error ? error.message : String(error) });
+      return null;
+    }),
+    requestStylerRecommendations({ env, preset, context }),
+  ]);
+
+  if (!imageResult) {
+    return jsonApiError(
+      "enhance_failed",
+      "프로필 사진 스타일 보정에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+      502,
+      corsHeaders
+    );
+  }
+
+  return jsonResponse(
+    {
+      ok: true,
+      advisoryOnly: false,
+      advisory: null,
+      preset,
+      cards: textResult.cards,
+      imageBase64: imageResult.imageBase64,
+      imageMimeType: "image/png",
+      imageModel: imageResult.model,
+      textModel: textResult.model,
+      stored: false,
+      rateLimit: { limit: limiter.limit, remaining: limiter.remaining, resetSec: limiter.resetSec },
+    },
+    { status: 200, headers: corsHeaders }
+  );
 }
 
 function buildReportEmail(report: WebhookReport, env: Env): { subject: string; text: string } {
@@ -1360,6 +2065,20 @@ export default {
       (url.pathname === "/premium-report-preview" || url.pathname === "/api/premium-report-preview")
     ) {
       return getPremiumReportPreview(request, env);
+    }
+
+    if (
+      request.method === "POST" &&
+      (url.pathname === "/image/food-enhance" || url.pathname === "/api/image/food-enhance")
+    ) {
+      return handleFoodImageEnhance(request, env);
+    }
+
+    if (
+      request.method === "POST" &&
+      (url.pathname === "/ai/styler" || url.pathname === "/api/ai/styler")
+    ) {
+      return handleProfileStyler(request, env);
     }
 
     if (request.method === "POST" && (url.pathname === "/webhooks/polar" || url.pathname === "/api/webhooks/polar")) {

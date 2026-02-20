@@ -2,12 +2,32 @@
   const mount = document.getElementById('site-footer');
   if (!mount) return;
 
+  function readLocalFlags() {
+    try {
+      const raw = localStorage.getItem('ninanoo.featureFlags.v1');
+      const parsed = raw ? JSON.parse(raw) : {};
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (_error) {
+      return {};
+    }
+  }
+
+  function isFlagEnabled(flagName) {
+    if (window.NinanooFlags && typeof window.NinanooFlags.isEnabled === 'function') {
+      return window.NinanooFlags.isEnabled(flagName);
+    }
+    const local = readLocalFlags();
+    if (typeof local[flagName] === 'boolean') return local[flagName];
+    return true;
+  }
+
   const currentKey = (mount.dataset.footerCurrent || '').trim();
   const keyToPath = {
     index: '/index.html',
     about: '/pages/about.html',
     guide: '/pages/guide.html',
     planner: '/pages/report-intake.html',
+    styler: '/pages/profile-styler.html',
     privacy: '/pages/privacy.html',
     terms: '/pages/terms.html',
     refund: '/pages/refund.html',
@@ -43,6 +63,15 @@
       }
       if (typeof applyTranslations === 'function') {
         applyTranslations();
+      }
+
+      if (!isFlagEnabled('aiFoodEnhance')) {
+        const foodLink = mount.querySelector('#footer-food-enhance-link');
+        const listItem = foodLink ? foodLink.closest('li') : null;
+        if (listItem) {
+          listItem.classList.add('hidden');
+          listItem.setAttribute('hidden', 'hidden');
+        }
       }
     })
     .catch((error) => {

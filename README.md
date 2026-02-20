@@ -147,6 +147,11 @@
 - 회원가입 시 인증 메일 발송/중복 가입 여부를 사용자 상태 메시지로 명확히 안내
 - 운영 시 민감/임시 텍스트 파일은 저장소에 두지 않고 Worker Secret/환경변수로 관리
 
+### 19. 개인화 도구/분석 운영 확장
+- `식사 유형 보정(food-enhance)`, `간편 식단(light-meal-plan)`, `프로필 스타일러(profile-styler)` 페이지를 추가해 개인화 입력/추천 흐름을 확장
+- `js/analytics.js` 기반 이벤트 수집, QA 체크리스트/스모크 스크립트(`scripts/analytics-smoke-check.sh`)를 추가해 운영 점검 절차를 표준화
+- 배포/운영 문서(`docs/*`)와 체크리스트(`scripts/deploy-checklist.sh`, `scripts/firebase-deploy-only.sh`)를 보강해 배포 안전성과 인수인계 품질을 강화
+
 ---
 
 ## 다국어 지원 (18개 언어)
@@ -255,12 +260,15 @@
 │   ├── contact.html             # 제휴 문의 페이지
 │   ├── cookies.html             # 쿠키 정책
 │   ├── faq.html                 # 자주 묻는 질문
+│   ├── food-enhance.html
 │   ├── footer.html              # 공통 Footer 템플릿
 │   ├── guide.html               # 음식 가이드
 │   ├── help.html                # 도움말 센터
+│   ├── light-meal-plan.html
 │   ├── mypage.html              # 내 정보/프로필/비밀번호 재설정/회원 탈퇴 페이지
 │   ├── payment.html             # Polar 결제 화면
 │   ├── privacy.html             # 개인정보처리방침
+│   ├── profile-styler.html
 │   ├── refund.html              # 환불 정책
 │   ├── report-intake.html       # 결제 전 프리미엄 리포트 입력
 │   ├── report-result.html       # 결제 후 프리미엄 리포트 결과 확인
@@ -284,21 +292,28 @@
 │   │   ├── refund.json
 │   │   └── terms.json               # 이용약관 구조화 데이터
 │   ├── 404.js                   # 404 페이지 스크립트
+│   ├── analytics.js
 │   ├── app.js                   # 메인 앱 로직 (추천/슬롯/공유/게시판/테마/사이드바 로그인 상태)
 │   ├── auth-page.js             # 로그인 페이지 로직(이메일/Google 로그인, OAuth 콜백 에러 표시, 성공 시 메인 이동)
 │   ├── contact-polar-checkout.js # 제휴 문의 페이지 즉시 Polar checkout 연동
 │   ├── countryLanguageService.js # 국가-언어 매핑 서비스
+│   ├── faq-page.js
+│   ├── feature-flags.js
+│   ├── food-enhance.js
 │   ├── footer-loader.js         # 공통 Footer 로더
 │   ├── footer-tailwind-safelist.js # Footer 동적 클래스 safelist
+│   ├── light-meal-plan.js
 │   ├── mypage.js                # 마이페이지 프로필 저장/내정보/비밀번호 재설정/회원 탈퇴 로직(상세 에러/탈퇴 API 처리)
 │   ├── polar-worker-checkout.js # 결제 버튼/결제결과/진행상태/리포트 재전송 연동
 │   ├── premium-report-intake.js # 리포트 입력 저장/결제 페이지 전달
 │   ├── privacy.js               # 개인정보처리방침 스크립트
+│   ├── profile-styler.js
 │   ├── report-result.js         # 결제 후 리포트 결과(공유/PDF 저장/이메일 발송 + 실행 대시보드/체크 UI) 로직
 │   ├── runtime-config.js        # Worker 런타임 설정(SUPABASE_URL/ANON_KEY) 로더
 │   ├── signup-page.js           # 회원가입 페이지 로직(인증메일/중복 가입 안내 포함)
 │   ├── terms.js                 # 이용약관 스크립트
-│   └── translations.js          # 18개 언어 번역 데이터
+│   ├── translations.js          # 18개 언어 번역 데이터
+│   └── user-profile-store.js
 ├── workers
 │   └── polar-checkout-worker
 │       ├── src
@@ -309,12 +324,29 @@
 │       ├── tsconfig.json            # Worker 타입스크립트 설정
 │       └── wrangler.toml            # Worker 라우트/변수 설정(프리미엄 리포트 모델/토큰 변수 + 런타임 설정 포함)
 ├── docs
+│   ├── ANALYTICS_EVENTS.md      # 공통 이벤트 계측 레이어/이벤트 스키마 표준 문서
+│   ├── analytics-qa-checklist.md # analytics queue/PII 차단/이벤트 정합성 QA 체크리스트
+│   ├── ARCHITECTURE_MAP.md
+│   ├── BACKLOG_FILE_BREAKDOWN.md
 │   ├── cloudflare-workers-polar-setup.md # Workers/Polar 결제 설정 가이드
+│   ├── community-admin-todo.md  # 커뮤니티 관리자 뷰 TODO(신고 큐/운영 지표/권한)
+│   ├── community-firestore-ops-checklist.md # 커뮤니티 Firestore 규칙/인덱스 운영 체크리스트
 │   ├── dom-contract.json        # DOM 계약 정의 파일
+│   ├── EXPERIMENTS.md           # feature flags 실험 정의/목적/지표/토글 방법
+│   ├── FILE_OWNERSHIP.md
+│   ├── firebase-deploy-checklist.md # Firebase/Worker 배포 체크 명령 및 순서 가이드
+│   ├── HANDOFF_2026-02-18.md
+│   ├── PREMIUM_REPORT_METADATA_MAPPING.md
+│   ├── profile-styler-api.md    # 프로필 스타일링 API(/api/ai/styler) 스펙/에러코드/가드레일
+│   ├── profile-sync-qa-checklist.md # 프로필 자동반영(게스트/로그인) QA 점검 체크리스트
 │   └── supabase-auth-setup.md
 ├── scripts
+│   ├── analytics-smoke-check.sh # analytics 스크립트 include/엔드포인트 스모크 체크
 │   ├── check-dom-contract.js    # DOM 계약 검증 스크립트
+│   ├── deploy-checklist.sh      # 배포 체크/검증/배포 순서 자동 실행 스크립트
+│   ├── firebase-deploy-only.sh  # Firebase 전용 배포 스크립트(규칙/인덱스/호스팅)
 │   ├── inject-jsonld.js         # 빌드 시 JSON-LD inline 주입 (npm run build)
+│   ├── profile-sync-smoke-check.sh # 프로필 자동반영(runtime-config/페이지 include) 스모크 체크
 │   ├── update-readme.js         # README 구조 동기화 + 업데이트 기록 동일 날짜 병합/접기형(details) 변환
 │   └── validate-readme-for-commit.js # README 커밋/푸시 게이트 검증(접기형 업데이트 기록 포함)
 ├── firebase.json            # Firebase Hosting 설정
@@ -337,7 +369,7 @@
 ## 업데이트 기록
 
 <details>
-<summary><strong>2026-02-18</strong> - Supabase 회원가입/로그인 구현 + 사이드바 로그인/마이페이지 연동</summary>
+<summary><strong>2026-02-20</strong> - Supabase 회원가입/로그인 구현 + 사이드바 로그인/마이페이지 연동</summary>
 
 **요약**
 - `pages/auth.html`을 Supabase Auth 기반 화면으로 개편하고 이메일 회원가입/로그인 + Google OAuth 버튼을 추가.
@@ -652,6 +684,56 @@
 #### 변경 파일(커밋 스테이징 기준)
 ```text
 M	README.md
+M	css/style.css
+A	docs/ANALYTICS_EVENTS.md
+A	docs/ARCHITECTURE_MAP.md
+A	docs/BACKLOG_FILE_BREAKDOWN.md
+A	docs/EXPERIMENTS.md
+A	docs/FILE_OWNERSHIP.md
+A	docs/HANDOFF_2026-02-18.md
+A	docs/PREMIUM_REPORT_METADATA_MAPPING.md
+A	docs/analytics-qa-checklist.md
+M	docs/cloudflare-workers-polar-setup.md
+A	docs/community-admin-todo.md
+A	docs/community-firestore-ops-checklist.md
+A	docs/firebase-deploy-checklist.md
+A	docs/profile-styler-api.md
+A	docs/profile-sync-qa-checklist.md
+M	firestore.rules
+M	index.html
+A	js/analytics.js
+M	js/app.js
+M	js/auth-page.js
+A	js/faq-page.js
+A	js/feature-flags.js
+A	js/food-enhance.js
+M	js/footer-loader.js
+A	js/light-meal-plan.js
+M	js/mypage.js
+M	js/polar-worker-checkout.js
+M	js/premium-report-intake.js
+A	js/profile-styler.js
+M	js/report-result.js
+M	js/runtime-config.js
+M	js/signup-page.js
+M	js/translations.js
+A	js/user-profile-store.js
+M	pages/auth.html
+M	pages/bulletin.html
+M	pages/faq.html
+A	pages/food-enhance.html
+M	pages/footer.html
+A	pages/light-meal-plan.html
+M	pages/mypage.html
+M	pages/payment.html
+A	pages/profile-styler.html
+M	pages/report-intake.html
+M	pages/report-result.html
+M	pages/signup.html
+A	scripts/analytics-smoke-check.sh
+A	scripts/deploy-checklist.sh
+A	scripts/firebase-deploy-only.sh
+A	scripts/profile-sync-smoke-check.sh
 M	workers/polar-checkout-worker/src/index.ts
 ```
 

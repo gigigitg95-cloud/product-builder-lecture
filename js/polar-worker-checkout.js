@@ -5,6 +5,8 @@
   var PRODUCT_ID = "09ed8b9c-c328-4962-a12f-69923155d3c6";
   var DEFAULT_API_ENDPOINT = "https://api.ninanoo.com/create-checkout";
   var DRAFT_STORAGE_KEY = "ninanooPremiumReportDraft";
+  var FOOD_ENHANCE_DRAFT_KEY = "ninanooFoodEnhanceDraft";
+  var FLOW_FOOD_ENHANCE = "food-enhance";
   var latestPaymentResult = {
     title: "",
     message: "",
@@ -16,6 +18,11 @@
     customerEmail: "",
     status: ""
   };
+
+  function trackAnalytics(eventName, props) {
+    if (!window.NinanooAnalytics || typeof window.NinanooAnalytics.track !== "function") return;
+    window.NinanooAnalytics.track(eventName, props || {});
+  }
 
   function setStatus(el, message, isError) {
     if (!el) return;
@@ -56,13 +63,50 @@
     }
   }
 
-  function resolvePremiumReportMetadata() {
+  function loadFoodEnhanceDraft() {
+    try {
+      var raw = window.sessionStorage.getItem(FOOD_ENHANCE_DRAFT_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getFlowType() {
+    try {
+      var search = new URLSearchParams(window.location.search);
+      return String(search.get("from") || "").trim().toLowerCase();
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function resolvePremiumReportMetadata(flowType) {
+    if (flowType === FLOW_FOOD_ENHANCE) {
+      var enhanceDraft = loadFoodEnhanceDraft() || {};
+      var foodPreset = sanitizeField(enhanceDraft.preset, 20) || "bright";
+      return {
+        report_goal: "AI 음식 사진 보정 Pro",
+        report_note: "source=food-enhance preset=" + foodPreset,
+        feature_type: "food_image_enhance",
+        food_image_preset: foodPreset
+      };
+    }
     var draft = loadPremiumReportDraft();
     var metadata = {
       report_goal: sanitizeField(draft && draft.report_goal, 100),
+      report_period_weeks: sanitizeField(draft && draft.report_period_weeks, 10),
+      report_height_cm: sanitizeField(draft && draft.report_height_cm, 10),
+      report_weight_kg: sanitizeField(draft && draft.report_weight_kg, 10),
+      report_activity_level: sanitizeField(draft && draft.report_activity_level, 20),
+      report_weekly_workouts: sanitizeField(draft && draft.report_weekly_workouts, 10),
+      report_daily_steps: sanitizeField(draft && draft.report_daily_steps, 10),
       report_allergies: sanitizeField(draft && draft.report_allergies, 120),
       report_avoid_ingredients: sanitizeField(draft && draft.report_avoid_ingredients, 120),
+      report_dietary_restrictions: sanitizeField(draft && draft.report_dietary_restrictions, 120),
       report_preferred_categories: sanitizeField(draft && draft.report_preferred_categories, 120),
+      report_budget_level: sanitizeField(draft && draft.report_budget_level, 30),
+      report_cooking_environment: sanitizeField(draft && draft.report_cooking_environment, 40),
       report_note: sanitizeField(draft && draft.report_note, 300)
     };
 
@@ -73,9 +117,17 @@
     return metadata;
   }
 
-  function renderPremiumReportSummary(metadata) {
+  function renderPremiumReportSummary(metadata, flowType) {
     var summary = document.getElementById("premium-report-summary");
     if (!summary) return;
+    if (flowType === FLOW_FOOD_ENHANCE) {
+      summary.innerHTML =
+        "<p><span class=\"font-semibold text-slate-900 dark:text-white\">결제 대상:</span> 음식 사진 보정 Pro</p>" +
+        "<p><span class=\"font-semibold text-slate-900 dark:text-white\">혜택:</span> 고해상도 보정 + 워터마크 제거</p>" +
+        "<p><span class=\"font-semibold text-slate-900 dark:text-white\">연결:</span> 결제 완료 시 음식 사진 보정 페이지로 자동 복귀</p>" +
+        "<p class=\"text-xs text-slate-500 dark:text-slate-400 mt-1\">결제 후 checkout_id가 자동 전달되어 Pro 검증에 사용됩니다.</p>";
+      return;
+    }
     var goal = metadata.report_goal || "";
     if (!goal) {
       summary.innerHTML =
@@ -86,9 +138,15 @@
 
     var items = [
       ["목표", metadata.report_goal],
+      ["목표 기간(주)", metadata.report_period_weeks || "미입력"],
+      ["키/체중", (metadata.report_height_cm || "미입력") + "cm / " + (metadata.report_weight_kg || "미입력") + "kg"],
+      ["활동량", metadata.report_activity_level || "미입력"],
+      ["주당 운동/걸음 수", (metadata.report_weekly_workouts || "미입력") + "회 / " + (metadata.report_daily_steps || "미입력") + "보"],
       ["알레르기", metadata.report_allergies || "없음/미입력"],
       ["기피 재료", metadata.report_avoid_ingredients || "없음/미입력"],
+      ["식이 제한", metadata.report_dietary_restrictions || "미입력"],
       ["선호 카테고리", metadata.report_preferred_categories || "미입력"],
+      ["예산/조리환경", (metadata.report_budget_level || "미입력") + " / " + (metadata.report_cooking_environment || "미입력")],
       ["추가 요청", metadata.report_note || "없음"]
     ];
 
@@ -105,10 +163,14 @@
       .join("");
   }
 
-  async function requestCheckoutUrl(apiEndpoint, metadata) {
+  async function requestCheckoutUrl(apiEndpoint, metadata, flowType) {
     var currentUrl = window.location.origin + window.location.pathname;
     var successUrl = window.location.origin + "/pages/report-result.html?payment=success&checkout_id={CHECKOUT_ID}";
     var returnUrl = currentUrl + "?payment=return";
+    if (flowType === FLOW_FOOD_ENHANCE) {
+      successUrl = window.location.origin + "/pages/food-enhance.html?payment=success&checkout_id={CHECKOUT_ID}";
+      returnUrl = window.location.origin + "/pages/food-enhance.html?payment=return";
+    }
     var response = await fetch(apiEndpoint, {
       method: "POST",
       headers: {
@@ -277,12 +339,18 @@
     var allergies = metadata.report_allergies || "없음/미입력";
     var avoid = metadata.report_avoid_ingredients || "없음/미입력";
     var preferred = metadata.report_preferred_categories || "미입력";
+    var period = metadata.report_period_weeks || "미입력";
+    var activity = metadata.report_activity_level || "미입력";
+    var dietary = metadata.report_dietary_restrictions || "미입력";
     var note = metadata.report_note || "없음";
     var todayTip = preferred !== "미입력" ? preferred : "담백한 단백질 + 채소";
 
     preview.innerHTML =
       "<p class=\"font-semibold text-slate-800 dark:text-slate-100\">즉시 미리보기</p>" +
       "<p class=\"mt-1\">- 목표: " + escapeHtml(goal) + "</p>" +
+      "<p>- 목표 기간(주): " + escapeHtml(period) + "</p>" +
+      "<p>- 활동량: " + escapeHtml(activity) + "</p>" +
+      "<p>- 식이 제한: " + escapeHtml(dietary) + "</p>" +
       "<p>- 오늘 추천: " + escapeHtml(todayTip) + " 중심으로 1끼 구성</p>" +
       "<p>- 알레르기: " + escapeHtml(allergies) + "</p>" +
       "<p>- 기피 재료: " + escapeHtml(avoid) + "</p>" +
@@ -312,6 +380,10 @@
         checkoutId: checkoutId
       });
       if (response && response.ok && response.report) {
+        trackAnalytics("report_generated_completed", {
+          source: "payment_page",
+          model: String(response.model || "")
+        });
         renderPreviewContent(String(response.report || ""), String(response.model || ""));
         renderReportDeliveryState({
           show: true,
@@ -533,6 +605,11 @@
           customerEmail: latestPaymentContext.customerEmail
         });
         if (orderStatus === "paid") {
+          trackAnalytics("payment_success", {
+            source: "payment_status",
+            type: "order",
+            status: orderStatus
+          });
           loadAndRenderPremiumReport();
         }
         clearPaymentQueryParams();
@@ -568,6 +645,11 @@
           customerEmail: latestPaymentContext.customerEmail
         });
         if (isSuccess) {
+          trackAnalytics("payment_success", {
+            source: "payment_status",
+            type: "checkout",
+            status: checkoutStatus
+          });
           loadAndRenderPremiumReport();
         }
         clearPaymentQueryParams();
@@ -603,7 +685,9 @@
     var saveButton = document.getElementById("payment-result-save-btn");
     var resendButton = document.getElementById("report-resend-btn");
     var resendStatus = document.getElementById("report-resend-status");
-    var metadata = resolvePremiumReportMetadata();
+    var flowType = getFlowType();
+    var metadata = resolvePremiumReportMetadata(flowType);
+    trackAnalytics("payment_page_viewed", { flowType: flowType || "premium-report" });
     checkReturnPaymentStatus();
     if (shareButton) {
       shareButton.addEventListener("click", function () {
@@ -634,6 +718,10 @@
           checkoutId: latestPaymentContext.checkoutId
         })
           .then(function (data) {
+            trackAnalytics("report_resent", {
+              source: "payment_page",
+              queued: !!(data && data.queued)
+            });
             if (resendStatus) {
               var ok = !!data.queued;
               resendStatus.textContent = ok
@@ -650,6 +738,11 @@
             });
           })
           .catch(function (error) {
+            trackAnalytics("report_resent", {
+              source: "payment_page",
+              queued: false,
+              reason: (error && error.message) || "request_failed"
+            });
             if (resendStatus) {
               resendStatus.textContent = (error && error.message) || "재전송 요청 중 오류가 발생했습니다.";
               resendStatus.classList.add("text-red-500", "dark:text-red-300");
@@ -661,9 +754,9 @@
       });
     }
     if (!button) return;
-    renderPremiumReportSummary(metadata);
+    renderPremiumReportSummary(metadata, flowType);
 
-    if (!metadata.report_goal) {
+    if (!metadata.report_goal && flowType !== FLOW_FOOD_ENHANCE) {
       button.disabled = true;
       setStatus(status, "입력 정보가 없어 결제를 진행할 수 없습니다. 정보 입력 페이지에서 먼저 작성해 주세요.", true);
       return;
@@ -673,9 +766,13 @@
       if (button.disabled) return;
       button.disabled = true;
       setStatus(status, "결제 세션을 준비하는 중입니다...", false);
+      trackAnalytics("payment_started", {
+        source: "payment_page_button",
+        flowType: flowType || "premium-report"
+      });
 
       try {
-        var checkoutUrl = await requestCheckoutUrl(resolveApiEndpoint(), metadata);
+        var checkoutUrl = await requestCheckoutUrl(resolveApiEndpoint(), metadata, flowType);
         window.location.href = checkoutUrl;
       } catch (error) {
         var endpoint = resolveApiEndpoint();

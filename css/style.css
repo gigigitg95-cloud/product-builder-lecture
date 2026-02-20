@@ -666,6 +666,7 @@ footer {
 .slot-reel {
     display: flex;
     flex-direction: column;
+    animation: none;
     transition: transform 0s linear;
 }
 

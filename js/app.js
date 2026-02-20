@@ -43,6 +43,7 @@ const blockedPexelsPhotoIds = new Set([
 ]);
 const recentPexelsPhotoIds = [];
 const MAX_RECENT_PEXELS_IDS = 12;
+const RECENT_PEXELS_STORAGE_KEY = 'recentPexelsPhotoIds';
 
 const imageSearchOverrides = {
     bibimbap: 'bibimbap bowl korean mixed rice',
@@ -216,7 +217,29 @@ function rememberPexelsId(id) {
     while (recentPexelsPhotoIds.length > MAX_RECENT_PEXELS_IDS) {
         recentPexelsPhotoIds.shift();
     }
+    try {
+        localStorage.setItem(RECENT_PEXELS_STORAGE_KEY, JSON.stringify(recentPexelsPhotoIds));
+    } catch (error) {
+        // Ignore storage write errors.
+    }
 }
+
+function restoreRecentPexelsIds() {
+    try {
+        const raw = localStorage.getItem(RECENT_PEXELS_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(parsed)) return;
+        parsed
+            .map((id) => Number(id))
+            .filter((id) => Number.isFinite(id))
+            .slice(-MAX_RECENT_PEXELS_IDS)
+            .forEach((id) => recentPexelsPhotoIds.push(id));
+    } catch (error) {
+        // Ignore malformed localStorage values.
+    }
+}
+
+restoreRecentPexelsIds();
 
 function scorePhoto(photo, keywords) {
     if (!photo || !photo.alt) return 0;
@@ -278,6 +301,869 @@ async function fetchPexelsImage(query, fallbackQuery) {
 const menuRecommendation = document.getElementById('menu-recommendation');
 const menuImage = document.getElementById('menu-image');
 const recommendBtn = document.getElementById('recommend-btn');
+const recommendationReasonTitle = document.getElementById('recommendation-reason-title');
+const recommendationReasonList = document.getElementById('recommendation-reason-list');
+const alternativeOptionsTitle = document.getElementById('alternative-options-title');
+const alternativeOptionsButtons = document.getElementById('alternative-options-buttons');
+const recommendationReasonSection = document.getElementById('recommendation-reason');
+const alternativeOptionsSection = document.getElementById('alternative-options');
+const discoverSearchInput = document.getElementById('discover-search-input');
+const discoverSearchClearBtn = document.getElementById('discover-search-clear-btn');
+const discoverFilterSummary = document.getElementById('discover-filter-summary');
+const discoverCategoryChips = Array.from(document.querySelectorAll('.discover-category-chip'));
+const discoverCollectionChips = Array.from(document.querySelectorAll('.discover-collection-chip'));
+
+const DISCOVER_FILTER_STORAGE_KEY = 'discoverFilters';
+const RECENT_RECOMMENDATION_STORAGE_KEY = 'recentRecommendations';
+const MAX_RECENT_RECOMMENDATIONS = 10;
+const recommendationCategoryOrder = ['korean', 'chinese', 'japanese', 'western', 'southeastAsian', 'mexican', 'indian', 'middleEastern', 'african', 'european', 'american'];
+const discoverCategoryTerms = {
+    all: ['all', '전체', '카테고리'],
+    korean: ['korean', '한식'],
+    chinese: ['chinese', '중식'],
+    japanese: ['japanese', '일식'],
+    western: ['western', '양식'],
+    southeastAsian: ['southeast asian', '동남아'],
+    mexican: ['mexican', '멕시칸'],
+    indian: ['indian', '인도'],
+    middleEastern: ['middle east', '중동'],
+    african: ['african', '아프리카'],
+    european: ['european', '유럽'],
+    american: ['american', '아메리칸']
+};
+const discoverCollectionConfig = {
+    all: { ko: '전체 컬렉션', en: 'All Collections', keys: [] },
+    solo: {
+        ko: '혼밥',
+        en: 'Solo',
+        keys: ['ramen', 'kimbap', 'onigiri', 'udon', 'janchiGuksu', 'bibimbap', 'sushiRoll', 'sandwich']
+    },
+    diet: {
+        ko: '다이어트',
+        en: 'Diet',
+        keys: ['salad', 'caesarSalad', 'sundubu', 'bunCha', 'pho', 'palakPaneer', 'grilledSalmon', 'omelet']
+    },
+    quick5: {
+        ko: '5분 컷',
+        en: '5-min',
+        keys: ['ramen', 'kimbap', 'onigiri', 'sandwich', 'hotdog', 'pancakes', 'omelet', 'churros']
+    },
+    rainy: {
+        ko: '비 오는 날',
+        en: 'Rainy Day',
+        keys: ['haemulPajeon', 'congYouBing', 'jjampong', 'kimchijjigae', 'udon', 'hotPot', 'janchiGuksu', 'ramen']
+    },
+    lateNight: {
+        ko: '야식',
+        en: 'Late Night',
+        keys: ['chicken', 'pizza', 'tteokbokki', 'pigFeet', 'ramen', 'hotdog', 'tacos', 'nachos']
+    },
+    guest: {
+        ko: '손님상',
+        en: 'Guest Table',
+        keys: ['steak', 'galbi', 'sushi', 'pekingDuck', 'paella', 'lasagna', 'samgyetang', 'bulgogi']
+    }
+};
+const discoverKeywordHints = {
+    kimchijjigae: ['김치', '찌개', 'soup', 'stew'],
+    bibimbap: ['비빔', '밥', 'rice', 'vegetable'],
+    tteokbokki: ['떡볶이', 'spicy', 'rice cake'],
+    ramen: ['라면', '라멘', 'noodle', '국물'],
+    sushi: ['초밥', 'sushi', 'raw fish'],
+    pizza: ['피자', '치즈', '빵', 'cheese'],
+    salad: ['샐러드', '채소', 'vegetable'],
+    samgyetang: ['삼계탕', 'chicken soup', '보양'],
+    galbi: ['갈비', 'rib', 'bbq'],
+    steak: ['스테이크', 'beef'],
+    chicken: ['치킨', 'fried chicken'],
+    janchiGuksu: ['국수', 'noodle'],
+    hotPot: ['전골', 'hot pot', 'soup'],
+    udon: ['우동', 'noodle soup']
+};
+
+let discoverFilterState = {
+    search: '',
+    category: 'all',
+    collection: 'all'
+};
+let discoverFilteredMenuKeys = [...dinnerMenuKeys];
+let discoverStrictMatchCount = dinnerMenuKeys.length;
+let discoverMenuSearchCache = new Map();
+let menuCategoryByKey = new Map();
+let slotMenuByKey = new Map();
+let discoverPoolSignature = '';
+let recentRecommendationKeys = [];
+let lastRecommendedMenuKey = '';
+let latestAlternativeMenuKeys = [];
+let activeUserDietProfile = null;
+
+const PROFILE_CATEGORY_HINTS = {
+    korean: ['korean', '한식'],
+    chinese: ['chinese', '중식'],
+    japanese: ['japanese', '일식', '초밥'],
+    western: ['western', '양식', '파스타', '스테이크', '샐러드'],
+    southeastAsian: ['동남아', 'thai', 'vietnam', 'southeast', 'pho', '쌀국수'],
+    mexican: ['mexican', '멕시칸', '타코', '또띠아'],
+    indian: ['indian', '인도', '커리'],
+    middleEastern: ['middle east', '중동', '케밥', 'shawarma'],
+    african: ['african', '아프리카'],
+    european: ['european', '유럽'],
+    american: ['american', '아메리칸', '버거']
+};
+
+const PROFILE_BLOCK_HINTS = {
+    '견과류': ['peanut', 'almond', 'walnut', 'cashew', '견과', '땅콩'],
+    '갑각류': ['shrimp', 'prawn', 'crab', 'lobster', '새우', '게', '랍스터'],
+    '유제품': ['milk', 'cheese', 'cream', 'butter', '우유', '치즈', '버터'],
+    '글루텐': ['wheat', 'bread', 'flour', 'pasta', '밀', '빵', '파스타'],
+    '돼지고기': ['pork', 'samgyeopsal', '돼지', '족발', '보쌈'],
+    '소고기': ['beef', '소고기'],
+    '해산물': ['seafood', 'fish', 'sushi', '연어', '참치', '해산물', '새우']
+};
+
+function getFeatureFlags() {
+    if (window.NinanooFlags && typeof window.NinanooFlags.getAll === 'function') {
+        return window.NinanooFlags.getAll();
+    }
+    return {
+        recoWhy: true,
+        freeWeeklyPlan: true,
+        aiFoodEnhance: true
+    };
+}
+
+function isFeatureEnabled(flagName) {
+    const flags = getFeatureFlags();
+    return flags[flagName] !== false;
+}
+
+function setElementVisible(el, visible) {
+    if (!el) return;
+    if (visible) {
+        el.classList.remove('hidden');
+        el.removeAttribute('hidden');
+    } else {
+        el.classList.add('hidden');
+        el.setAttribute('hidden', 'hidden');
+    }
+}
+
+function hideNavLinkByHref(href) {
+    document.querySelectorAll(`a[href="${href}"]`).forEach((anchor) => {
+        setElementVisible(anchor, false);
+    });
+}
+
+function applyFeatureFlagUi() {
+    const recoWhyOn = isFeatureEnabled('recoWhy');
+    const freeWeeklyPlanOn = isFeatureEnabled('freeWeeklyPlan');
+    const aiFoodEnhanceOn = isFeatureEnabled('aiFoodEnhance');
+
+    setElementVisible(recommendationReasonSection, recoWhyOn);
+    setElementVisible(alternativeOptionsSection, recoWhyOn);
+
+    if (!freeWeeklyPlanOn) {
+        setElementVisible(document.getElementById('nav-light-planner'), false);
+        hideNavLinkByHref('/pages/light-meal-plan.html');
+    }
+    if (!aiFoodEnhanceOn) {
+        setElementVisible(document.getElementById('nav-food-enhance'), false);
+        hideNavLinkByHref('/pages/food-enhance.html');
+    }
+}
+
+function normalizeProfileToken(value) {
+    return String(value || '').trim().toLowerCase();
+}
+
+function normalizeProfileInputList(value) {
+    if (!Array.isArray(value)) return [];
+    return value
+        .map((item) => normalizeProfileToken(item))
+        .filter(Boolean);
+}
+
+function getProfileCategoryPreferences(profile) {
+    const tokens = normalizeProfileInputList(profile && profile.preferredCategories);
+    if (!tokens.length) return [];
+    const matched = Object.entries(PROFILE_CATEGORY_HINTS)
+        .filter((entry) => entry[1].some((hint) => tokens.some((token) => token.includes(hint))))
+        .map((entry) => entry[0]);
+    return Array.from(new Set(matched));
+}
+
+function getProfileBlockTokens(profile) {
+    const tokens = normalizeProfileInputList([]
+        .concat(normalizeProfileInputList(profile && profile.allergies))
+        .concat(normalizeProfileInputList(profile && profile.dislikedIngredients)));
+    const expanded = [];
+    tokens.forEach((token) => {
+        expanded.push(token);
+        Object.entries(PROFILE_BLOCK_HINTS).forEach(([groupKey, hints]) => {
+            if (token.includes(groupKey) || hints.some((hint) => token.includes(hint))) {
+                hints.forEach((hint) => expanded.push(hint));
+            }
+        });
+    });
+    return Array.from(new Set(expanded.filter(Boolean)));
+}
+
+function isMenuBlockedByProfile(menuKey, blockTokens) {
+    if (!blockTokens || blockTokens.length === 0) return false;
+    const texts = [
+        String(menuKey || '').toLowerCase(),
+        String(imageSearchOverrides[menuKey] || '').toLowerCase()
+    ];
+    if (typeof menuTranslations === 'object' && menuTranslations) {
+        Object.keys(menuTranslations).forEach((lang) => {
+            const label = menuTranslations[lang] && menuTranslations[lang][menuKey];
+            if (label) texts.push(String(label).toLowerCase());
+        });
+    }
+    const haystack = texts.join(' ');
+    return blockTokens.some((token) => haystack.includes(token));
+}
+
+function getProfileAwareMenuPool(baseMenus) {
+    const source = (Array.isArray(baseMenus) && baseMenus.length > 0) ? baseMenus.slice() : dinnerMenuKeys.slice();
+    const profile = activeUserDietProfile;
+    if (!profile) return source;
+
+    let scoped = source.slice();
+    const preferredCategories = getProfileCategoryPreferences(profile);
+    if (preferredCategories.length > 0) {
+        const preferredScoped = scoped.filter((key) => preferredCategories.includes(getCategoryOfMenu(key)));
+        if (preferredScoped.length >= 6) scoped = preferredScoped;
+    }
+
+    const blockTokens = getProfileBlockTokens(profile);
+    if (blockTokens.length > 0) {
+        const safeOnly = scoped.filter((key) => !isMenuBlockedByProfile(key, blockTokens));
+        if (safeOnly.length >= 8) scoped = safeOnly;
+    }
+
+    return scoped.length > 0 ? scoped : source;
+}
+
+async function refreshDietProfileContext(options) {
+    if (!window.NinanooProfileStore || typeof window.NinanooProfileStore.loadEffectiveProfile !== 'function') {
+        activeUserDietProfile = null;
+        return;
+    }
+    const result = await window.NinanooProfileStore.loadEffectiveProfile({
+        preferServer: !(options && options.preferCacheOnly),
+        supabaseClient: sidebarSupabaseClient || null
+    }).catch(() => null);
+    activeUserDietProfile = result && result.profile ? result.profile : null;
+    if (slotReel1) {
+        buildSlotMenus();
+    }
+}
+
+function normalizeDiscoverText(value) {
+    return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function readDiscoverFilterState() {
+    try {
+        const raw = localStorage.getItem(DISCOVER_FILTER_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        if (!parsed || typeof parsed !== 'object') return;
+        if (typeof parsed.search === 'string') discoverFilterState.search = parsed.search.slice(0, 80);
+        if (typeof parsed.category === 'string' && parsed.category in discoverCategoryTerms) {
+            discoverFilterState.category = parsed.category;
+        }
+        if (typeof parsed.collection === 'string' && parsed.collection in discoverCollectionConfig) {
+            discoverFilterState.collection = parsed.collection;
+        }
+    } catch (error) {
+        // Ignore malformed localStorage value.
+    }
+}
+
+function persistDiscoverFilterState() {
+    localStorage.setItem(DISCOVER_FILTER_STORAGE_KEY, JSON.stringify(discoverFilterState));
+}
+
+function getDiscoverCopy() {
+    if (currentLanguage === 'Korean') {
+        return {
+            title: 'Discover 탐색',
+            searchPlaceholder: '메뉴명, 재료, 카테고리 검색',
+            clear: '지우기',
+            categoryLabel: '카테고리',
+            collectionLabel: '컬렉션',
+            allCollection: '전체 컬렉션',
+            summary: (matched, total) => `${matched}개 매치 · 추천 풀 ${total}개`
+        };
+    }
+    return {
+        title: 'Discover',
+        searchPlaceholder: 'Search menu, ingredient, category',
+        clear: 'Clear',
+        categoryLabel: 'Category',
+        collectionLabel: 'Collection',
+        allCollection: 'All Collections',
+        summary: (matched, total) => `${matched} matches · pool ${total}`
+    };
+}
+
+function getCollectionLabel(collectionId) {
+    const config = discoverCollectionConfig[collectionId];
+    if (!config) return collectionId;
+    if (currentLanguage === 'Korean') return config.ko;
+    return config.en;
+}
+
+function getCategoryOfMenu(key) {
+    return menuCategoryByKey.get(key) || 'all';
+}
+
+function buildDiscoverMenuSearchText(key) {
+    const cache = discoverMenuSearchCache.get(key);
+    if (cache) return cache;
+
+    const parts = [key, getCategoryOfMenu(key)];
+    Object.values(discoverCategoryTerms).forEach((terms) => terms.forEach((term) => parts.push(term)));
+
+    if (typeof menuTranslations === 'object' && menuTranslations) {
+        Object.values(menuTranslations).forEach((langData) => {
+            if (langData && langData[key]) parts.push(langData[key]);
+        });
+    }
+    if (discoverKeywordHints[key]) {
+        discoverKeywordHints[key].forEach((hint) => parts.push(hint));
+    }
+    Object.entries(discoverCollectionConfig).forEach(([collectionId, config]) => {
+        if (config.keys.includes(key)) {
+            parts.push(collectionId, config.ko, config.en);
+        }
+    });
+
+    const built = normalizeDiscoverText(parts.join(' '));
+    discoverMenuSearchCache.set(key, built);
+    return built;
+}
+
+function isCollectionMatched(key, collectionId) {
+    if (collectionId === 'all') return true;
+    const config = discoverCollectionConfig[collectionId];
+    return !!config && config.keys.includes(key);
+}
+
+function isCategoryMatched(key, category) {
+    if (category === 'all') return true;
+    return getCategoryOfMenu(key) === category;
+}
+
+function isSearchMatched(key, normalizedSearch) {
+    if (!normalizedSearch) return true;
+    return buildDiscoverMenuSearchText(key).includes(normalizedSearch);
+}
+
+function resolveDiscoverMenuPool() {
+    const normalizedSearch = normalizeDiscoverText(discoverFilterState.search);
+    const category = discoverFilterState.category;
+    const collection = discoverFilterState.collection;
+
+    const strict = dinnerMenuKeys.filter((key) =>
+        isCategoryMatched(key, category) &&
+        isCollectionMatched(key, collection) &&
+        isSearchMatched(key, normalizedSearch)
+    );
+    if (strict.length > 0) {
+        return { keys: strict, strictCount: strict.length };
+    }
+
+    const relaxedNoSearch = dinnerMenuKeys.filter((key) =>
+        isCategoryMatched(key, category) && isCollectionMatched(key, collection)
+    );
+    if (relaxedNoSearch.length > 0) {
+        return { keys: relaxedNoSearch, strictCount: 0 };
+    }
+
+    const relaxedCategoryOnly = dinnerMenuKeys.filter((key) => isCategoryMatched(key, category));
+    if (relaxedCategoryOnly.length > 0) {
+        return { keys: relaxedCategoryOnly, strictCount: 0 };
+    }
+
+    return { keys: [...dinnerMenuKeys], strictCount: 0 };
+}
+
+function setDiscoverChipActive(button, isActive) {
+    if (!button) return;
+    button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    button.classList.toggle('border-primary', isActive);
+    button.classList.toggle('bg-primary/10', isActive);
+    button.classList.toggle('text-primary', isActive);
+    button.classList.toggle('border-gray-200', !isActive);
+    button.classList.toggle('dark:border-gray-700', !isActive);
+    button.classList.toggle('bg-white', !isActive);
+    button.classList.toggle('dark:bg-gray-800', !isActive);
+    button.classList.toggle('text-gray-600', !isActive);
+    button.classList.toggle('dark:text-gray-300', !isActive);
+}
+
+function syncDiscoverControlUI() {
+    const copy = getDiscoverCopy();
+    const title = document.getElementById('discover-controls-title');
+    if (title) title.textContent = copy.title;
+    const categoryTitle = document.getElementById('discover-category-title');
+    if (categoryTitle) categoryTitle.textContent = copy.categoryLabel;
+    const collectionTitle = document.getElementById('discover-collection-title');
+    if (collectionTitle) collectionTitle.textContent = copy.collectionLabel;
+    if (discoverSearchInput) {
+        discoverSearchInput.placeholder = copy.searchPlaceholder;
+        discoverSearchInput.setAttribute('aria-label', copy.searchPlaceholder);
+        if (discoverSearchInput.value !== discoverFilterState.search) {
+            discoverSearchInput.value = discoverFilterState.search;
+        }
+    }
+    if (discoverSearchClearBtn) {
+        discoverSearchClearBtn.textContent = copy.clear;
+        discoverSearchClearBtn.classList.toggle('hidden', !discoverFilterState.search);
+    }
+
+    discoverCategoryChips.forEach((button) => {
+        const category = button.dataset.category || 'all';
+        button.textContent = getSlotTranslation(category);
+        setDiscoverChipActive(button, category === discoverFilterState.category);
+    });
+    discoverCollectionChips.forEach((button) => {
+        const collectionId = button.dataset.collection || 'all';
+        button.textContent = collectionId === 'all' ? copy.allCollection : getCollectionLabel(collectionId);
+        setDiscoverChipActive(button, collectionId === discoverFilterState.collection);
+    });
+}
+
+function syncSlotCategoryUI() {
+    document.querySelectorAll('.category-btn').forEach((button) => {
+        const isActive = button.dataset.category === discoverFilterState.category;
+        button.classList.toggle('active', isActive);
+    });
+}
+
+function updateDiscoverSummary() {
+    const copy = getDiscoverCopy();
+    if (discoverFilterSummary) {
+        discoverFilterSummary.textContent = copy.summary(discoverStrictMatchCount, discoverFilteredMenuKeys.length);
+    }
+}
+
+function applyDiscoverFilters(options = {}) {
+    const { persist = false, syncInput = true, syncSlot = true, rerenderSlot = true } = options;
+    const resolved = resolveDiscoverMenuPool();
+    discoverFilteredMenuKeys = resolved.keys;
+    discoverStrictMatchCount = resolved.strictCount;
+    currentCategory = discoverFilterState.category;
+    const nextSignature = `${currentCategory}|${discoverFilteredMenuKeys.join(',')}`;
+
+    if (persist) {
+        persistDiscoverFilterState();
+    }
+    syncDiscoverControlUI();
+    if (!syncInput && discoverSearchInput) {
+        discoverSearchInput.value = discoverFilterState.search;
+    }
+    if (syncSlot) {
+        syncSlotCategoryUI();
+    }
+    if (rerenderSlot && nextSignature !== discoverPoolSignature && typeof buildSlotMenus === 'function') {
+        buildSlotMenus();
+        if (slotResult) slotResult.classList.remove('visible');
+    }
+    discoverPoolSignature = nextSignature;
+    updateDiscoverSummary();
+}
+
+function bindDiscoverControls() {
+    if (discoverSearchInput) {
+        discoverSearchInput.addEventListener('input', (event) => {
+            const next = String(event.target?.value || '').slice(0, 80);
+            if (next === discoverFilterState.search) return;
+            discoverFilterState.search = next;
+            applyDiscoverFilters({ persist: true, syncInput: false, syncSlot: true, rerenderSlot: true });
+        });
+        discoverSearchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && discoverFilterState.search) {
+                event.preventDefault();
+                discoverFilterState.search = '';
+                applyDiscoverFilters({ persist: true, syncInput: true, syncSlot: true, rerenderSlot: true });
+            }
+        });
+    }
+    if (discoverSearchClearBtn) {
+        discoverSearchClearBtn.addEventListener('click', () => {
+            if (!discoverFilterState.search) return;
+            discoverFilterState.search = '';
+            applyDiscoverFilters({ persist: true, syncInput: true, syncSlot: true, rerenderSlot: true });
+            discoverSearchInput?.focus();
+        });
+    }
+
+    discoverCategoryChips.forEach((button) => {
+        button.addEventListener('click', () => {
+            const nextCategory = button.dataset.category || 'all';
+            if (nextCategory === discoverFilterState.category) return;
+            discoverFilterState.category = nextCategory;
+            applyDiscoverFilters({ persist: true, syncInput: true, syncSlot: true, rerenderSlot: true });
+        });
+    });
+    discoverCollectionChips.forEach((button) => {
+        button.addEventListener('click', () => {
+            const nextCollection = button.dataset.collection || 'all';
+            if (nextCollection === discoverFilterState.collection) return;
+            discoverFilterState.collection = nextCollection;
+            applyDiscoverFilters({ persist: true, syncInput: true, syncSlot: true, rerenderSlot: true });
+        });
+    });
+}
+
+function initDiscoverExperience() {
+    readDiscoverFilterState();
+    bindDiscoverControls();
+    applyDiscoverFilters({ persist: false, syncInput: true, syncSlot: true, rerenderSlot: false });
+}
+
+function emitPreparedAnalyticsEvent(eventName, payload = {}) {
+    const event = {
+        event: eventName,
+        timestamp: Date.now(),
+        language: currentLanguage,
+        ...payload
+    };
+    window.__menurecAnalyticsQueue = window.__menurecAnalyticsQueue || [];
+    window.__menurecAnalyticsQueue.push(event);
+    document.dispatchEvent(new CustomEvent('menurec:analytics', { detail: event }));
+    if (window.NinanooAnalytics && typeof window.NinanooAnalytics.track === 'function') {
+        window.NinanooAnalytics.track(eventName, payload);
+    }
+}
+
+function getRecommendationUiCopy() {
+    if (currentLanguage === 'Korean') {
+        return {
+            reasonTitle: '추천 이유',
+            alternativeTitle: '대체 옵션',
+            reasonPlaceholder: [
+                '추천을 받으면 이유를 보여드려요.',
+                '상황, 시간대, 카테고리를 반영합니다.',
+                '최근 추천 중복은 자동으로 줄입니다.'
+            ],
+            alternativeFallback: '다른 추천 받기'
+        };
+    }
+    return {
+        reasonTitle: 'Why this menu',
+        alternativeTitle: 'Alternative options',
+        reasonPlaceholder: [
+            'Reason details appear after recommendation.',
+            'Context uses category, time, and active filters.',
+            'Recent duplicate recommendations are minimized.'
+        ],
+        alternativeFallback: 'Try another'
+    };
+}
+
+function restoreRecentRecommendationKeys() {
+    try {
+        const raw = localStorage.getItem(RECENT_RECOMMENDATION_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(parsed)) return;
+        recentRecommendationKeys = parsed
+            .map((item) => String(item || '').trim())
+            .filter((item) => !!item)
+            .slice(-MAX_RECENT_RECOMMENDATIONS);
+    } catch (error) {
+        recentRecommendationKeys = [];
+    }
+}
+
+function persistRecentRecommendationKeys() {
+    try {
+        localStorage.setItem(RECENT_RECOMMENDATION_STORAGE_KEY, JSON.stringify(recentRecommendationKeys));
+    } catch (error) {
+        // Ignore storage write errors.
+    }
+}
+
+function rememberRecommendationKey(menuKey) {
+    const value = String(menuKey || '').trim();
+    if (!value) return;
+    recentRecommendationKeys = recentRecommendationKeys.filter((item) => item !== value);
+    recentRecommendationKeys.push(value);
+    if (recentRecommendationKeys.length > MAX_RECENT_RECOMMENDATIONS) {
+        recentRecommendationKeys = recentRecommendationKeys.slice(-MAX_RECENT_RECOMMENDATIONS);
+    }
+    persistRecentRecommendationKeys();
+}
+
+function pickRandomMenuKey(sourceMenus, options = {}) {
+    const {
+        excludeKeys = [],
+        avoidRecent = true
+    } = options;
+    const normalizedSource = (Array.isArray(sourceMenus) && sourceMenus.length > 0) ? sourceMenus : dinnerMenuKeys;
+    const excludeSet = new Set(excludeKeys.filter(Boolean));
+    const recentSet = new Set(recentRecommendationKeys);
+
+    let pool = normalizedSource.filter((key) => !excludeSet.has(key));
+    if (pool.length === 0) pool = [...normalizedSource];
+    if (avoidRecent) {
+        const dedupedPool = pool.filter((key) => !recentSet.has(key));
+        if (dedupedPool.length > 0) pool = dedupedPool;
+    }
+    if (pool.length === 0) return '';
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function getNeighborCategories(category) {
+    const idx = recommendationCategoryOrder.indexOf(category);
+    if (idx === -1) return [];
+    const neighbors = [];
+    if (idx > 0) neighbors.push(recommendationCategoryOrder[idx - 1]);
+    if (idx < recommendationCategoryOrder.length - 1) neighbors.push(recommendationCategoryOrder[idx + 1]);
+    return neighbors;
+}
+
+function buildAlternativeMenuKeys(primaryKey, sourceMenus) {
+    const scoped = (Array.isArray(sourceMenus) && sourceMenus.length > 0) ? sourceMenus : dinnerMenuKeys;
+    const primaryCategory = getCategoryOfMenu(primaryKey);
+    const excludeKeys = new Set([primaryKey]);
+    const recentSet = new Set(recentRecommendationKeys);
+    const picked = [];
+
+    const appendFrom = (list, maxToAdd = Infinity) => {
+        let added = 0;
+        for (const key of list) {
+            if (picked.length >= 3) break;
+            if (added >= maxToAdd) break;
+            if (!key || excludeKeys.has(key) || picked.includes(key) || recentSet.has(key)) continue;
+            picked.push(key);
+            added += 1;
+        }
+    };
+
+    const sameCategory = scoped.filter((key) => getCategoryOfMenu(key) === primaryCategory);
+    const neighbors = getNeighborCategories(primaryCategory);
+    const neighborCategory = scoped.filter((key) => neighbors.includes(getCategoryOfMenu(key)));
+
+    appendFrom(sameCategory, 2);
+    appendFrom(neighborCategory, 1);
+    appendFrom(sameCategory);
+    appendFrom(neighborCategory);
+    appendFrom(scoped);
+
+    return picked.slice(0, 3);
+}
+
+function getCalorieHint(menuKey, category) {
+    const lighterMenus = new Set(['salad', 'caesarSalad', 'pho', 'sundubu', 'bunCha', 'onigiri', 'kimbap', 'omelet']);
+    const richerMenus = new Set(['pizza', 'chicken', 'porkBelly', 'bbqRibs', 'budaeJjigae', 'gamjatang', 'nachos', 'hamburger']);
+    if (lighterMenus.has(menuKey)) {
+        return currentLanguage === 'Korean'
+            ? '가벼운 칼로리 밸런스를 고려했습니다.'
+            : 'Calorie balance leans lighter for this pick.';
+    }
+    if (richerMenus.has(menuKey)) {
+        return currentLanguage === 'Korean'
+            ? '든든한 포만감이 필요한 상황을 반영했습니다.'
+            : 'This option was favored for a more filling meal.';
+    }
+    if (category === 'korean' || category === 'japanese') {
+        return currentLanguage === 'Korean'
+            ? '국물/밥류 중심의 안정적인 선택을 우선했습니다.'
+            : 'A balanced staple-style meal profile was prioritized.';
+    }
+    return currentLanguage === 'Korean'
+        ? '카테고리 다양성과 칼로리 편차를 함께 고려했습니다.'
+        : 'Category diversity and calorie spread were both considered.';
+}
+
+function buildRecommendationReasonLines(menuKey, sourceMenus) {
+    const category = getCategoryOfMenu(menuKey);
+    const categoryLabel = getSlotTranslation(category);
+    const collectionLabel = getCollectionLabel(discoverFilterState.collection);
+    const now = new Date();
+    const hour = now.getHours();
+    const recentAvoided = !recentRecommendationKeys.includes(menuKey);
+
+    let timeContext = currentLanguage === 'Korean' ? '일반 식사 시간대' : 'general mealtime';
+    if (hour >= 21 || hour < 4) {
+        timeContext = currentLanguage === 'Korean' ? '야식 시간대' : 'late-night window';
+    } else if (hour >= 11 && hour <= 14) {
+        timeContext = currentLanguage === 'Korean' ? '점심 시간대' : 'lunch window';
+    } else if (hour >= 17 && hour <= 20) {
+        timeContext = currentLanguage === 'Korean' ? '저녁 시간대' : 'dinner window';
+    }
+
+    const line1 = currentLanguage === 'Korean'
+        ? `${categoryLabel} 카테고리 기준으로 현재 추천 풀(${sourceMenus.length}개)에서 선택했습니다.`
+        : `Picked from the current ${categoryLabel}-scoped pool (${sourceMenus.length} candidates).`;
+    const line2 = discoverFilterState.collection !== 'all'
+        ? (currentLanguage === 'Korean'
+            ? `${collectionLabel} 컬렉션과 ${timeContext} 맥락을 함께 반영했습니다.`
+            : `${collectionLabel} collection + ${timeContext} context were both applied.`)
+        : (currentLanguage === 'Korean'
+            ? `${timeContext}에 맞는 메뉴 성격을 우선 반영했습니다.`
+            : `Menu profile was tuned for the ${timeContext}.`);
+    const line3 = currentLanguage === 'Korean'
+        ? `${recentAvoided ? '최근 추천과 중복을 피했고' : '최근 기록을 참고했고'}, ${getCalorieHint(menuKey, category)}`
+        : `${recentAvoided ? 'Recent duplicates were avoided' : 'Recent history was considered'}, and ${getCalorieHint(menuKey, category)}`;
+    const lines = [line1, line2, line3];
+    if (activeUserDietProfile) {
+        const profileLine = currentLanguage === 'Korean'
+            ? '프로필(목표/알레르기/기피/선호) 기반 필터를 함께 반영했습니다.'
+            : 'Profile filters (goal/allergy/dislikes/preference) were also applied.';
+        lines.push(profileLine);
+    }
+    return lines;
+}
+
+function renderRecommendationInsights(reasonLines, alternativeKeys) {
+    if (!isFeatureEnabled('recoWhy')) {
+        latestAlternativeMenuKeys = [];
+        return;
+    }
+    const copy = getRecommendationUiCopy();
+    if (recommendationReasonTitle) recommendationReasonTitle.textContent = copy.reasonTitle;
+    if (alternativeOptionsTitle) alternativeOptionsTitle.textContent = copy.alternativeTitle;
+
+    if (recommendationReasonList) {
+        recommendationReasonList.innerHTML = '';
+        (reasonLines || []).forEach((line) => {
+            const item = document.createElement('li');
+            item.textContent = line;
+            recommendationReasonList.appendChild(item);
+        });
+    }
+
+    latestAlternativeMenuKeys = Array.isArray(alternativeKeys) ? alternativeKeys.slice(0, 3) : [];
+    if (alternativeOptionsButtons) {
+        alternativeOptionsButtons.innerHTML = '';
+        latestAlternativeMenuKeys.forEach((menuKey) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/30';
+            button.dataset.menuKey = menuKey;
+            button.textContent = getMenuTranslation(menuKey);
+            button.addEventListener('click', () => {
+                emitPreparedAnalyticsEvent('alternative_option_click', {
+                    selectedMenuKey: menuKey,
+                    baseMenuKey: lastRecommendedMenuKey,
+                    poolSize: discoverFilteredMenuKeys.length
+                });
+                recommendMenuByKey(menuKey, { source: 'alternative' });
+            });
+            alternativeOptionsButtons.appendChild(button);
+        });
+    }
+}
+
+function updateRecommendationInsightTranslations() {
+    if (!isFeatureEnabled('recoWhy')) return;
+    const copy = getRecommendationUiCopy();
+    if (recommendationReasonTitle) recommendationReasonTitle.textContent = copy.reasonTitle;
+    if (alternativeOptionsTitle) alternativeOptionsTitle.textContent = copy.alternativeTitle;
+    if (latestAlternativeMenuKeys.length > 0 && alternativeOptionsButtons) {
+        const buttons = Array.from(alternativeOptionsButtons.querySelectorAll('button[data-menu-key]'));
+        buttons.forEach((button) => {
+            const menuKey = button.dataset.menuKey;
+            if (menuKey) button.textContent = getMenuTranslation(menuKey);
+        });
+    }
+    if (lastRecommendedMenuKey) {
+        const sourceMenus = getProfileAwareMenuPool(discoverFilteredMenuKeys.length > 0 ? discoverFilteredMenuKeys : dinnerMenuKeys);
+        const reasonLines = buildRecommendationReasonLines(lastRecommendedMenuKey, sourceMenus);
+        if (recommendationReasonList) {
+            recommendationReasonList.innerHTML = '';
+            reasonLines.forEach((line) => {
+                const item = document.createElement('li');
+                item.textContent = line;
+                recommendationReasonList.appendChild(item);
+            });
+        }
+    } else if (recommendationReasonList) {
+        recommendationReasonList.innerHTML = '';
+        copy.reasonPlaceholder.forEach((line) => {
+            const item = document.createElement('li');
+            item.textContent = line;
+            recommendationReasonList.appendChild(item);
+        });
+    }
+}
+
+function finalizeRecommendationButtonState(buttonText) {
+    recommendBtn.disabled = false;
+    recommendBtn.innerHTML = `<span class="btn-icon">🎲</span><span class="btn-text">${buttonText}</span>`;
+}
+
+async function recommendMenuByKey(menuKey, options = {}) {
+    const { source = 'primary', trackInteraction = false } = options;
+    const sourceMenus = getProfileAwareMenuPool(discoverFilteredMenuKeys.length > 0 ? discoverFilteredMenuKeys : dinnerMenuKeys);
+    const t = translations[currentLanguage] || translations['English'];
+    const wasReroll = menuRecommendation.dataset.hasRecommendation === 'true';
+    const safeMenuKey = menuKey || pickRandomMenuKey(sourceMenus);
+    if (!safeMenuKey) return;
+
+    const menuText = getMenuTranslation(safeMenuKey);
+    menuRecommendation.style.opacity = '0';
+    setTimeout(() => {
+        menuRecommendation.textContent = menuText;
+        menuRecommendation.dataset.hasRecommendation = 'true';
+        menuRecommendation.style.opacity = '1';
+    }, 200);
+
+    recommendBtn.disabled = true;
+    recommendBtn.innerHTML = `<span class="btn-icon">⏳</span><span class="btn-text">${t.loadingImage}</span>`;
+    menuImage.style.opacity = '0.5';
+
+    const englishMenuText = (menuTranslations['English'] && menuTranslations['English'][safeMenuKey]) ? menuTranslations['English'][safeMenuKey] : menuText;
+    const searchTerm = imageSearchOverrides[safeMenuKey] || englishMenuText;
+    const imageUrl = await fetchPexelsImage(searchTerm, englishMenuText);
+
+    if (isFeatureEnabled('recoWhy')) {
+        const reasonLines = buildRecommendationReasonLines(safeMenuKey, sourceMenus);
+        const alternativeKeys = buildAlternativeMenuKeys(safeMenuKey, sourceMenus);
+        renderRecommendationInsights(reasonLines, alternativeKeys);
+    }
+    rememberRecommendationKey(safeMenuKey);
+    lastRecommendedMenuKey = safeMenuKey;
+
+    if (trackInteraction) {
+        emitPreparedAnalyticsEvent('recommend_click', {
+            source,
+            menuKey: safeMenuKey,
+            reroll: wasReroll,
+            poolSize: sourceMenus.length
+        });
+    }
+
+    if (!imageUrl) {
+        menuImage.src = '';
+        menuImage.alt = `${menuText} - ${t.imageAlt || 'recommended menu photo'}`;
+        menuImage.style.opacity = '1';
+        finalizeRecommendationButtonState(t.getAnother);
+        return;
+    }
+
+    const img = new Image();
+    img.onload = () => {
+        menuImage.src = imageUrl;
+        menuImage.alt = `${menuText} - ${t.imageAlt || 'recommended menu photo'}`;
+        menuImage.style.opacity = '1';
+        finalizeRecommendationButtonState(t.getAnother);
+    };
+    img.onerror = () => {
+        console.error('Error loading image for:', safeMenuKey);
+        menuImage.src = '';
+        menuImage.style.opacity = '1';
+        finalizeRecommendationButtonState(t.getAnother);
+    };
+    img.src = imageUrl;
+}
+
+restoreRecentRecommendationKeys();
 
 // Language Selector
 const languageBtn = document.getElementById('language-btn');
@@ -590,6 +1476,7 @@ function applyTranslations() {
             btnText.textContent = t.getRecommendation;
         }
     }
+    updateRecommendationInsightTranslations();
 
     // Update contact section
     const contactDesc = document.querySelector('.contact-desc');
@@ -789,6 +1676,9 @@ function applyTranslations() {
         if (tips[1]) tips[1].innerHTML = getMealText('mealTip2');
     }
 
+    syncDiscoverControlUI();
+    updateDiscoverSummary();
+
     if (typeof updateAuthUI === 'function') {
         updateAuthUI(currentAuthUser);
     }
@@ -877,48 +1767,10 @@ languageDropdown.addEventListener('click', (e) => {
 });
 
 // Menu Recommendation
-document.getElementById('recommend-btn').addEventListener('click', async () => {
-    const randomIndex = Math.floor(Math.random() * dinnerMenuKeys.length);
-    const recommendedMenuKey = dinnerMenuKeys[randomIndex];
-    const t = translations[currentLanguage] || translations['English'];
-
-    // Display menu name based on selected language
-    const menuText = getMenuTranslation(recommendedMenuKey);
-
-    // Update menu text with animation
-    menuRecommendation.style.opacity = '0';
-    setTimeout(() => {
-        menuRecommendation.textContent = menuText;
-        menuRecommendation.dataset.hasRecommendation = 'true';
-        menuRecommendation.style.opacity = '1';
-    }, 200);
-
-    // Show loading state
-    recommendBtn.disabled = true;
-    recommendBtn.innerHTML = `<span class="btn-icon">⏳</span><span class="btn-text">${t.loadingImage}</span>`;
-    menuImage.style.opacity = '0.5';
-
-    const englishMenuText = (menuTranslations['English'] && menuTranslations['English'][recommendedMenuKey]) ? menuTranslations['English'][recommendedMenuKey] : menuText;
-    const searchTerm = imageSearchOverrides[recommendedMenuKey] || englishMenuText;
-    const imageUrl = await fetchPexelsImage(searchTerm, englishMenuText);
-
-    // Preload image to avoid flashing
-    const img = new Image();
-    img.onload = () => {
-        menuImage.src = imageUrl;
-        menuImage.alt = menuText + ' - ' + (t.imageAlt || 'recommended menu photo');
-        menuImage.style.opacity = '1';
-        recommendBtn.disabled = false;
-        recommendBtn.innerHTML = `<span class="btn-icon">🎲</span><span class="btn-text">${t.getAnother}</span>`;
-    };
-    img.onerror = () => {
-        console.error('Error loading image for:', recommendedMenuKey);
-        menuImage.src = '';
-        menuImage.style.opacity = '1';
-        recommendBtn.disabled = false;
-        recommendBtn.innerHTML = `<span class="btn-icon">🎲</span><span class="btn-text">${t.getAnother}</span>`;
-    };
-    img.src = imageUrl;
+recommendBtn?.addEventListener('click', async () => {
+    const sourceMenus = getProfileAwareMenuPool(discoverFilteredMenuKeys.length > 0 ? discoverFilteredMenuKeys : dinnerMenuKeys);
+    const recommendedMenuKey = pickRandomMenuKey(sourceMenus, { avoidRecent: true });
+    await recommendMenuByKey(recommendedMenuKey, { source: 'primary', trackInteraction: true });
 });
 
 function applyThemeState(isDark, options = {}) {
@@ -1240,6 +2092,12 @@ function initMemberAuth() {
             fillAuthProfileForm(null);
             return;
         }
+        emitPreparedAnalyticsEvent('login_success', {
+            method: user.providerData?.[0]?.providerId || 'firebase',
+            userIdHash: (window.NinanooAnalytics && typeof window.NinanooAnalytics.identify === 'function')
+                ? window.NinanooAnalytics.identify(user.uid || '')
+                : ''
+        });
         const providerId = user.providerData?.[0]?.providerId || '';
         await upsertMemberProfile(user, providerId).catch((error) => {
             console.error('Failed to upsert member profile', error);
@@ -1326,6 +2184,10 @@ async function signOutSidebarMember() {
     }
 
     sidebarSupabaseUser = null;
+    if (window.NinanooProfileStore) {
+        window.NinanooProfileStore.markSignedOut();
+    }
+    await refreshDietProfileContext({ preferCacheOnly: true }).catch(() => null);
     updateSidebarAuthCta(null);
 
     const mobileSidebar = document.getElementById('mobile-sidebar');
@@ -1378,24 +2240,46 @@ async function initSidebarAuth() {
         const sessionUser = sessionData?.session?.user || null;
         if (sessionUser) {
             sidebarSupabaseUser = sessionUser;
+            if (window.NinanooProfileStore) {
+                window.NinanooProfileStore.markSignedIn(sessionUser.id);
+            }
             updateSidebarAuthCta(sidebarSupabaseUser);
+            await refreshDietProfileContext().catch(() => null);
             return;
         }
 
         const { data: userData } = await sidebarSupabaseClient.auth.getUser();
         sidebarSupabaseUser = userData?.user || null;
+        if (sidebarSupabaseUser && window.NinanooProfileStore) {
+            window.NinanooProfileStore.markSignedIn(sidebarSupabaseUser.id);
+        }
+        if (!sidebarSupabaseUser && window.NinanooProfileStore) {
+            window.NinanooProfileStore.markSignedOut();
+        }
         updateSidebarAuthCta(sidebarSupabaseUser);
+        await refreshDietProfileContext({ preferCacheOnly: !sidebarSupabaseUser }).catch(() => null);
     };
 
     await syncSidebarAuthState();
 
     sidebarSupabaseClient.auth.onAuthStateChange((_event, session) => {
         sidebarSupabaseUser = session?.user || null;
+        if (sidebarSupabaseUser && window.NinanooProfileStore) {
+            window.NinanooProfileStore.markSignedIn(sidebarSupabaseUser.id);
+        }
+        if (!sidebarSupabaseUser && window.NinanooProfileStore) {
+            window.NinanooProfileStore.markSignedOut();
+        }
         updateSidebarAuthCta(sidebarSupabaseUser);
+        refreshDietProfileContext({ preferCacheOnly: !sidebarSupabaseUser }).catch(() => null);
     });
 
     window.addEventListener('focus', () => {
         syncSidebarAuthState().catch(() => null);
+    });
+
+    window.addEventListener('ninanoo:profile-updated', () => {
+        refreshDietProfileContext({ preferCacheOnly: true }).catch(() => null);
     });
 }
 
@@ -1406,7 +2290,28 @@ let bulletinMessage = null;
 let bulletinPosts = null;
 let bulletinLoading = null;
 let bulletinSubmit = null;
+let bulletinFormStatus = null;
+let bulletinSort = null;
+let bulletinTagMenu = null;
+let bulletinTagRegion = null;
+let bulletinTagPrice = null;
+let bulletinTagDifficulty = null;
+let bulletinReportModal = null;
+let bulletinReportReason = null;
+let bulletinReportFeedback = null;
+let bulletinReportSubmit = null;
+let bulletinReportCancel = null;
+let bulletinPendingReportPostId = '';
 let bulletinInitialized = false;
+let bulletinPostCache = [];
+
+const BULLETIN_STORAGE_KEY = 'bulletinPosts';
+const BULLETIN_CLIENT_ID_KEY = 'bulletinClientId';
+const BULLETIN_POST_HISTORY_PREFIX = 'bulletinPostHistory:';
+const BULLETIN_LIKED_PREFIX = 'bulletinLiked:';
+const BULLETIN_POST_WINDOW_MS = 5 * 60 * 1000;
+const BULLETIN_POST_LIMIT_IN_WINDOW = 3;
+const BULLETIN_POST_COOLDOWN_MS = 45 * 1000;
 
 // Get bulletin translations
 function getBulletinTranslation(key) {
@@ -1424,6 +2329,24 @@ function getBulletinTranslation(key) {
             empty: 'No posts yet. Be the first to share!',
             recentTitle: 'Recent Posts',
             realtime: 'Real-time updates',
+            sortLabel: 'Sort',
+            sortLatest: 'Latest',
+            sortPopular: 'Popular (Likes)',
+            sortComments: 'Most comments',
+            tagMenuLabel: 'Menu Tag',
+            tagRegionLabel: 'Region Tag',
+            tagPriceLabel: 'Price Tag',
+            tagDifficultyLabel: 'Difficulty Tag',
+            reportTitle: 'Report Post',
+            reportReasonLabel: 'Reason',
+            reportCancel: 'Cancel',
+            reportSubmit: 'Report',
+            like: 'Like',
+            liked: 'Liked',
+            report: 'Report',
+            reportQueued: 'Report submitted. Thank you.',
+            reportFailed: 'Failed to submit report. Try again.',
+            postLimited: 'Posting is temporarily limited. Please wait.',
             justNow: 'Just now',
             minutesAgo: 'minutes ago',
             hoursAgo: 'hours ago',
@@ -1442,6 +2365,24 @@ function getBulletinTranslation(key) {
             empty: '아직 게시물이 없습니다. 첫 번째로 공유해보세요!',
             recentTitle: '최근 게시글',
             realtime: '실시간 업데이트 중',
+            sortLabel: '정렬',
+            sortLatest: '최신',
+            sortPopular: '인기(좋아요)',
+            sortComments: '댓글수',
+            tagMenuLabel: '메뉴 태그',
+            tagRegionLabel: '지역 태그',
+            tagPriceLabel: '가격대 태그',
+            tagDifficultyLabel: '난이도 태그',
+            reportTitle: '게시글 신고',
+            reportReasonLabel: '사유 선택',
+            reportCancel: '취소',
+            reportSubmit: '신고',
+            like: '좋아요',
+            liked: '좋아요 완료',
+            report: '신고',
+            reportQueued: '신고가 접수되었습니다. 감사합니다.',
+            reportFailed: '신고 접수에 실패했습니다. 다시 시도해 주세요.',
+            postLimited: '연속 작성이 제한되었습니다. 잠시 후 다시 시도해 주세요.',
             justNow: '방금 전',
             minutesAgo: '분 전',
             hoursAgo: '시간 전',
@@ -1507,6 +2448,35 @@ function getBulletinTranslation(key) {
     return langData[key] || bulletinTranslations['English'][key];
 }
 
+function getBulletinClientId() {
+    let clientId = localStorage.getItem(BULLETIN_CLIENT_ID_KEY);
+    if (!clientId) {
+        clientId = `b_${Math.random().toString(36).slice(2, 11)}`;
+        localStorage.setItem(BULLETIN_CLIENT_ID_KEY, clientId);
+    }
+    return clientId;
+}
+
+function normalizeBulletinPost(raw, fallbackId) {
+    const tags = raw && typeof raw.tags === 'object' && raw.tags ? raw.tags : {};
+    return {
+        id: String(raw?.id || fallbackId || ''),
+        nickname: String(raw?.nickname || '').trim().slice(0, 20) || '익명',
+        message: String(raw?.message || '').trim().slice(0, 200),
+        timestamp: Number(raw?.timestamp || Date.now()),
+        tags: {
+            menu: String(tags.menu || '기타').slice(0, 20),
+            region: String(tags.region || '기타').slice(0, 20),
+            price: String(tags.price || '보통').slice(0, 20),
+            difficulty: String(tags.difficulty || '보통').slice(0, 20)
+        },
+        likeCount: Number.isFinite(Number(raw?.likeCount)) ? Number(raw.likeCount) : 0,
+        reportCount: Number.isFinite(Number(raw?.reportCount)) ? Number(raw.reportCount) : 0,
+        commentCount: Number.isFinite(Number(raw?.commentCount)) ? Number(raw.commentCount) : 0,
+        clientId: String(raw?.clientId || '').slice(0, 40)
+    };
+}
+
 // Format time ago
 function formatTimeAgo(timestamp) {
     const now = Date.now();
@@ -1521,6 +2491,48 @@ function formatTimeAgo(timestamp) {
     return `${days} ${getBulletinTranslation('daysAgo')}`;
 }
 
+function getCurrentSortMode() {
+    return (bulletinSort && bulletinSort.value) ? bulletinSort.value : 'latest';
+}
+
+function sortBulletinPosts(posts, mode) {
+    const next = [...posts];
+    if (mode === 'popular') {
+        next.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0) || (b.timestamp || 0) - (a.timestamp || 0));
+        return next;
+    }
+    if (mode === 'comments') {
+        next.sort((a, b) => (b.commentCount || 0) - (a.commentCount || 0) || (b.timestamp || 0) - (a.timestamp || 0));
+        return next;
+    }
+    next.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    return next;
+}
+
+function renderBulletinPostList(posts) {
+    if (!bulletinPosts) return;
+    bulletinPosts.innerHTML = '';
+    if (!posts.length) {
+        bulletinPosts.innerHTML = `<div class="bulletin-empty text-center text-sm text-gray-500 dark:text-gray-400 py-8 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">${getBulletinTranslation('empty')}</div>`;
+        return;
+    }
+    const sorted = sortBulletinPosts(posts, getCurrentSortMode());
+    sorted.slice(0, 50).forEach(post => bulletinPosts.appendChild(renderPost(post)));
+}
+
+function setBulletinFormStatus(message, isError) {
+    if (!bulletinFormStatus) return;
+    bulletinFormStatus.textContent = message || '';
+    bulletinFormStatus.classList.remove('text-red-500', 'dark:text-red-300', 'text-emerald-600', 'dark:text-emerald-300', 'text-gray-500', 'dark:text-gray-400');
+    if (!message) {
+        bulletinFormStatus.classList.add('text-gray-500', 'dark:text-gray-400');
+    } else if (isError) {
+        bulletinFormStatus.classList.add('text-red-500', 'dark:text-red-300');
+    } else {
+        bulletinFormStatus.classList.add('text-emerald-600', 'dark:text-emerald-300');
+    }
+}
+
 // Render a single post
 function renderPost(post) {
     const avatars = ['🍔', '🍜', '🥘', '🍕', '🥗', '🍣', '🌮', '🍩'];
@@ -1528,6 +2540,11 @@ function renderPost(post) {
     const hashBase = nickname || 'user';
     const hash = Array.from(hashBase).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
     const avatar = avatars[hash % avatars.length];
+    const isLiked = localStorage.getItem(BULLETIN_LIKED_PREFIX + post.id) === '1';
+    const tagHtml = [post.tags.menu, post.tags.region, post.tags.price, post.tags.difficulty]
+        .filter(Boolean)
+        .map((tag) => `<span class="inline-flex items-center rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-200 px-2 py-0.5 text-[11px] font-semibold">#${escapeHtml(tag)}</span>`)
+        .join(' ');
 
     const postEl = document.createElement('div');
     postEl.className = 'bulletin-post bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-700 transition-colors';
@@ -1544,6 +2561,18 @@ function renderPost(post) {
             </div>
         </div>
         <div class="bulletin-post-message text-gray-700 dark:text-gray-200 leading-relaxed pl-[52px]">${escapeHtml(post.message)}</div>
+        <div class="mt-3 pl-[52px] flex flex-wrap gap-1.5">${tagHtml}</div>
+        <div class="mt-3 pl-[52px] flex items-center gap-2 text-xs">
+            <button type="button" data-action="like" data-post-id="${escapeHtml(post.id)}" class="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 ${isLiked ? 'border-emerald-300 text-emerald-700 dark:text-emerald-300' : 'border-gray-300 text-gray-700 dark:text-gray-200'}">
+                <span class="material-icons-outlined text-sm">thumb_up</span>
+                <span>${isLiked ? getBulletinTranslation('liked') : getBulletinTranslation('like')} (${post.likeCount || 0})</span>
+            </button>
+            <button type="button" data-action="report" data-post-id="${escapeHtml(post.id)}" class="inline-flex items-center gap-1 rounded-lg border border-rose-300 text-rose-700 dark:text-rose-300 px-2.5 py-1.5">
+                <span class="material-icons-outlined text-sm">flag</span>
+                <span>${getBulletinTranslation('report')}</span>
+            </button>
+            <span class="text-gray-500 dark:text-gray-400">댓글 ${(post.commentCount || 0)} · 신고 ${(post.reportCount || 0)}</span>
+        </div>
     `;
     return postEl;
 }
@@ -1568,18 +2597,12 @@ async function loadPosts() {
             .orderBy('timestamp', 'desc')
             .limit(50)
             .get();
-
-        bulletinPosts.innerHTML = '';
-
-        if (snapshot.empty) {
-            bulletinPosts.innerHTML = `<div class="bulletin-empty text-center text-sm text-gray-500 dark:text-gray-400 py-8 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">${getBulletinTranslation('empty')}</div>`;
-            return;
-        }
-
+        const posts = [];
         snapshot.forEach(doc => {
-            const post = doc.data();
-            bulletinPosts.appendChild(renderPost(post));
+            posts.push(normalizeBulletinPost({ id: doc.id, ...doc.data() }, doc.id));
         });
+        bulletinPostCache = posts;
+        renderBulletinPostList(bulletinPostCache);
     } catch (error) {
         console.error('Error loading posts:', error);
         loadPostsFromLocalStorage();
@@ -1588,42 +2611,151 @@ async function loadPosts() {
 
 // Fallback: Load posts from localStorage
 function loadPostsFromLocalStorage() {
-    const posts = JSON.parse(localStorage.getItem('bulletinPosts') || '[]');
-    bulletinPosts.innerHTML = '';
+    const raw = JSON.parse(localStorage.getItem(BULLETIN_STORAGE_KEY) || '[]');
+    bulletinPostCache = raw.map((post, idx) => normalizeBulletinPost(post, post?.id || `local-${idx}`));
+    renderBulletinPostList(bulletinPostCache);
+}
 
-    if (posts.length === 0) {
-        bulletinPosts.innerHTML = `<div class="bulletin-empty text-center text-sm text-gray-500 dark:text-gray-400 py-8 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">${getBulletinTranslation('empty')}</div>`;
-        return;
+function getBulletinTagSelection() {
+    return {
+        menu: bulletinTagMenu ? bulletinTagMenu.value : '기타',
+        region: bulletinTagRegion ? bulletinTagRegion.value : '기타',
+        price: bulletinTagPrice ? bulletinTagPrice.value : '보통',
+        difficulty: bulletinTagDifficulty ? bulletinTagDifficulty.value : '보통'
+    };
+}
+
+function checkPostingLimit(clientId) {
+    const key = BULLETIN_POST_HISTORY_PREFIX + clientId;
+    const now = Date.now();
+    const historyRaw = JSON.parse(localStorage.getItem(key) || '[]');
+    const history = historyRaw.filter(ts => Number(ts) > now - BULLETIN_POST_WINDOW_MS);
+    const last = history.length ? Number(history[history.length - 1]) : 0;
+    if (last && now - last < BULLETIN_POST_COOLDOWN_MS) {
+        return { ok: false, message: getBulletinTranslation('postLimited') };
     }
+    if (history.length >= BULLETIN_POST_LIMIT_IN_WINDOW) {
+        return { ok: false, message: getBulletinTranslation('postLimited') };
+    }
+    return { ok: true, historyKey: key, history };
+}
 
-    posts.sort((a, b) => b.timestamp - a.timestamp);
-    posts.slice(0, 50).forEach(post => {
-        bulletinPosts.appendChild(renderPost(post));
-    });
+function markPostingHistory(limitResult) {
+    if (!limitResult || !limitResult.historyKey) return;
+    const next = [...(limitResult.history || []), Date.now()];
+    localStorage.setItem(limitResult.historyKey, JSON.stringify(next.slice(-10)));
 }
 
 // Save post
-async function savePost(nickname, message) {
+async function savePost(nickname, message, tags) {
+    const clientId = getBulletinClientId();
+    const limitResult = checkPostingLimit(clientId);
+    if (!limitResult.ok) {
+        return { ok: false, message: limitResult.message };
+    }
+
     const post = {
+        id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         nickname: nickname.trim(),
         message: message.trim(),
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        tags: tags || getBulletinTagSelection(),
+        likeCount: 0,
+        reportCount: 0,
+        commentCount: 0,
+        clientId: clientId
     };
 
     if (db) {
         try {
-            await db.collection('bulletin').add(post);
-            return true;
+            const ref = await db.collection('bulletin').add(post);
+            post.id = ref.id;
+            markPostingHistory(limitResult);
+            return { ok: true, post };
         } catch (error) {
             console.error('Error saving to Firestore:', error);
         }
     }
 
     // Fallback to localStorage
-    const posts = JSON.parse(localStorage.getItem('bulletinPosts') || '[]');
+    const posts = JSON.parse(localStorage.getItem(BULLETIN_STORAGE_KEY) || '[]');
     posts.unshift(post);
-    localStorage.setItem('bulletinPosts', JSON.stringify(posts.slice(0, 100)));
-    return true;
+    localStorage.setItem(BULLETIN_STORAGE_KEY, JSON.stringify(posts.slice(0, 100)));
+    markPostingHistory(limitResult);
+    return { ok: true, post };
+}
+
+async function handleLike(postId) {
+    if (!postId) return;
+    const likedKey = BULLETIN_LIKED_PREFIX + postId;
+    if (localStorage.getItem(likedKey) === '1') return;
+    localStorage.setItem(likedKey, '1');
+
+    if (db) {
+        try {
+            await db.collection('bulletin').doc(postId).update({
+                likeCount: firebase.firestore.FieldValue.increment(1)
+            });
+            await loadPosts();
+            return;
+        } catch (error) {
+            console.error('Error like update:', error);
+        }
+    }
+
+    const posts = JSON.parse(localStorage.getItem(BULLETIN_STORAGE_KEY) || '[]');
+    const next = posts.map(post => {
+        if (String(post.id || '') !== String(postId)) return post;
+        return { ...post, likeCount: (Number(post.likeCount) || 0) + 1 };
+    });
+    localStorage.setItem(BULLETIN_STORAGE_KEY, JSON.stringify(next.slice(0, 100)));
+    loadPostsFromLocalStorage();
+}
+
+function openReportModal(postId) {
+    bulletinPendingReportPostId = String(postId || '');
+    if (!bulletinReportModal) return;
+    bulletinReportModal.classList.remove('hidden');
+    if (bulletinReportFeedback) bulletinReportFeedback.textContent = '';
+}
+
+function closeReportModal() {
+    bulletinPendingReportPostId = '';
+    if (!bulletinReportModal) return;
+    bulletinReportModal.classList.add('hidden');
+}
+
+async function handleReport(postId, reason) {
+    const selectedReason = String(reason || 'other');
+    if (!postId) return { ok: false };
+    if (db) {
+        try {
+            await Promise.all([
+                db.collection('bulletin').doc(postId).update({
+                    reportCount: firebase.firestore.FieldValue.increment(1)
+                }),
+                db.collection('bulletinReports').add({
+                    postId,
+                    reason: selectedReason,
+                    timestamp: Date.now(),
+                    clientId: getBulletinClientId()
+                })
+            ]);
+            await loadPosts();
+            return { ok: true };
+        } catch (error) {
+            console.error('Error report update:', error);
+        }
+    }
+
+    const posts = JSON.parse(localStorage.getItem(BULLETIN_STORAGE_KEY) || '[]');
+    const next = posts.map(post => {
+        if (String(post.id || '') !== String(postId)) return post;
+        return { ...post, reportCount: (Number(post.reportCount) || 0) + 1 };
+    });
+    localStorage.setItem(BULLETIN_STORAGE_KEY, JSON.stringify(next.slice(0, 100)));
+    loadPostsFromLocalStorage();
+    return { ok: true };
 }
 
 // Handle form submission
@@ -1636,6 +2768,17 @@ function initBulletinBoard() {
     bulletinPosts = document.getElementById('bulletin-posts');
     bulletinLoading = document.getElementById('bulletin-loading');
     bulletinSubmit = document.getElementById('bulletin-submit');
+    bulletinFormStatus = document.getElementById('bulletin-form-status');
+    bulletinSort = document.getElementById('bulletin-sort');
+    bulletinTagMenu = document.getElementById('bulletin-tag-menu');
+    bulletinTagRegion = document.getElementById('bulletin-tag-region');
+    bulletinTagPrice = document.getElementById('bulletin-tag-price');
+    bulletinTagDifficulty = document.getElementById('bulletin-tag-difficulty');
+    bulletinReportModal = document.getElementById('bulletin-report-modal');
+    bulletinReportReason = document.getElementById('bulletin-report-reason');
+    bulletinReportFeedback = document.getElementById('bulletin-report-feedback');
+    bulletinReportSubmit = document.getElementById('bulletin-report-submit');
+    bulletinReportCancel = document.getElementById('bulletin-report-cancel');
 
     if (!bulletinForm || !bulletinPosts) return;
     bulletinInitialized = true;
@@ -1645,21 +2788,66 @@ function initBulletinBoard() {
 
         const nickname = bulletinNickname.value.trim();
         const message = bulletinMessage.value.trim();
+        const tags = getBulletinTagSelection();
 
         if (!nickname || !message) return;
 
         bulletinSubmit.disabled = true;
 
-        const success = await savePost(nickname, message);
+        const result = await savePost(nickname, message, tags);
 
-        if (success) {
+        if (result.ok) {
             bulletinMessage.value = '';
             localStorage.setItem('bulletinNickname', nickname);
             await loadPosts();
+            setBulletinFormStatus('', false);
+        } else if (result.message) {
+            setBulletinFormStatus(result.message, true);
         }
 
         bulletinSubmit.disabled = false;
     });
+
+    if (bulletinSort) {
+        bulletinSort.addEventListener('change', () => {
+            renderBulletinPostList(bulletinPostCache);
+        });
+    }
+
+    bulletinPosts.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const action = button.getAttribute('data-action');
+        const postId = button.getAttribute('data-post-id');
+        if (action === 'like') {
+            handleLike(postId);
+        } else if (action === 'report') {
+            openReportModal(postId);
+        }
+    });
+
+    if (bulletinReportCancel) {
+        bulletinReportCancel.addEventListener('click', closeReportModal);
+    }
+    if (bulletinReportModal) {
+        bulletinReportModal.addEventListener('click', (event) => {
+            if (event.target === bulletinReportModal) closeReportModal();
+        });
+    }
+    if (bulletinReportSubmit) {
+        bulletinReportSubmit.addEventListener('click', async () => {
+            const reason = bulletinReportReason ? bulletinReportReason.value : 'other';
+            const result = await handleReport(bulletinPendingReportPostId, reason);
+            if (bulletinReportFeedback) {
+                bulletinReportFeedback.textContent = result.ok
+                    ? getBulletinTranslation('reportQueued')
+                    : getBulletinTranslation('reportFailed');
+            }
+            if (result.ok) {
+                setTimeout(closeReportModal, 700);
+            }
+        });
+    }
 
     // Restore saved nickname
     const savedNickname = localStorage.getItem('bulletinNickname');
@@ -1682,6 +2870,33 @@ function updateBulletinTranslations() {
     if (bulletinMessage) bulletinMessage.placeholder = getBulletinTranslation('messagePlaceholder');
     if (bulletinSubmit) bulletinSubmit.querySelector('span').textContent = getBulletinTranslation('submit');
     if (bulletinLoading) bulletinLoading.textContent = getBulletinTranslation('loading');
+    if (bulletinFormStatus && !bulletinFormStatus.textContent) {
+        setBulletinFormStatus('', false);
+    }
+    const tagMenuLabel = document.getElementById('bulletin-tag-menu-label');
+    if (tagMenuLabel) tagMenuLabel.textContent = getBulletinTranslation('tagMenuLabel');
+    const tagRegionLabel = document.getElementById('bulletin-tag-region-label');
+    if (tagRegionLabel) tagRegionLabel.textContent = getBulletinTranslation('tagRegionLabel');
+    const tagPriceLabel = document.getElementById('bulletin-tag-price-label');
+    if (tagPriceLabel) tagPriceLabel.textContent = getBulletinTranslation('tagPriceLabel');
+    const tagDifficultyLabel = document.getElementById('bulletin-tag-difficulty-label');
+    if (tagDifficultyLabel) tagDifficultyLabel.textContent = getBulletinTranslation('tagDifficultyLabel');
+    const sortLabel = document.getElementById('bulletin-sort-label');
+    if (sortLabel) sortLabel.textContent = getBulletinTranslation('sortLabel');
+    const reportTitle = document.getElementById('bulletin-report-title');
+    if (reportTitle) reportTitle.textContent = getBulletinTranslation('reportTitle');
+    const reportReasonLabel = document.getElementById('bulletin-report-reason-label');
+    if (reportReasonLabel) reportReasonLabel.textContent = getBulletinTranslation('reportReasonLabel');
+    if (bulletinReportCancel) bulletinReportCancel.textContent = getBulletinTranslation('reportCancel');
+    if (bulletinReportSubmit) bulletinReportSubmit.textContent = getBulletinTranslation('reportSubmit');
+    if (bulletinSort) {
+        const latest = bulletinSort.querySelector('option[value="latest"]');
+        const popular = bulletinSort.querySelector('option[value="popular"]');
+        const comments = bulletinSort.querySelector('option[value="comments"]');
+        if (latest) latest.textContent = getBulletinTranslation('sortLatest');
+        if (popular) popular.textContent = getBulletinTranslation('sortPopular');
+        if (comments) comments.textContent = getBulletinTranslation('sortComments');
+    }
 
     const formTitle = document.getElementById('bulletin-form-title');
     if (formTitle) formTitle.textContent = getBulletinTranslation('formTitle');
@@ -1699,6 +2914,7 @@ function updateBulletinTranslations() {
     if (emptyEl) {
         emptyEl.textContent = getBulletinTranslation('empty');
     }
+    renderBulletinPostList(bulletinPostCache);
 }
 
 // ============ SLOT MACHINE FUNCTIONALITY ============
@@ -1892,6 +3108,30 @@ const slotMenuEmojis = {
     ]
 };
 
+function initMenuCategoryMap() {
+    menuCategoryByKey = new Map();
+    slotMenuByKey = new Map();
+    Object.entries(slotMenuEmojis).forEach(([category, menus]) => {
+        menus.forEach((menu) => {
+            if (menu?.key) {
+                menuCategoryByKey.set(menu.key, category);
+                slotMenuByKey.set(menu.key, menu);
+            }
+        });
+    });
+
+    const overrides = {
+        sushiRoll: 'japanese',
+        paella: 'western',
+        nachos: 'mexican'
+    };
+    Object.entries(overrides).forEach(([key, category]) => {
+        menuCategoryByKey.set(key, category);
+    });
+}
+
+initMenuCategoryMap();
+
 const slotReel1 = document.getElementById('slot-reel-1');
 const slotReel2 = document.getElementById('slot-reel-2');
 const slotReel3 = document.getElementById('slot-reel-3');
@@ -1906,8 +3146,43 @@ const categoryFilter = document.getElementById('category-filter');
 let currentCategory = 'all';
 let currentSlotMenus = [];
 let isSlotSpinning = false;
-let spinIntervals = [null, null, null];
 let lastWinningMenu = null;
+let lastSlotSpinAt = 0;
+const SLOT_SPIN_MIN_INTERVAL_MS = 350;
+const SLOT_SPIN_ARM_TIMEOUT_MS = 1500;
+let isSlotSpinArmed = false;
+let slotSpinArmTimeoutId = null;
+let slotSpinToken = 0;
+let lastSlotPreviewSignature = '';
+
+function resetSlotReelState(reel) {
+    if (!reel) return;
+    reel.classList.remove('spinning', 'stopping');
+    reel.style.transition = 'none';
+    reel.style.animation = 'none';
+    reel.style.transform = 'translateY(0)';
+}
+
+function isSlotTabVisible() {
+    const slotTab = document.getElementById('tab-slot');
+    return !!slotTab && !slotTab.classList.contains('hidden');
+}
+
+function clearSlotSpinArm() {
+    isSlotSpinArmed = false;
+    if (slotSpinArmTimeoutId) {
+        clearTimeout(slotSpinArmTimeoutId);
+        slotSpinArmTimeoutId = null;
+    }
+}
+
+function armSlotSpin() {
+    isSlotSpinArmed = true;
+    if (slotSpinArmTimeoutId) clearTimeout(slotSpinArmTimeoutId);
+    slotSpinArmTimeoutId = setTimeout(() => {
+        clearSlotSpinArm();
+    }, SLOT_SPIN_ARM_TIMEOUT_MS);
+}
 
 // Get slot translation
 function getSlotTranslation(key) {
@@ -2077,15 +3352,39 @@ function getSlotMenuName(menu) {
 
 // Build slot menus based on category
 function buildSlotMenus() {
+    const profileScopedKeys = getProfileAwareMenuPool(discoverFilteredMenuKeys);
+    const activeKeys = new Set(profileScopedKeys);
+    const allMenus = Object.values(slotMenuEmojis).flat();
+    const scopedMenus = currentCategory === 'all'
+        ? allMenus
+        : [...(slotMenuEmojis[currentCategory] || [])];
+    const MIN_SLOT_POOL_SIZE = 3;
+
+    const narrowed = scopedMenus.filter((menu) => activeKeys.has(menu.key));
+    if (narrowed.length >= MIN_SLOT_POOL_SIZE) {
+        currentSlotMenus = narrowed;
+        renderSlotReels();
+        return;
+    }
+
+    // Fallback order: scoped -> all filtered -> all menus.
+    const allFilteredMenus = allMenus.filter((menu) => activeKeys.has(menu.key));
+    if (allFilteredMenus.length >= MIN_SLOT_POOL_SIZE) {
+        currentSlotMenus = allFilteredMenus;
+        renderSlotReels();
+        return;
+    }
+
+    if (scopedMenus.length >= MIN_SLOT_POOL_SIZE) {
+        currentSlotMenus = scopedMenus;
+        renderSlotReels();
+        return;
+    }
+
     if (currentCategory === 'all') {
-        currentSlotMenus = [
-            ...slotMenuEmojis.korean,
-            ...slotMenuEmojis.chinese,
-            ...slotMenuEmojis.japanese,
-            ...slotMenuEmojis.western
-        ];
+        currentSlotMenus = allMenus;
     } else {
-        currentSlotMenus = [...slotMenuEmojis[currentCategory]];
+        currentSlotMenus = [...(slotMenuEmojis[currentCategory] || [])];
     }
     renderSlotReels();
 }
@@ -2112,18 +3411,27 @@ function pickRandomMenu(excludeMenu) {
 
 // Render slot reel items
 function renderSlotReels() {
+    if (isSlotSpinning) return;
     if (currentSlotMenus.length === 0) return;
+    const previewSignature = `${currentCategory}|${currentSlotMenus.map((menu) => menu.key).join(',')}`;
+    if (!isSlotSpinning && previewSignature === lastSlotPreviewSignature) {
+        refreshSlotReelLabels();
+        return;
+    }
+    lastSlotPreviewSignature = previewSignature;
     [slotReel1, slotReel2, slotReel3].forEach(reel => {
         if (!reel) return;
         reel.innerHTML = '';
-        reel.style.transform = 'translateY(0)';
-
-        // Create 3 visible items (center one is selected)
-        const shuffled = shuffleArray(currentSlotMenus);
+        resetSlotReelState(reel);
+    });
+    [slotReel1, slotReel2, slotReel3].forEach((reel, reelIndex) => {
+        if (!reel) return;
+        // Keep preview deterministic so repeated rerenders never look like auto-spin.
         for (let i = 0; i < 3; i++) {
-            const menu = shuffled[i % shuffled.length];
+            const menu = currentSlotMenus[(reelIndex + i) % currentSlotMenus.length];
             const item = document.createElement('div');
             item.className = 'slot-item';
+            item.dataset.menuKey = menu.key;
             item.innerHTML = `<span class="slot-emoji">${menu.emoji}</span><span class="slot-name">${getSlotMenuName(menu)}</span>`;
             item.dataset.index = i;
             reel.appendChild(item);
@@ -2131,70 +3439,118 @@ function renderSlotReels() {
     });
 }
 
+function refreshSlotReelLabels() {
+    [slotReel1, slotReel2, slotReel3].forEach((reel) => {
+        if (!reel) return;
+        const items = reel.querySelectorAll('.slot-item[data-menu-key]');
+        items.forEach((item) => {
+            const menuKey = item.dataset.menuKey;
+            if (!menuKey) return;
+            const menu = slotMenuByKey.get(menuKey);
+            if (!menu) return;
+            item.innerHTML = `<span class="slot-emoji">${menu.emoji}</span><span class="slot-name">${getSlotMenuName(menu)}</span>`;
+        });
+    });
+}
+
+function setSlotReelMenus(reel, menus) {
+    if (!reel) return;
+    reel.innerHTML = '';
+    (menus || []).forEach((menu, index) => {
+        if (!menu) return;
+        const item = document.createElement('div');
+        item.className = 'slot-item';
+        item.dataset.menuKey = menu.key;
+        item.dataset.index = String(index);
+        item.innerHTML = `<span class="slot-emoji">${menu.emoji}</span><span class="slot-name">${getSlotMenuName(menu)}</span>`;
+        reel.appendChild(item);
+    });
+}
+
 // Spin slot machine
-function spinSlotMachine() {
+function spinSlotMachine(triggerEvent) {
     if (isSlotSpinning || currentSlotMenus.length === 0) return;
+    if (!isSlotTabVisible()) return;
+    if (triggerEvent && triggerEvent.isTrusted === false) return;
+    const now = Date.now();
+    if (now - lastSlotSpinAt < SLOT_SPIN_MIN_INTERVAL_MS) return;
+    lastSlotSpinAt = now;
+    const currentSpinToken = ++slotSpinToken;
+    emitPreparedAnalyticsEvent('slot_spin_started', {
+        category: currentCategory,
+        poolSize: currentSlotMenus.length
+    });
 
     isSlotSpinning = true;
     slotLeverBtn.disabled = true;
-    slotResult.classList.remove('visible');
+    if (slotResult) slotResult.classList.remove('visible');
 
     const reels = [slotReel1, slotReel2, slotReel3];
 
     // Pick ONE winning food - all 3 reels land on the same item
     const winningIndex = Math.floor(Math.random() * currentSlotMenus.length);
     const winningMenu = currentSlotMenus[winningIndex];
+    const spinDurations = [2200, 2900, 3600];
+    const totalDuration = spinDurations[spinDurations.length - 1] + 180;
 
     reels.forEach((reel, reelIndex) => {
         if (!reel) return;
 
-        reel.innerHTML = '';
-        reel.classList.remove('stopping');
-
-        const totalItems = 20 + reelIndex * 5;
-        for (let i = 0; i < totalItems; i++) {
-            const menu = currentSlotMenus[i % currentSlotMenus.length];
-            const item = document.createElement('div');
-            item.className = 'slot-item';
-            item.innerHTML = `<span class="slot-emoji">${menu.emoji}</span><span class="slot-name">${getSlotMenuName(menu)}</span>`;
-            reel.appendChild(item);
+        resetSlotReelState(reel);
+        const stripLoopCount = 18 + (reelIndex * 4);
+        const stripMenus = [];
+        for (let i = 0; i < stripLoopCount; i += 1) {
+            stripMenus.push(currentSlotMenus[(i + reelIndex) % currentSlotMenus.length]);
         }
 
-        // Only the center item should match across reels. Adjacent items are random per reel.
         const prevMenu = pickRandomMenu(winningMenu);
         let nextMenu = pickRandomMenu(winningMenu);
         if (nextMenu && prevMenu && nextMenu.key === prevMenu.key) {
             nextMenu = pickRandomMenu(prevMenu);
         }
+        const finalMenus = [prevMenu, winningMenu, nextMenu];
+        const allMenus = stripMenus.concat(finalMenus);
+        setSlotReelMenus(reel, allMenus);
 
-        [prevMenu, winningMenu, nextMenu].forEach(menu => {
-            const item = document.createElement('div');
-            item.className = 'slot-item';
-            item.innerHTML = `<span class="slot-emoji">${menu.emoji}</span><span class="slot-name">${getSlotMenuName(menu)}</span>`;
-            reel.appendChild(item);
-        });
-
-        // Use actual rendered item height so mobile breakpoints don't desync reel positions.
         const sampleItem = reel.querySelector('.slot-item');
         const itemHeight = sampleItem ? sampleItem.getBoundingClientRect().height : 60;
-        const targetOffset = (totalItems) * itemHeight;
-
+        const safeItemHeight = itemHeight > 0 ? itemHeight : 60;
+        const spinDistance = Math.max(0, (allMenus.length - 3) * safeItemHeight);
         reel.style.transition = 'none';
         reel.style.transform = 'translateY(0)';
         reel.offsetHeight;
 
+        const durationMs = spinDurations[reelIndex] || spinDurations[spinDurations.length - 1];
+        const startSpin = () => {
+            if (!isSlotSpinning || currentSpinToken !== slotSpinToken) return;
+            reel.style.transition = `transform ${durationMs}ms cubic-bezier(0.16, 0.84, 0.24, 1)`;
+            reel.style.transform = `translateY(-${spinDistance}px)`;
+        };
+        if (typeof requestAnimationFrame === 'function') {
+            requestAnimationFrame(() => requestAnimationFrame(startSpin));
+        } else {
+            setTimeout(startSpin, 16);
+        }
+
         setTimeout(() => {
-            reel.classList.add('stopping');
-            reel.style.transition = `transform ${1.5 + reelIndex * 0.5}s cubic-bezier(0.2, 0.8, 0.3, 1.02)`;
-            reel.style.transform = `translateY(-${targetOffset}px)`;
-        }, 100);
+            if (!isSlotSpinning || currentSpinToken !== slotSpinToken) return;
+            setSlotReelMenus(reel, finalMenus);
+            resetSlotReelState(reel);
+        }, durationMs + 40);
     });
 
     // Show result after all reels stop
-    const totalDuration = 1500 + 2 * 500 + 800;
     setTimeout(async () => {
+        if (!isSlotSpinning || currentSpinToken !== slotSpinToken) return;
         isSlotSpinning = false;
         slotLeverBtn.disabled = false;
+        reels.forEach((reel) => {
+            resetSlotReelState(reel);
+            const items = reel ? reel.querySelectorAll('.slot-item[data-index]') : [];
+            items.forEach((item, index) => {
+                item.dataset.index = String(index);
+            });
+        });
 
         // Jackpot effect since all 3 match
         document.querySelector('.slot-frame')?.classList.add('slot-jackpot');
@@ -2237,7 +3593,9 @@ function updateSlotTranslations() {
         }
     });
 
-    renderSlotReels();
+    if (!isSlotSpinning) {
+        refreshSlotReelLabels();
+    }
 }
 
 // Alias for backward compatibility with applyTranslations
@@ -2260,20 +3618,29 @@ function updateRouletteTranslations() {
 // Category filter click handler
 if (categoryFilter) {
     categoryFilter.addEventListener('click', (e) => {
-        if (e.target.classList.contains('category-btn') && !isSlotSpinning) {
-            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            currentCategory = e.target.dataset.category;
-            buildSlotMenus();
-            slotResult.classList.remove('visible');
-            slotResultName.textContent = '';
-        }
+        const button = e.target.closest('.category-btn');
+        if (!button || isSlotSpinning) return;
+        const nextCategory = button.dataset.category || 'all';
+        if (nextCategory === discoverFilterState.category) return;
+        discoverFilterState.category = nextCategory;
+        applyDiscoverFilters({ persist: true, syncInput: true, syncSlot: true, rerenderSlot: true });
+        if (slotResultName) slotResultName.textContent = '';
     });
 }
 
 // Slot lever click handler
 if (slotLeverBtn) {
-    slotLeverBtn.addEventListener('click', spinSlotMachine);
+    slotLeverBtn.addEventListener('pointerdown', armSlotSpin);
+    slotLeverBtn.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            armSlotSpin();
+        }
+    });
+    slotLeverBtn.addEventListener('click', (event) => {
+        if (event.isTrusted && !isSlotSpinArmed) return;
+        clearSlotSpinArm();
+        spinSlotMachine(event);
+    });
 }
 
 // Sidebar panel navigation
@@ -2353,36 +3720,50 @@ function buildShareMessage() {
 }
 
 function shareToTwitter() {
+    emitPreparedAnalyticsEvent('share_click', { channel: 'twitter', source: 'slot' });
+    emitPreparedAnalyticsEvent('slot_result_shared', { channel: 'twitter' });
     const { text, url } = buildShareMessage();
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'width=550,height=420');
 }
 
 function shareToFacebook() {
+    emitPreparedAnalyticsEvent('share_click', { channel: 'facebook', source: 'slot' });
+    emitPreparedAnalyticsEvent('slot_result_shared', { channel: 'facebook' });
     const { text, url } = buildShareMessage();
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`, '_blank', 'width=550,height=420');
 }
 
 function shareToWhatsApp() {
+    emitPreparedAnalyticsEvent('share_click', { channel: 'whatsapp', source: 'slot' });
+    emitPreparedAnalyticsEvent('slot_result_shared', { channel: 'whatsapp' });
     const { fullText } = buildShareMessage();
     window.open(`https://wa.me/?text=${encodeURIComponent(fullText)}`, '_blank');
 }
 
 function shareToTelegram() {
+    emitPreparedAnalyticsEvent('share_click', { channel: 'telegram', source: 'slot' });
+    emitPreparedAnalyticsEvent('slot_result_shared', { channel: 'telegram' });
     const { text, url } = buildShareMessage();
     window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank', 'width=550,height=420');
 }
 
 function shareToLine() {
+    emitPreparedAnalyticsEvent('share_click', { channel: 'line', source: 'slot' });
+    emitPreparedAnalyticsEvent('slot_result_shared', { channel: 'line' });
     const { fullText } = buildShareMessage();
     window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(fullText)}`, '_blank', 'width=550,height=420');
 }
 
 function shareToKakao() {
+    emitPreparedAnalyticsEvent('share_click', { channel: 'kakao', source: 'slot' });
+    emitPreparedAnalyticsEvent('slot_result_shared', { channel: 'kakao' });
     const { text, url } = buildShareMessage();
     window.open(`https://story.kakao.com/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank', 'width=550,height=420');
 }
 
 async function copyShareLink() {
+    emitPreparedAnalyticsEvent('share_click', { channel: 'copy', source: 'slot' });
+    emitPreparedAnalyticsEvent('slot_result_shared', { channel: 'copy' });
     const { fullText } = buildShareMessage();
     try {
         await navigator.clipboard.writeText(fullText);
@@ -2401,6 +3782,8 @@ async function copyShareLink() {
 }
 
 async function shareNative() {
+    emitPreparedAnalyticsEvent('share_click', { channel: 'native', source: 'slot' });
+    emitPreparedAnalyticsEvent('slot_result_shared', { channel: 'native' });
     const { text, url } = buildShareMessage();
     if (navigator.share) {
         try {
@@ -3133,35 +4516,36 @@ const sidebarData = {
         slot: 'Slot Machine', recommend: "Today's Pick", bulletin: 'Community Board',
         discover: 'Discover', situation: 'By Situation', seasonal: 'Seasonal / Weather',
         popular: 'Popular Top 10', delivery: 'Delivery Guide',
-        tools: 'Tools', calorie: 'Calorie Guide', faq: 'FAQ', planner: 'Meal Planner', contact: 'Partnership', authLogin: 'Log In'
+        tools: 'Tools', calorie: 'Calorie Guide', faq: 'FAQ', planner: 'Meal Planner', lightPlanner: 'Free 7-Day Plan (Light)', contact: 'Partnership', authLogin: 'Log In'
     },
     'Korean': {
         slot: '슬롯머신', recommend: '오늘의 추천 메뉴', bulletin: '커뮤니티 게시판',
         discover: 'Discover', situation: '상황별 추천', seasonal: '계절/날씨별 메뉴',
         popular: '인기 메뉴 Top 10', delivery: '배달 메뉴 가이드',
-        tools: 'Tools', calorie: '칼로리 가이드', faq: '자주 묻는 질문', planner: '식단 짜기', contact: '제휴 문의', authLogin: '로그인'
+        tools: 'Tools', calorie: '칼로리 가이드', faq: '자주 묻는 질문', planner: '식단 짜기', lightPlanner: '무료 7일 식단(라이트)', contact: '제휴 문의', authLogin: '로그인'
     },
     'Japanese': {
         slot: 'スロットマシン', recommend: '今日のおすすめ', bulletin: 'コミュニティ掲示板',
         discover: 'Discover', situation: 'シーン別おすすめ', seasonal: '季節・天気別メニュー',
         popular: '人気メニューTop 10', delivery: 'デリバリーガイド',
-        tools: 'Tools', calorie: 'カロリーガイド', faq: 'よくある質問', planner: '食事プラン', contact: '提携お問い合わせ', authLogin: 'ログイン'
+        tools: 'Tools', calorie: 'カロリーガイド', faq: 'よくある質問', planner: '食事プラン', lightPlanner: '無料7日プラン（ライト）', contact: '提携お問い合わせ', authLogin: 'ログイン'
     },
     'Mandarin Chinese': {
         slot: '老虎机', recommend: '今日推荐', bulletin: '社区留言板',
         discover: 'Discover', situation: '场景推荐', seasonal: '季节/天气菜单',
         popular: '热门菜单 Top 10', delivery: '外卖指南',
-        tools: 'Tools', calorie: '卡路里指南', faq: '常见问题', planner: '饮食计划', contact: '合作咨询', authLogin: '登录'
+        tools: 'Tools', calorie: '卡路里指南', faq: '常见问题', planner: '饮食计划', lightPlanner: '免费7天计划（轻量）', contact: '合作咨询', authLogin: '登录'
     }
 };
 
 function updateSidebarTranslations() {
     const lang = sidebarData[currentLanguage] || sidebarData['English'];
-    const keys = ['slot', 'recommend', 'bulletin', 'discover', 'situation', 'seasonal', 'popular', 'delivery', 'tools', 'calorie', 'faq', 'planner', 'contact'];
+    const keys = ['slot', 'recommend', 'bulletin', 'discover', 'situation', 'seasonal', 'popular', 'delivery', 'tools', 'calorie', 'faq', 'planner', 'lightPlanner', 'contact'];
     keys.forEach(key => {
-        const desktop = document.getElementById('sidebar-' + key);
+        const normalizedKey = key === 'lightPlanner' ? 'light-planner' : key;
+        const desktop = document.getElementById('sidebar-' + normalizedKey);
         if (desktop) desktop.textContent = lang[key];
-        const mobile = document.getElementById('mobile-sidebar-' + key);
+        const mobile = document.getElementById('mobile-sidebar-' + normalizedKey);
         if (mobile) mobile.textContent = lang[key];
     });
     if (!sidebarSupabaseUser) {
@@ -3337,6 +4721,9 @@ async function loadBulletinInclude() {
 
 // Initialize in sequence to avoid first-paint language/theme text flicker.
 (async () => {
+    applyFeatureFlagUi();
+    initDiscoverExperience();
+
     // Must run before initLanguageSelector because applyTranslations calls renderSlotReels.
     if (slotReel1) {
         buildSlotMenus();
@@ -3347,6 +4734,7 @@ async function loadBulletinInclude() {
 
     initMemberAuth();
     await initSidebarAuth();
+    await refreshDietProfileContext({ preferCacheOnly: false });
     initShareButtons();
     await loadBulletinInclude();
 })();

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>프로필 스타일링 - MenuRec</title>
+<meta name="description" content="프로필 사진 스타일 보정과 코디 추천을 한 번에 제공합니다."/>
+<link rel="icon" type="image/svg+xml" href="/images/favicon.svg"/>
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+<script src="/js/footer-tailwind-safelist.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: { extend: { fontFamily: { sans: ["Inter", "Plus Jakarta Sans", "sans-serif"] } } }
+  };
+</script>
+<script>
+  (function () {
+    var saved = localStorage.getItem("theme");
+    var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var isDark = saved ? saved === "dark" : prefersDark;
+    document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+  })();
+</script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<header class="sticky top-0 z-20 border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <a href="/index.html" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
+      <span class="material-symbols-outlined">arrow_back</span>메인으로
+    </a>
+    <p class="text-sm font-semibold">Profile Styler</p>
+  </div>
+</header>
+
+<main class="flex-1 py-10">
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">프로필 사진 스타일링 + 코디 추천</h1>
+      <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">체형/외모 평가는 하지 않으며, 안전한 프로필 스타일링 목적으로만 제공합니다.</p>
+
+      <div class="mt-6 grid gap-6 lg:grid-cols-2">
+        <section aria-labelledby="styler-upload-title" class="space-y-4">
+          <h2 id="styler-upload-title" class="text-sm font-semibold">업로드 및 설정</h2>
+          <label class="block text-sm" for="styler-image-input">본인 사진 업로드</label>
+          <input id="styler-image-input" type="file" accept="image/png,image/jpeg,image/webp" class="block w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-sm"/>
+          <p class="text-xs text-slate-500 dark:text-slate-400">지원 포맷: JPG, PNG, WEBP</p>
+
+          <div>
+            <p class="text-sm font-semibold">스타일 프리셋</p>
+            <div class="mt-2 grid grid-cols-2 gap-2">
+              <button type="button" data-preset="business" class="styler-preset-btn rounded-xl border px-3 py-2 text-sm font-semibold border-indigo-300 bg-indigo-50 text-indigo-800">비즈니스</button>
+              <button type="button" data-preset="casual" class="styler-preset-btn rounded-xl border px-3 py-2 text-sm font-semibold border-slate-300 bg-white dark:bg-slate-800">캐주얼</button>
+              <button type="button" data-preset="street" class="styler-preset-btn rounded-xl border px-3 py-2 text-sm font-semibold border-slate-300 bg-white dark:bg-slate-800">스트릿</button>
+              <button type="button" data-preset="minimal" class="styler-preset-btn rounded-xl border px-3 py-2 text-sm font-semibold border-slate-300 bg-white dark:bg-slate-800">미니멀</button>
+            </div>
+          </div>
+
+          <div>
+            <label for="styler-context" class="block text-sm font-semibold">추가 컨텍스트(선택)</label>
+            <textarea id="styler-context" rows="3" class="mt-2 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-sm" placeholder="예: 해외 취업 프로필용, 세미 포멀 위주"></textarea>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button id="styler-run-btn" type="button" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-3 text-sm font-bold">
+              <span class="material-symbols-outlined text-base">auto_awesome</span>
+              <span id="styler-run-btn-label">스타일링 시작</span>
+            </button>
+            <button id="styler-retry-btn" type="button" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 px-4 py-3 text-sm font-bold dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
+              <span class="material-symbols-outlined text-base">refresh</span>재시도
+            </button>
+          </div>
+          <p id="styler-status" class="text-xs text-slate-500 dark:text-slate-400" aria-live="polite"></p>
+        </section>
+
+        <section aria-labelledby="styler-result-title" class="space-y-4">
+          <h2 id="styler-result-title" class="text-sm font-semibold">결과</h2>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-3">
+              <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">원본</p>
+              <img id="styler-original-preview" class="mt-2 w-full aspect-square rounded-xl object-cover bg-slate-100 dark:bg-slate-800" alt="원본 사진 미리보기"/>
+            </div>
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-3">
+              <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">스타일 보정</p>
+              <img id="styler-result-preview" class="mt-2 w-full aspect-square rounded-xl object-cover bg-slate-100 dark:bg-slate-800" alt="스타일 보정 결과"/>
+              <div class="mt-2 flex gap-2">
+                <button id="styler-download-btn" type="button" disabled class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                  <span class="material-symbols-outlined text-base">download</span>다운로드
+                </button>
+                <button id="styler-share-btn" type="button" disabled class="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                  <span class="material-symbols-outlined text-base">share</span>공유
+                </button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="text-sm font-semibold">추천 코디 5개</p>
+            <div id="styler-cards" class="mt-2 grid gap-2"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="mt-8 rounded-2xl border border-amber-200 bg-amber-50/70 dark:border-amber-800 dark:bg-amber-900/20 p-4">
+        <h2 class="text-sm font-bold text-amber-900 dark:text-amber-200">이용약관/안전 고지</h2>
+        <ul class="mt-2 space-y-1 text-xs text-amber-900/90 dark:text-amber-200/90">
+          <li>체형/외모 평가, 성적 맥락 요청은 지원하지 않습니다.</li>
+          <li>미성년자 의심 상황에서는 일반적이고 안전한 스타일 가이드만 제공합니다.</li>
+          <li>업로드 이미지는 기본적으로 서버에 저장하지 않습니다.</li>
+        </ul>
+        <p class="mt-2 text-xs">
+          자세한 정책은 <a href="/pages/terms.html" class="underline font-semibold">이용약관</a>,
+          <a href="/pages/privacy.html" class="underline font-semibold">개인정보처리방침</a>을 확인하세요.
+        </p>
+      </section>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer" data-footer-current="styler"></div>
+<script src="/js/footer-loader.js"></script>
+<script defer src="/js/profile-styler.js?v=20260219a"></script>
+</body>
+</html>

@@ -4,14 +4,78 @@ service cloud.firestore {
     // Bulletin board - public read, write with rate limiting
     match /bulletin/{postId} {
       allow read: if true;
-      allow create: if request.resource.data.keys().hasAll(['nickname', 'message', 'timestamp'])
+      allow create: if request.resource.data.keys().hasAll(['nickname', 'message', 'timestamp', 'tags', 'likeCount', 'reportCount', 'commentCount', 'clientId'])
                     && request.resource.data.nickname is string
                     && request.resource.data.nickname.size() > 0
                     && request.resource.data.nickname.size() <= 20
                     && request.resource.data.message is string
                     && request.resource.data.message.size() > 0
                     && request.resource.data.message.size() <= 200
-                    && request.resource.data.timestamp is number;
+                    && request.resource.data.timestamp is number
+                    && request.resource.data.tags is map
+                    && request.resource.data.tags.menu is string
+                    && request.resource.data.tags.region is string
+                    && request.resource.data.tags.price is string
+                    && request.resource.data.tags.difficulty is string
+                    && request.resource.data.likeCount is number
+                    && request.resource.data.reportCount is number
+                    && request.resource.data.commentCount is number
+                    && request.resource.data.likeCount >= 0
+                    && request.resource.data.reportCount >= 0
+                    && request.resource.data.commentCount >= 0
+                    && request.resource.data.clientId is string
+                    && request.resource.data.clientId.size() > 0
+                    && request.resource.data.clientId.size() <= 40;
+      allow update: if request.resource.data.nickname == resource.data.nickname
+                    && request.resource.data.message == resource.data.message
+                    && request.resource.data.timestamp == resource.data.timestamp
+                    && request.resource.data.tags == resource.data.tags
+                    && request.resource.data.clientId == resource.data.clientId
+                    && request.resource.data.commentCount == resource.data.commentCount
+                    && (
+                      request.resource.data.likeCount == resource.data.likeCount
+                      || (
+                        request.resource.data.likeCount is number
+                        && (
+                          (resource.data.likeCount is number
+                            && request.resource.data.likeCount >= resource.data.likeCount
+                            && request.resource.data.likeCount <= resource.data.likeCount + 1)
+                          || (!(resource.data.likeCount is number)
+                            && request.resource.data.likeCount >= 0
+                            && request.resource.data.likeCount <= 1)
+                        )
+                      )
+                    )
+                    && (
+                      request.resource.data.reportCount == resource.data.reportCount
+                      || (
+                        request.resource.data.reportCount is number
+                        && (
+                          (resource.data.reportCount is number
+                            && request.resource.data.reportCount >= resource.data.reportCount
+                            && request.resource.data.reportCount <= resource.data.reportCount + 1)
+                          || (!(resource.data.reportCount is number)
+                            && request.resource.data.reportCount >= 0
+                            && request.resource.data.reportCount <= 1)
+                        )
+                      )
+                    );
+      allow delete: if false;
+    }
+
+    match /bulletinReports/{reportId} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasAll(['postId', 'reason', 'timestamp', 'clientId'])
+                    && request.resource.data.postId is string
+                    && request.resource.data.postId.size() > 0
+                    && request.resource.data.postId.size() <= 120
+                    && request.resource.data.reason is string
+                    && request.resource.data.reason.size() > 0
+                    && request.resource.data.reason.size() <= 40
+                    && request.resource.data.timestamp is number
+                    && request.resource.data.clientId is string
+                    && request.resource.data.clientId.size() > 0
+                    && request.resource.data.clientId.size() <= 40;
       allow update, delete: if false;
     }
   }

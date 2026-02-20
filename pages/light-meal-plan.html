@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>무료 7일 식단(라이트) - MenuRec</title>
+<meta name="description" content="목표/식사횟수/알레르기만 입력하면 무료 7일 라이트 식단과 장보기 리스트를 바로 생성합니다."/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://ninanoo.com/pages/light-meal-plan.html"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="메뉴 추천 - Menu Recommendation"/>
+<meta property="og:title" content="무료 7일 식단(라이트) - MenuRec"/>
+<meta property="og:description" content="무료로 7일 식단과 장보기 리스트를 빠르게 생성해보세요."/>
+<meta property="og:url" content="https://ninanoo.com/pages/light-meal-plan.html"/>
+<meta property="og:locale" content="ko_KR"/>
+<link rel="icon" type="image/svg+xml" href="/images/favicon.svg"/>
+<link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="/js/runtime-config.js?v=20260219a"></script>
+<script defer src="/js/user-profile-store.js?v=20260219a"></script>
+<script src="/js/footer-tailwind-safelist.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'Plus Jakarta Sans', 'sans-serif']
+        },
+        colors: {
+          brand: {
+            purple: '#8b5cf6',
+            pink: '#ec4899',
+            light: '#f8fafc',
+            dark: '#1f2937'
+          }
+        }
+      }
+    }
+  };
+</script>
+<script>
+  (function() {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved ? saved === 'dark' : prefersDark;
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  })();
+</script>
+</head>
+<body class="bg-brand-light dark:bg-brand-dark font-sans text-slate-800 dark:text-slate-100 antialiased min-h-screen flex flex-col transition-colors duration-300">
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-indigo-950/70 backdrop-blur-md border-b border-slate-100 dark:border-indigo-900">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <a class="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-brand-purple transition-colors font-medium group" href="/index.html">
+      <span class="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+      <span>메인으로 돌아가기</span>
+    </a>
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 bg-gradient-to-br from-brand-purple to-brand-pink rounded-lg flex items-center justify-center text-white shadow-md shadow-purple-200">
+        <span class="material-symbols-outlined text-sm">event_note</span>
+      </div>
+      <span class="text-xl font-bold tracking-tight">무료 7일 식단(라이트)</span>
+    </div>
+  </div>
+</header>
+
+<main class="flex-grow">
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-1">
+        <div class="rounded-3xl border border-slate-200 dark:border-indigo-700 bg-white dark:bg-indigo-950/60 p-5 sm:p-6 shadow-lg">
+          <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">무료 라이트 생성</h1>
+          <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+            최소 입력만으로 7일 식단 + 장보기 리스트를 즉시 생성합니다.
+          </p>
+          <form id="light-plan-form" class="mt-5 space-y-4">
+            <div>
+              <label for="light-goal" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">목표</label>
+              <select id="light-goal" class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm">
+                <option value="diet">다이어트</option>
+                <option value="maintain">유지</option>
+                <option value="gain">증량</option>
+              </select>
+            </div>
+            <div>
+              <label for="light-meals" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">식사 횟수</label>
+              <select id="light-meals" class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm">
+                <option value="3">3식</option>
+                <option value="2">2식</option>
+              </select>
+            </div>
+            <div>
+              <label for="light-allergies" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">알레르기 (텍스트)</label>
+              <input id="light-allergies" maxlength="120" placeholder="예: 견과류, 새우, 우유" class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm"/>
+            </div>
+            <button id="generate-light-plan-btn" type="submit" class="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-gradient-to-r from-brand-purple to-brand-pink text-white font-bold shadow-lg shadow-purple-200 hover:shadow-xl hover:-translate-y-0.5 transition-all">
+              무료 7일 식단 생성
+              <span class="material-symbols-outlined text-lg">auto_awesome</span>
+            </button>
+            <p id="light-plan-status" class="text-xs text-slate-500 dark:text-slate-400" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+      <div class="lg:col-span-2 space-y-6">
+        <div id="light-plan-result" class="hidden rounded-3xl border border-slate-200 dark:border-indigo-700 bg-white dark:bg-indigo-950/60 p-5 sm:p-6 shadow-lg">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">7일 식단 결과</h2>
+            <span id="light-plan-badge" class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">무료 라이트</span>
+          </div>
+          <p id="light-plan-summary" class="mt-2 text-sm text-slate-600 dark:text-slate-300"></p>
+          <div id="light-days-grid" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        </div>
+
+        <div id="light-shopping-result" class="hidden rounded-3xl border border-slate-200 dark:border-indigo-700 bg-white dark:bg-indigo-950/60 p-5 sm:p-6 shadow-lg">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">장보기 리스트</h2>
+          <div id="light-shopping-grid" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        </div>
+
+        <div id="light-upsell" class="hidden rounded-3xl border border-fuchsia-200 dark:border-fuchsia-800 bg-fuchsia-50/70 dark:bg-fuchsia-900/20 p-5 sm:p-6">
+          <h2 class="text-xl font-bold text-fuchsia-900 dark:text-fuchsia-200">프리미엄으로 업그레이드</h2>
+          <p class="mt-2 text-sm text-fuchsia-900/90 dark:text-fuchsia-200/90">
+            라이트는 빠른 초안입니다. 프리미엄 리포트에서는 더 정밀한 플랜을 제공합니다.
+          </p>
+          <ul class="mt-3 space-y-1.5 text-sm text-fuchsia-900/90 dark:text-fuchsia-200/90">
+            <li>칼로리/매크로 목표 반영</li>
+            <li>대체식 및 레시피 제안</li>
+            <li>체크포인트/진행률 추적 가이드</li>
+          </ul>
+          <a href="/pages/report-intake.html" class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-purple to-brand-pink px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-purple-200 hover:shadow-xl transition-all">
+            프리미엄으로 업그레이드
+            <span class="material-symbols-outlined text-base">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer" data-footer-current="planner"></div>
+<script src="/js/footer-loader.js"></script>
+<script defer src="/js/light-meal-plan.js"></script>
+</body>
+</html>

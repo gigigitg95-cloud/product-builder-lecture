@@ -13,6 +13,10 @@
 <meta property="og:locale" content="ko_KR"/>
 <link rel="icon" type="image/svg+xml" href="/images/favicon.svg"/>
 <link rel="icon" type="image/x-icon" href="/images/favicon.ico"/>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="/js/runtime-config.js?v=20260219a"></script>
+<script defer src="/js/analytics.js?v=20260219a"></script>
+<script defer src="/js/user-profile-store.js?v=20260219a"></script>
 <script src="/js/footer-tailwind-safelist.js"></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -87,9 +91,18 @@
       </div>
 
       <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-3">식단/리포트 정보 입력</h1>
-      <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-8">
-        입력 완료 후 결제 단계로 이동합니다. 결제 완료 뒤 이 정보가 프리미엄 리포트 생성에 반영됩니다.
+      <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-5">
+        단계별 질문에 답하면 상담 수준의 프리미엄 리포트 정확도를 높일 수 있습니다.
       </p>
+      <div class="mb-8 rounded-2xl border border-slate-200 dark:border-indigo-700 bg-slate-50/80 dark:bg-indigo-950/40 p-4">
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400 uppercase">입력 진행률</p>
+          <p id="intake-quality-score" class="text-xs font-semibold text-brand-purple">권장 입력 0%</p>
+        </div>
+        <div class="mt-2 h-2 w-full rounded-full bg-slate-200 dark:bg-indigo-900 overflow-hidden">
+          <div id="intake-quality-bar" class="h-full w-0 bg-gradient-to-r from-brand-purple to-brand-pink transition-all duration-300"></div>
+        </div>
+      </div>
       <div class="mb-6 rounded-2xl border border-amber-300 bg-amber-50/80 dark:bg-amber-900/20 dark:border-amber-700 p-4">
         <p class="text-sm text-amber-900 dark:text-amber-200 leading-relaxed">
           본 사이트는 결제 도입 시 Polar Merchant of Record 허용 범위(디지털 상품/소프트웨어) 내에서만 운영합니다.
@@ -100,33 +113,129 @@
         </p>
       </div>
 
-      <form id="report-intake-form" class="space-y-4">
-        <div>
-          <label for="report-goal" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">목표 <span class="text-brand-pink">*</span></label>
-          <input id="report-goal" type="text" maxlength="100" required placeholder="예: 체지방 감량, 근육 증가"
-            class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-purple focus:ring-brand-purple"/>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form id="report-intake-form" class="space-y-6">
+        <div id="intake-step-indicator" class="text-xs font-semibold text-slate-500 dark:text-slate-400">Step 1 / 4</div>
+
+        <section class="intake-step space-y-4" data-step="1">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">Step 1. 목표 / 기간</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">왜 필요한가요: 목표와 기간은 칼로리/속도/난이도 기준을 정하는 핵심 값입니다.</p>
+          <div>
+            <label for="report-goal" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">목표 <span class="text-brand-pink">*</span></label>
+            <input id="report-goal" type="text" maxlength="100" required placeholder="예: 체지방 감량, 근육 증가"
+              class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm"/>
+          </div>
+          <div>
+            <label for="report-period-weeks" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">목표 기간(주) <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">권장 입력</span></label>
+            <input id="report-period-weeks" type="number" min="1" max="52" placeholder="예: 8"
+              class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm"/>
+          </div>
+        </section>
+
+        <section class="intake-step hidden space-y-4" data-step="2">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">Step 2. 신체 / 활동</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">왜 필요한가요: 기초 소모량과 활동량 추정 정확도가 리포트 품질을 크게 좌우합니다.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="report-height-cm" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">키(cm) <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">권장 입력</span></label>
+              <input id="report-height-cm" type="number" min="120" max="220" placeholder="예: 170"
+                class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm"/>
+            </div>
+            <div>
+              <label for="report-weight-kg" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">체중(kg) <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">권장 입력</span></label>
+              <input id="report-weight-kg" type="number" min="35" max="200" step="0.1" placeholder="예: 68.5"
+                class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm"/>
+            </div>
+          </div>
+          <div>
+            <label for="report-activity-level" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">활동량 <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">권장 입력</span></label>
+            <select id="report-activity-level" class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm">
+              <option value="">선택 안 함</option>
+              <option value="low">낮음 (좌식 위주)</option>
+              <option value="medium">보통 (주 2-3회 활동)</option>
+              <option value="high">높음 (주 4회 이상 운동)</option>
+            </select>
+          </div>
+          <div id="activity-followup-box" class="hidden rounded-xl border border-sky-200 bg-sky-50/70 dark:border-sky-800 dark:bg-sky-900/20 p-3">
+            <p class="text-xs font-semibold text-sky-900 dark:text-sky-200">추가 질문: 활동량 정보가 부족해요. 아래 중 최소 1개 입력이 필요합니다.</p>
+            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="report-weekly-workouts" class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">주당 운동 횟수</label>
+                <input id="report-weekly-workouts" type="number" min="0" max="14" placeholder="예: 3"
+                  class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2 text-sm"/>
+              </div>
+              <div>
+                <label for="report-daily-steps" class="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">하루 평균 걸음 수</label>
+                <input id="report-daily-steps" type="number" min="0" max="50000" step="100" placeholder="예: 7000"
+                  class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2 text-sm"/>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="intake-step hidden space-y-4" data-step="3">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">Step 3. 식이제한 / 알레르기</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">왜 필요한가요: 제외 식재료와 알레르기 정보는 위험 식단 회피에 필수입니다.</p>
           <div>
             <label for="report-allergies" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">알레르기</label>
             <input id="report-allergies" type="text" maxlength="120" placeholder="예: 갑각류, 견과류"
-              class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-purple focus:ring-brand-purple"/>
+              class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm"/>
           </div>
           <div>
             <label for="report-avoid" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">기피 재료</label>
             <input id="report-avoid" type="text" maxlength="120" placeholder="예: 고수, 오이"
-              class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-purple focus:ring-brand-purple"/>
+              class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm"/>
           </div>
-        </div>
-        <div>
-          <label for="report-preferred" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">선호 카테고리</label>
-          <input id="report-preferred" type="text" maxlength="120" placeholder="예: 한식, 저탄수, 고단백"
-            class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-purple focus:ring-brand-purple"/>
-        </div>
-        <div>
-          <label for="report-note" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">추가 요청 (선택)</label>
-          <textarea id="report-note" maxlength="300" rows="3" placeholder="예: 아침은 10분 내 준비 가능한 식단 위주"
-            class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-brand-purple focus:ring-brand-purple"></textarea>
+          <div>
+            <label for="report-dietary-restrictions" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">식이 제한 <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">권장 입력</span></label>
+            <input id="report-dietary-restrictions" type="text" maxlength="120" placeholder="예: 저탄수, 저염, 비건"
+              class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm"/>
+          </div>
+        </section>
+
+        <section class="intake-step hidden space-y-4" data-step="4">
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">Step 4. 선호 / 예산 / 조리환경</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">왜 필요한가요: 실생활 실행 가능성을 높여 실제 유지율을 올립니다.</p>
+          <div>
+            <label for="report-preferred" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">선호 카테고리</label>
+            <input id="report-preferred" type="text" maxlength="120" placeholder="예: 한식, 저탄수, 고단백"
+              class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm"/>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="report-budget-level" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">예산 수준 <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">권장 입력</span></label>
+              <select id="report-budget-level" class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm">
+                <option value="">선택 안 함</option>
+                <option value="low">절약형</option>
+                <option value="medium">표준형</option>
+                <option value="high">프리미엄형</option>
+              </select>
+            </div>
+            <div>
+              <label for="report-cooking-environment" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">조리 환경 <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">권장 입력</span></label>
+              <select id="report-cooking-environment" class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm">
+                <option value="">선택 안 함</option>
+                <option value="home_basic">집밥 가능(기본 조리도구)</option>
+                <option value="home_limited">집밥 제한(전자레인지/에어프라이어 위주)</option>
+                <option value="mostly_delivery">외식/배달 위주</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="report-note" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">추가 요청 (선택)</label>
+            <textarea id="report-note" maxlength="300" rows="3" placeholder="예: 아침은 10분 내 준비 가능한 식단 위주"
+              class="w-full rounded-xl border border-slate-300 dark:border-indigo-700 bg-white dark:bg-indigo-950 px-3 py-2.5 text-sm"></textarea>
+          </div>
+        </section>
+
+        <div class="flex items-center justify-between gap-3">
+          <button id="intake-prev-step" type="button" class="inline-flex items-center gap-1 rounded-xl border border-slate-300 dark:border-indigo-700 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 disabled:opacity-50" disabled>
+            <span class="material-symbols-outlined text-base">arrow_back</span>
+            이전
+          </button>
+          <button id="intake-next-step" type="button" class="inline-flex items-center gap-1 rounded-xl border border-slate-300 dark:border-indigo-700 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200">
+            다음
+            <span class="material-symbols-outlined text-base">arrow_forward</span>
+          </button>
         </div>
 
         <div class="rounded-xl border border-sky-200 bg-sky-50/70 dark:border-sky-800 dark:bg-sky-900/20 p-3">
@@ -141,6 +250,13 @@
         </button>
         <p id="report-intake-status" class="text-xs text-slate-500 dark:text-slate-400" aria-live="polite"></p>
       </form>
+
+      <div class="mt-6 rounded-xl border border-slate-200 dark:border-indigo-700 bg-slate-50/80 dark:bg-indigo-950/30 p-4">
+        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+          저장/전송 범위 요약: 입력값은 결제 세션 생성 시 metadata로 전송되어 리포트 생성에 사용됩니다.
+          <a href="/pages/privacy.html" class="font-semibold text-brand-purple hover:underline">자세히 보기</a>
+        </p>
+      </div>
     </div>
   </section>
 </main>

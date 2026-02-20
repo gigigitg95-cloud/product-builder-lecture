@@ -3,6 +3,11 @@
 
   let supabaseClient = null;
 
+  function trackAnalytics(eventName, props) {
+    if (!window.NinanooAnalytics || typeof window.NinanooAnalytics.track !== "function") return;
+    window.NinanooAnalytics.track(eventName, props || {});
+  }
+
   function setStatus(text) {
     const el = document.getElementById("signup-page-status");
     if (el) el.textContent = text;
@@ -54,10 +59,22 @@
     }
 
     if (!data.session) {
+      if (data?.user?.id) {
+        const userIdHash = window.NinanooAnalytics && typeof window.NinanooAnalytics.identify === "function"
+          ? window.NinanooAnalytics.identify(data.user.id)
+          : "";
+        trackAnalytics("signup_success", { method: "email_password", userIdHash: userIdHash, emailVerificationRequired: true });
+      }
       setStatus("회원가입 완료. 인증 이메일을 발송했습니다. 메일함/스팸함에서 확인 후 인증을 완료하세요.");
       return;
     }
 
+    if (data?.user?.id) {
+      const userIdHash = window.NinanooAnalytics && typeof window.NinanooAnalytics.identify === "function"
+        ? window.NinanooAnalytics.identify(data.user.id)
+        : "";
+      trackAnalytics("signup_success", { method: "email_password", userIdHash: userIdHash, emailVerificationRequired: false });
+    }
     window.location.href = "/pages/mypage.html";
   }
 

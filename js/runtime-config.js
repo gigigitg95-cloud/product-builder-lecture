@@ -25,6 +25,7 @@
       add("http://127.0.0.1:8787/runtime-config");
     }
 
+    add("/runtime-config");
     add("/api/runtime-config");
     add("https://api.ninanoo.com/runtime-config");
     return urls;
@@ -44,8 +45,15 @@
         var key = String(data && data.supabaseAnonKey ? data.supabaseAnonKey : "").trim();
         if (!url || !key) throw new Error("runtime config payload is empty");
 
+        var flags = data && data.flags && typeof data.flags === "object" ? data.flags : {};
+
         global.SUPABASE_URL = url;
         global.SUPABASE_ANON_KEY = key;
+        global.RUNTIME_FLAGS = {
+          recoWhy: flags.recoWhy !== false,
+          freeWeeklyPlan: flags.freeWeeklyPlan !== false,
+          aiFoodEnhance: flags.aiFoodEnhance !== false
+        };
         return;
       } catch (error) {
         lastError = error;
@@ -55,6 +63,9 @@
     console.error("Failed to load runtime config", lastError);
     global.SUPABASE_URL = String(global.SUPABASE_URL || "").trim();
     global.SUPABASE_ANON_KEY = String(global.SUPABASE_ANON_KEY || "").trim();
+    global.RUNTIME_FLAGS = global.RUNTIME_FLAGS && typeof global.RUNTIME_FLAGS === "object"
+      ? global.RUNTIME_FLAGS
+      : { recoWhy: true, freeWeeklyPlan: true, aiFoodEnhance: true };
   }
 
   global.__runtimeConfigReady = loadRuntimeConfig();

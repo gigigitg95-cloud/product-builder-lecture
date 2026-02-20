@@ -70,6 +70,11 @@ npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 - `PREMIUM_REPORT_PRODUCT_IDS = "09ed8b9c-c328-4962-a12f-69923155d3c6"`
 - `OPENAI_MODEL = "gpt-4.1-mini"`
 - `PREMIUM_REPORT_MAX_TOKENS = "900"`
+- `STYLER_ENABLED = "true"`
+- `STYLER_MODEL = "gpt-4.1-mini"`
+- `STYLER_IMAGE_MODEL = "gpt-image-1"`
+- `STYLER_MAX_MB = "8"`
+- `STYLER_RATE_LIMIT_PER_MIN = "8"`
 - `routes.pattern = "api.ninanoo.com/*"`
 
 ## 6) 로컬 테스트 (배포 전)
@@ -117,6 +122,7 @@ npx wrangler deploy
 - `POST /delete-account`: 현재 로그인 사용자 계정/프로필 삭제
 - `POST /create-checkout`: 결제 세션 생성
 - `GET /payment-status?order_id=<ORDER_ID>`: 결제 상태 확인
+- `POST /api/ai/styler`: 프로필 사진 스타일 보정 + 코디 추천 5개 생성
 - `POST /webhooks/polar`: Polar webhook 수신 + 조건부 자동환불
 
 ## 10) Polar Webhook 설정

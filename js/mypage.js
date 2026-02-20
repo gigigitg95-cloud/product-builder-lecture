@@ -59,6 +59,17 @@
     setValue("mypage-categories", Array.isArray(data?.preferred_categories) ? data.preferred_categories.join(", ") : "");
   }
 
+  function syncProfileCacheFromRow(user, row) {
+    if (!window.NinanooProfileStore || !user?.id) return;
+    window.NinanooProfileStore.setUserProfileCache(user.id, {
+      goal: row?.goal || "",
+      allergies: Array.isArray(row?.allergies) ? row.allergies : [],
+      dislikedIngredients: Array.isArray(row?.disliked_ingredients) ? row.disliked_ingredients : [],
+      preferredCategories: Array.isArray(row?.preferred_categories) ? row.preferred_categories : [],
+      updatedAt: new Date().toISOString()
+    });
+  }
+
   function getMemberId(user) {
     const email = user?.email || "";
     if (!email) return "";
@@ -102,6 +113,7 @@
       return;
     }
     fillProfileForm(data || null);
+    syncProfileCacheFromRow(user, data || null);
   }
 
   async function saveProfile() {
@@ -121,6 +133,7 @@
       setText("mypage-status", "프로필 저장 중 오류가 발생했습니다.");
       return;
     }
+    syncProfileCacheFromRow(currentUser, payload);
     setText("mypage-status", "프로필이 저장되었습니다.");
   }
 
@@ -131,6 +144,9 @@
       console.error("Sign-out failed", error);
       setText("mypage-status", "로그아웃 중 오류가 발생했습니다.");
       return;
+    }
+    if (window.NinanooProfileStore) {
+      window.NinanooProfileStore.markSignedOut();
     }
     window.location.href = "/pages/auth.html";
   }
@@ -185,6 +201,9 @@
     }
 
     await supabaseClient.auth.signOut().catch(() => null);
+    if (window.NinanooProfileStore) {
+      window.NinanooProfileStore.markSignedOut();
+    }
     setText("mypage-status", "회원 탈퇴가 완료되었습니다.");
     window.location.href = "/index.html";
   }
@@ -198,6 +217,9 @@
     setVisible("mypage-delete-account", false);
     setVisible("mypage-login-link", true);
     fillProfileForm(null);
+    if (window.NinanooProfileStore) {
+      window.NinanooProfileStore.markSignedOut();
+    }
   }
 
   function renderSignedIn(user) {
@@ -210,6 +232,9 @@
     setVisible("mypage-delete-account", true);
     setVisible("mypage-login-link", false);
     renderAccountInfo(user);
+    if (window.NinanooProfileStore) {
+      window.NinanooProfileStore.markSignedIn(user?.id || "");
+    }
   }
 
   async function syncUserState(user) {

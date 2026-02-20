@@ -54,7 +54,7 @@
     <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com">
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=20260219d">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
@@ -347,6 +347,18 @@
                     <span class="material-icons-outlined text-[20px]">restaurant_menu</span>
                     <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-planner">식단 짜기</span>
                 </a>
+                <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group w-full text-left transition-colors" href="/pages/light-meal-plan.html" id="nav-light-planner" title="무료 7일 식단(라이트)">
+                    <span class="material-icons-outlined text-[20px]">auto_awesome</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-light-planner">무료 7일 식단(라이트)</span>
+                </a>
+                <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group w-full text-left transition-colors" href="/pages/food-enhance.html" id="nav-food-enhance" title="음식 사진 보정">
+                    <span class="material-icons-outlined text-[20px]">photo_filter</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-food-enhance">음식 사진 보정</span>
+                </a>
+                <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group w-full text-left transition-colors" href="/pages/profile-styler.html" id="nav-profile-styler" title="프로필 스타일링">
+                    <span class="material-icons-outlined text-[20px]">styler</span>
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-profile-styler">프로필 스타일링</span>
+                </a>
                 <a class="sidebar-nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl sidebar-link group w-full text-left transition-colors" href="/pages/contact.html" id="nav-contact" title="제휴 문의">
                     <span class="material-icons-outlined text-[20px]">mail</span>
                     <span class="sidebar-text whitespace-nowrap text-sm font-medium" id="sidebar-contact">제휴 문의</span>
@@ -461,6 +473,18 @@
                         <span class="material-icons-outlined">restaurant_menu</span>
                         <span id="mobile-sidebar-planner">식단 짜기</span>
                     </a>
+                    <a class="mobile-nav-btn flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-left" href="/pages/light-meal-plan.html" onclick="document.getElementById('mobile-sidebar').style.display='none';">
+                        <span class="material-icons-outlined">auto_awesome</span>
+                        <span id="mobile-sidebar-light-planner">무료 7일 식단(라이트)</span>
+                    </a>
+                    <a class="mobile-nav-btn flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-left" href="/pages/food-enhance.html" onclick="document.getElementById('mobile-sidebar').style.display='none';">
+                        <span class="material-icons-outlined">photo_filter</span>
+                        <span id="mobile-sidebar-food-enhance">음식 사진 보정</span>
+                    </a>
+                    <a class="mobile-nav-btn flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-left" href="/pages/profile-styler.html" onclick="document.getElementById('mobile-sidebar').style.display='none';">
+                        <span class="material-icons-outlined">styler</span>
+                        <span id="mobile-sidebar-profile-styler">프로필 스타일링</span>
+                    </a>
                     <a class="mobile-nav-btn flex items-center space-x-3 w-full px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-left" href="/pages/contact.html" onclick="document.getElementById('mobile-sidebar').style.display='none';">
                         <span class="material-icons-outlined">mail</span>
                         <span id="mobile-sidebar-contact">제휴 문의</span>
@@ -528,6 +552,46 @@
                 <div class="space-y-12">
             <!-- Game Tab Switcher + Sections -->
             <div class="max-w-2xl mx-auto" id="game-container">
+                <section id="discover-controls" class="mb-6 rounded-2xl border border-gray-200 dark:border-gray-700 bg-surface-light dark:bg-surface-dark p-4 shadow-sm" aria-labelledby="discover-controls-title">
+                    <div class="flex items-center justify-between gap-3">
+                        <h3 id="discover-controls-title" class="text-base font-semibold text-gray-800 dark:text-gray-100">Discover 탐색</h3>
+                        <p id="discover-filter-summary" class="text-xs text-gray-500 dark:text-gray-400" aria-live="polite">전체 메뉴</p>
+                    </div>
+                    <div class="mt-3 relative">
+                        <label for="discover-search-input" class="sr-only">메뉴명, 재료, 카테고리 검색</label>
+                        <input id="discover-search-input" type="search" inputmode="search" autocomplete="off" placeholder="메뉴명, 재료, 카테고리 검색" aria-label="메뉴명, 재료, 카테고리 검색" class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 pr-10 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition">
+                        <button id="discover-search-clear-btn" type="button" aria-label="검색어 지우기" class="absolute right-2 top-1/2 -translate-y-1/2 hidden rounded-lg px-2 py-1 text-xs text-gray-500 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20">지우기</button>
+                    </div>
+                    <div class="mt-3">
+                        <p id="discover-category-title" class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">카테고리</p>
+                        <div id="discover-category-chips" class="flex flex-wrap gap-2">
+                            <button type="button" class="discover-category-chip rounded-full border border-primary bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="all" aria-pressed="true">전체</button>
+                            <button type="button" class="discover-category-chip rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="korean" aria-pressed="false">한식</button>
+                            <button type="button" class="discover-category-chip rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="chinese" aria-pressed="false">중식</button>
+                            <button type="button" class="discover-category-chip rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="japanese" aria-pressed="false">일식</button>
+                            <button type="button" class="discover-category-chip rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="western" aria-pressed="false">양식</button>
+                            <button type="button" class="discover-category-chip rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="southeastAsian" aria-pressed="false">동남아</button>
+                            <button type="button" class="discover-category-chip rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="mexican" aria-pressed="false">멕시칸</button>
+                            <button type="button" class="discover-category-chip rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="indian" aria-pressed="false">인도</button>
+                            <button type="button" class="discover-category-chip rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="middleEastern" aria-pressed="false">중동</button>
+                            <button type="button" class="discover-category-chip rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="african" aria-pressed="false">아프리카</button>
+                            <button type="button" class="discover-category-chip rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="european" aria-pressed="false">유럽</button>
+                            <button type="button" class="discover-category-chip rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30" data-category="american" aria-pressed="false">아메리칸</button>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <p id="discover-collection-title" class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">컬렉션</p>
+                        <div id="discover-collection-chips" class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                            <button type="button" class="discover-collection-chip rounded-xl border border-primary bg-primary/10 px-3 py-2 text-xs font-semibold text-primary text-left focus:outline-none focus:ring-2 focus:ring-primary/30" data-collection="all" aria-pressed="true">전체 컬렉션</button>
+                            <button type="button" class="discover-collection-chip rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 text-left focus:outline-none focus:ring-2 focus:ring-primary/30" data-collection="solo" aria-pressed="false">혼밥</button>
+                            <button type="button" class="discover-collection-chip rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 text-left focus:outline-none focus:ring-2 focus:ring-primary/30" data-collection="diet" aria-pressed="false">다이어트</button>
+                            <button type="button" class="discover-collection-chip rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 text-left focus:outline-none focus:ring-2 focus:ring-primary/30" data-collection="quick5" aria-pressed="false">5분 컷</button>
+                            <button type="button" class="discover-collection-chip rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 text-left focus:outline-none focus:ring-2 focus:ring-primary/30" data-collection="rainy" aria-pressed="false">비 오는 날</button>
+                            <button type="button" class="discover-collection-chip rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 text-left focus:outline-none focus:ring-2 focus:ring-primary/30" data-collection="lateNight" aria-pressed="false">야식</button>
+                            <button type="button" class="discover-collection-chip rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 text-left focus:outline-none focus:ring-2 focus:ring-primary/30" data-collection="guest" aria-pressed="false">손님상</button>
+                        </div>
+                    </div>
+                </section>
                 <!-- Tab Buttons -->
                 <div class="flex justify-center mb-8">
                     <div class="bg-surface-light dark:bg-surface-dark p-1.5 rounded-full border border-gray-200 dark:border-gray-700 inline-flex shadow-sm">
@@ -648,6 +712,18 @@
                             <img id="menu-image" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80" alt="추천 메뉴 이미지 - 맛있는 음식 사진" width="800" height="600" loading="eager" fetchpriority="high" decoding="async" itemprop="image" class="w-full h-auto">
                         </div>
                         <div id="menu-recommendation" class="menu-recommendation rounded-xl bg-gray-50 dark:bg-gray-800 px-4 py-3 text-center text-base font-semibold text-gray-700 dark:text-gray-200 shadow-sm w-full max-w-md" role="status" aria-live="polite">아래 버튼을 클릭하세요!</div>
+                        <div id="recommendation-reason" class="w-full max-w-md rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 shadow-sm" aria-live="polite">
+                            <h3 id="recommendation-reason-title" class="text-sm font-semibold text-gray-800 dark:text-gray-100">추천 이유</h3>
+                            <ul id="recommendation-reason-list" class="mt-2 space-y-1 text-xs text-gray-600 dark:text-gray-300">
+                                <li>추천을 받으면 이유를 보여드려요.</li>
+                                <li>상황, 시간대, 카테고리를 반영합니다.</li>
+                                <li>최근 추천 중복은 자동으로 줄입니다.</li>
+                            </ul>
+                        </div>
+                        <div id="alternative-options" class="w-full max-w-md" aria-label="대체 옵션">
+                            <p id="alternative-options-title" class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">대체 옵션</p>
+                            <div id="alternative-options-buttons" class="grid grid-cols-1 gap-2 sm:grid-cols-3"></div>
+                        </div>
                         <button id="recommend-btn" class="recommend-btn inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-secondary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/25 hover:-translate-y-0.5 transition focus:outline-none focus:ring-4 focus:ring-primary/20" aria-label="메뉴 추천받기">
                             <span class="material-icons-outlined">shuffle</span>
                             <span class="btn-text">메뉴 추천받기</span>
@@ -1376,30 +1452,40 @@
                         <div class="p-6 sm:p-8">
                             <div class="flex items-center gap-3 mb-6">
                                 <span class="material-icons-outlined text-primary text-3xl">help_outline</span>
-                                <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="how-to-use-title">사용 방법</h2>
+                                <h2 class="text-xl font-bold text-gray-800 dark:text-white" id="how-to-use-title">How it works</h2>
                             </div>
                             <div class="space-y-4">
                                 <div class="flex items-start gap-4">
                                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-lg shrink-0" aria-hidden="true">1</div>
                                     <div class="step-content">
-                                        <h3 class="font-bold text-gray-800 dark:text-white mb-1">메뉴 추천받기 버튼 클릭</h3>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">위의 "메뉴 추천받기" 버튼을 클릭하면 200가지 이상의 메뉴 중 하나가 무작위로 추천됩니다.</p>
+                                        <h3 class="font-bold text-gray-800 dark:text-white mb-1">추천 받기</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">메뉴 추천 버튼을 눌러 현재 필터에 맞는 메뉴 후보를 받아보세요.</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start gap-4">
                                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-lg shrink-0" aria-hidden="true">2</div>
                                     <div class="step-content">
-                                        <h3 class="font-bold text-gray-800 dark:text-white mb-1">추천 메뉴 확인</h3>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">화면에 표시되는 메뉴와 이미지를 확인하세요. 맛있어 보이나요?</p>
+                                        <h3 class="font-bold text-gray-800 dark:text-white mb-1">결정하기</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">후보를 비교해 오늘의 메뉴를 고르고, 마음에 들지 않으면 다시 추천받으세요.</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start gap-4">
                                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-lg shrink-0" aria-hidden="true">3</div>
                                     <div class="step-content">
-                                        <h3 class="font-bold text-gray-800 dark:text-white mb-1">마음에 안 들면 다시!</h3>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">추천된 메뉴가 마음에 들지 않으면 버튼을 다시 클릭해서 새로운 메뉴를 추천받으세요.</p>
+                                        <h3 class="font-bold text-gray-800 dark:text-white mb-1">공유/저장</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">선택한 메뉴를 공유하거나 저장해서 다음 식사 결정 시간을 줄이세요.</p>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="mt-6 rounded-2xl border border-emerald-200/80 dark:border-emerald-700/50 bg-emerald-50/80 dark:bg-emerald-900/20 p-4">
+                                <h3 class="text-sm font-bold text-emerald-700 dark:text-emerald-200" data-i18n="dataPrivacyTitle">데이터/프라이버시 요약</h3>
+                                <p class="mt-2 text-xs text-emerald-700/90 dark:text-emerald-100/90" data-i18n="dataPrivacyDesc">서비스 개선을 위한 최소한의 사용 정보만 저장하며 민감 건강정보는 저장하지 않습니다.</p>
+                                <ul class="mt-3 space-y-1.5 text-xs text-emerald-700/90 dark:text-emerald-100/90">
+                                    <li data-i18n="dataPrivacyItem1">저장: 언어/테마/추천 필터/로그인 기본 프로필</li>
+                                    <li data-i18n="dataPrivacyItem2">미저장: 상세 알레르기 병력, 의료 기록</li>
+                                    <li data-i18n="dataPrivacyItem3">결제 데이터는 결제 파트너를 통해 처리됩니다.</li>
+                                    <li data-i18n="dataPrivacyItem4">사용자는 마이페이지에서 계정 삭제를 요청할 수 있습니다.</li>
+                                </ul>
                             </div>
                         </div>
                     </section>
@@ -1572,10 +1658,13 @@
 
     <script defer src="js/countryLanguageService.js?v=20260214b"></script>
     <script defer src="js/translations.js?v=20260214b"></script>
-    <script defer src="js/runtime-config.js?v=20260218d"></script>
+    <script defer src="js/runtime-config.js?v=20260219a"></script>
+    <script defer src="js/feature-flags.js?v=20260219a"></script>
+    <script defer src="js/analytics.js?v=20260219a"></script>
+    <script defer src="js/user-profile-store.js?v=20260219a"></script>
     <script defer src="js/footer-loader.js?v=20260214b"></script>
     <script defer src="js/polar-worker-checkout.js?v=20260216c"></script>
-    <script defer src="js/app.js?v=20260218d"></script>
+    <script defer src="js/app.js?v=20260219k"></script>
     <script>
         // Mobile language panel
         function toggleMobileLangPanel() {
